@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Brainiac Kit (1959) — Retro-Tech Schematic Sheet</title>
+<style>
+  :root {
+    --bg: #0e0f12;           /* dark default */
+    --fg: #e7e9ee;
+    --muted: #a5adba;
+    --chip-bg: #1b1e26;
+    --chip-fg: #cfd6e6;
+    --accent: #6ee7ff;       /* cyan glow */
+    --accent-2: #ffd166;     /* amber */
+    --ok: #8df59a;
+    --warn: #ff9a76;
+    --border: #2a2f3a;
+    --trace: #475064;        /* schematic trace */
+    --focus: #66aaff;
+    --card: #141720;
+    --shadow: 0 6px 20px rgba(0,0,0,.35);
+  }
+  [data-theme="light"]:root {
+    --bg: #fcfcfe;
+    --fg: #111319;
+    --muted: #5a6475;
+    --chip-bg: #eef2f7;
+    --chip-fg: #1a1f27;
+    --accent: #0077ff;
+    --accent-2: #f59f00;
+    --ok: #1a9c4b;
+    --warn: #c23a1d;
+    --border: #d7dde7;
+    --trace: #b7c0d2;
+    --card: #ffffff;
+    --shadow: 0 4px 14px rgba(0,0,0,.07);
+  }
+  .high-contrast :root, .high-contrast {
+    --focus: #ff3b30;
+    --accent: #000;
+    --accent-2: #000;
+    --chip-bg: #fff;
+    --chip-fg: #000;
+  }
+
+  html, body { height: 100%; }
+  body {
+    margin: 0; font: 16px/1.45 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    color: var(--fg); background: var(--bg);
+    background-image:
+      repeating-linear-gradient(0deg, color-mix(in oklab, var(--trace) 35%, transparent), color-mix(in oklab, var(--trace) 35%, transparent) 1px, transparent 1px, transparent 24px),
+      repeating-linear-gradient(90deg, color-mix(in oklab, var(--trace) 35%, transparent), color-mix(in oklab, var(--trace) 35%, transparent) 1px, transparent 1px, transparent 24px);
+    background-attachment: fixed;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 16px; }
+
+  /* Skip link */
+  .skip-link { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+  .skip-link:focus { position: fixed; left: 16px; top: 12px; width: auto; height: auto; padding: 8px 12px; background: var(--accent); color: #000; border-radius: 8px; z-index: 9999; }
+
+  header.site {
+    position: sticky; top: 0; z-index: 5; backdrop-filter: blur(8px);
+    background: color-mix(in oklab, var(--bg) 85%, transparent);
+    border-bottom: 1px dashed var(--border);
+  }
+  .brand {
+    display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center;
+    padding: 10px 16px; 
+  }
+  .brand svg { width: 52px; height: 52px; filter: drop-shadow(0 0 8px color-mix(in oklab, var(--accent), transparent 70%)); }
+  .title-stack { display: flex; flex-direction: column; gap: 2px; }
+  .title { font-weight: 800; letter-spacing: .3px; font-size: clamp(18px, 2.4vw, 28px); }
+  .subtitle { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .14em; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 16px 14px; border-top: 1px dashed var(--border); }
+  .btn, .chip { border: 1px dashed var(--border); background: var(--chip-bg); color: var(--chip-fg);
+    padding: 8px 12px; border-radius: 999px; cursor: pointer; font-weight: 600; letter-spacing: .2px; 
+    box-shadow: var(--shadow); user-select: none; -webkit-tap-highlight-color: transparent; }
+  .btn[aria-pressed="true"] { outline: 2px solid var(--focus); }
+  .btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .chip { pointer-events: none; opacity: .9; }
+
+  main { display: grid; gap: 16px; margin-top: 12px; }
+
+  .card { background: var(--card); border: 1px dashed var(--border); border-radius: 14px; box-shadow: var(--shadow); overflow: clip; }
+  .card h2 { margin: 0; padding: 12px 14px; font-size: 16px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); border-bottom: 1px dashed var(--border); }
+  .card .inner { padding: 14px; }
+
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* Accordion */
+  .accordion { display: grid; gap: 10px; }
+  .acc-item { border: 1px dashed var(--border); border-radius: 12px; background: color-mix(in oklab, var(--card) 94%, transparent); }
+  .acc-button { width: 100%; text-align: left; background: none; border: 0; color: inherit; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 8px; padding: 12px 14px; font-weight: 700; cursor: pointer; }
+  .acc-button:hover { background: color-mix(in oklab, var(--chip-bg) 55%, transparent); }
+  .acc-button:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 10px; }
+  .acc-button .icon { width: 18px; height: 18px; border: 2px solid var(--muted); border-radius: 4px; display: grid; place-items: center; font-size: 14px; }
+  .acc-panel { max-height: 0; overflow: hidden; transition: max-height .28s ease; border-top: 1px dashed var(--border); background: color-mix(in oklab, var(--card), transparent 10%);
+    padding-inline: 14px; }
+  .acc-panel.open { padding-block: 12px; }
+
+  /* Schematic demo panel */
+  .schem-wrap { position: relative; border: 1px dashed var(--border); border-radius: 12px; overflow: hidden; }
+  .schem {
+    display: grid; grid-template-columns: 1fr; gap: 10px; padding: 14px; background:
+      radial-gradient(400px 120px at 10% -20%, color-mix(in oklab, var(--accent) 18%, transparent), transparent 60%),
+      radial-gradient(280px 160px at 110% 20%, color-mix(in oklab, var(--accent-2) 18%, transparent), transparent 60%);
+  }
+  .schem-grid { position: absolute; inset: 0; pointer-events: none; opacity: .3; background-image:
+      repeating-linear-gradient(0deg, color-mix(in oklab, var(--trace) 55%, transparent), color-mix(in oklab, var(--trace) 55%, transparent) 1px, transparent 1px, transparent 16px),
+      repeating-linear-gradient(90deg, color-mix(in oklab, var(--trace) 55%, transparent), color-mix(in oklab, var(--trace) 55%, transparent) 1px, transparent 1px, transparent 16px);
+  }
+  .io-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; align-items: center; }
+  .io {
+    border: 1px dashed var(--border); border-radius: 12px; padding: 10px; display: grid; gap: 10px; align-items: center; background: color-mix(in oklab, var(--card) 90%, transparent);
+  }
+  .switch { display: flex; align-items: center; gap: 10px; }
+  .switch input { appearance: none; width: 44px; height: 26px; border-radius: 999px; position: relative; background: #575e6f; outline: 2px solid transparent; border: 1px solid var(--border); }
+  .switch input:focus-visible { outline: 3px solid var(--focus); }
+  .switch input::after { content: ""; position: absolute; inset: 2px auto 2px 2px; width: 20px; border-radius: 999px; background: #d8dde9; transition: transform .18s ease; }
+  .switch input:checked::after { transform: translateX(18px); background: #fff; }
+  .lbl { font-weight: 700; letter-spacing: .03em; }
+
+  .gate { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; }
+  .select { padding: 8px 10px; border: 1px dashed var(--border); border-radius: 10px; background: var(--chip-bg); color: var(--chip-fg); }
+
+  .led { --on: 0; width: 22px; height: 22px; border-radius: 50%; border: 2px solid color-mix(in oklab, var(--accent), transparent 30%);
+    background: radial-gradient(circle at 40% 35%, color-mix(in oklab, var(--accent) 50%, transparent) calc(var(--on)*30%), transparent 60%),
+                radial-gradient(circle at 60% 60%, color-mix(in oklab, var(--accent) 80%, transparent) calc(var(--on)*50%), transparent 66%),
+                #1a1d24; box-shadow: 0 0 calc(var(--on)*16px) color-mix(in oklab, var(--accent), transparent 40%);
+  }
+  [data-theme="light"] .led { background: radial-gradient(circle at 40% 35%, color-mix(in oklab, var(--accent) 40%, transparent) calc(var(--on)*30%), transparent 60%), #f2f6ff; }
+
+  .legend { font-size: 12px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); filter: drop-shadow(0 0 4px color-mix(in oklab, var(--accent), transparent 40%)); }
+
+  footer.site { margin: 16px 0 40px; color: var(--muted); font-size: 12px; }
+
+  /* Focus visibility */
+  *:focus-visible { outline-color: var(--focus); outline-offset: 3px; }
+
+  /* Small */
+  @media (min-width: 720px) {
+    .schem { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to main content</a>
+<header class="site" role="banner">
+  <div class="brand wrap" aria-label="Brainiac Kit header">
+    <!-- Minimal inline SVG mark: logic gate over PCB traces -->
+    <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false" role="img">
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="var(--accent)"/>
+          <stop offset="100%" stop-color="var(--accent-2)"/>
+        </linearGradient>
+      </defs>
+      <rect x="1" y="1" width="62" height="62" rx="8" fill="none" stroke="url(#g1)" stroke-width="1.5"/>
+      <!-- Traces -->
+      <path d="M6 18h20m8 0h24M6 32h14m12 0h26M6 46h28m6 0h16" stroke="url(#g1)" stroke-width="1" stroke-linecap="round"/>
+      <!-- XOR-ish gate -->
+      <path d="M22 16c6 8 6 24 0 32" fill="none" stroke="url(#g1)" stroke-width="2"/>
+      <path d="M26 16c6 8 6 24 0 32" fill="none" stroke="url(#g1)" stroke-width="2"/>
+      <path d="M26 16h14c10 0 12 32 0 32H26" fill="none" stroke="url(#g1)" stroke-width="2"/>
+      <circle cx="50" cy="32" r="3" fill="url(#g1)"/>
+    </svg>
+    <div class="title-stack">
+      <div class="title" id="site-title">Brainiac Kit (1959)</div>
+      <div class="subtitle" aria-describedby="site-title">Pedagogy • Retro engineering schematic sheet</div>
+      <div class="chips" aria-label="Aesthetic tags">
+        <span class="chip" title="proto-maker">proto‑maker</span>
+        <span class="chip" title="schematic didacticism">schematic didacticism</span>
+        <span class="chip" title="retro engineering">retro engineering</span>
+      </div>
+    </div>
+  </div>
+  <div class="controls wrap" role="toolbar" aria-label="View & feedback controls">
+    <button class="btn" id="theme-toggle" aria-pressed="false" aria-label="Toggle theme">Theme: Auto</button>
+    <button class="btn" id="contrast-toggle" aria-pressed="false" aria-label="Toggle high contrast">High Contrast: Off</button>
+    <button class="btn" id="audio-toggle" aria-pressed="true" aria-label="Toggle audio feedback">Audio: On</button>
+    <button class="btn" id="haptic-toggle" aria-pressed="true" aria-label="Toggle haptic feedback">Haptics: On</button>
+  </div>
+</header>
+
+<main id="main" class="wrap" role="main">
+  <section class="card" aria-labelledby="about">
+    <h2 id="about">About this kit</h2>
+    <div class="inner">
+      <p><strong>Mission:</strong> Teach logic & computation via hands‑on play. <strong>Purpose:</strong> Initiate hobby electronics and reasoning. <em>Category:</em> Pedagogy.</p>
+      <p>Styled as a mid‑century schematic, this single‑page sheet presents the <em>Brainiac Kit (1959)</em> with expandable components and a tiny logic demo. It’s keyboard‑friendly and offers micro haptic/audio feedback you can toggle above.</p>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="components">
+    <h2 id="components">Components</h2>
+    <div class="inner">
+      <div class="accordion" role="region" aria-label="Expandable list of kit components">
+        <!-- logic parts -->
+        <div class="acc-item">
+          <button class="acc-button" aria-expanded="false" aria-controls="p1" id="b1">
+            <span>Logic parts</span>
+            <span class="icon" aria-hidden="true">+</span>
+          </button>
+          <div class="acc-panel" id="p1" role="region" aria-labelledby="b1">
+            <div class="panel-inner">
+              <ul>
+                <li>Tin‑can transistors, diodes, resistors, capacitors</li>
+                <li>Clip leads and breadboard pads</li>
+                <li>LED “lamp” indicators and a battery snap</li>
+              </ul>
+              <p class="legend"><span><i class="dot"></i> cyan paths = signal traces</span><span><i class="dot" style="background:var(--accent-2)"></i> amber pads = junctions</span></p>
+            </div>
+          </div>
+        </div>
+        <!-- puzzle cards -->
+        <div class="acc-item">
+          <button class="acc-button" aria-expanded="false" aria-controls="p2" id="b2">
+            <span>Puzzle cards</span>
+            <span class="icon" aria-hidden="true">+</span>
+          </button>
+          <div class="acc-panel" id="p2" role="region" aria-labelledby="b2">
+            <div class="panel-inner">
+              <p>Truth tables, switching puzzles, and “wire‑the‑gate” riddles. Start here:</p>
+              <table role="table" aria-label="XOR truth table" style="width:100%; border-collapse:collapse">
+                <thead>
+                  <tr>
+                    <th scope="col" style="text-align:left; border-bottom:1px dashed var(--border); padding:6px">A</th>
+                    <th scope="col" style="text-align:left; border-bottom:1px dashed var(--border); padding:6px">B</th>
+                    <th scope="col" style="text-align:left; border-bottom:1px dashed var(--border); padding:6px">A ⊕ B</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td style="padding:6px">0</td><td style="padding:6px">0</td><td style="padding:6px">0</td></tr>
+                  <tr><td style="padding:6px">0</td><td style="padding:6px">1</td><td style="padding:6px">1</td></tr>
+                  <tr><td style="padding:6px">1</td><td style="padding:6px">0</td><td style="padding:6px">1</td></tr>
+                  <tr><td style="padding:6px">1</td><td style="padding:6px">1</td><td style="padding:6px">0</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- instruction booklet -->
+        <div class="acc-item">
+          <button class="acc-button" aria-expanded="false" aria-controls="p3" id="b3">
+            <span>Instruction booklet</span>
+            <span class="icon" aria-hidden="true">+</span>
+          </button>
+          <div class="acc-panel" id="p3" role="region" aria-labelledby="b3">
+            <div class="panel-inner">
+              <ol>
+                <li>Set switches on the demo below to feel <em>inputs → output</em>.</li>
+                <li>Open <em>Logic parts</em> and match symbols to hardware.</li>
+                <li>Try each gate type, then build its truth table.</li>
+                <li>Combine two gates to form a simple <abbr title="Half Adder">H.A.</abbr></li>
+              </ol>
+              <p>Tip: press <kbd>J</kbd>/<kbd>K</kbd> to move between component headings; <kbd>Enter</kbd> to expand.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="demo">
+    <h2 id="demo">Tiny Logic Demo</h2>
+    <div class="inner">
+      <div class="schem-wrap">
+        <div class="schem-grid" aria-hidden="true"></div>
+        <div class="schem">
+          <div class="io">
+            <div class="switch"><label class="lbl" for="swA">Input A</label><input id="swA" type="checkbox" role="switch" aria-checked="false" aria-label="Toggle input A"></div>
+            <div class="switch"><label class="lbl" for="swB">Input B</label><input id="swB" type="checkbox" role="switch" aria-checked="false" aria-label="Toggle input B"></div>
+            <div class="gate">
+              <label class="lbl" for="gate">Gate</label>
+              <select class="select" id="gate" aria-label="Choose logic gate">
+                <option value="AND">AND</option>
+                <option value="OR">OR</option>
+                <option value="XOR" selected>XOR</option>
+                <option value="NAND">NAND</option>
+                <option value="NOR">NOR</option>
+              </select>
+            </div>
+          </div>
+          <div class="io" aria-live="polite">
+            <div class="lbl">Output</div>
+            <div class="led" id="led" aria-label="LED output" title="LED output"></div>
+            <div id="outText" class="lbl" aria-hidden="false">0</div>
+          </div>
+        </div>
+      </div>
+      <p class="legend" style="margin-top:10px"><span><span class="dot"></span> micro blip on focus</span><span><span class="dot" style="background:var(--accent-2)"></span> chime on expand</span></p>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="help">
+    <h2 id="help">Keyboard & Accessibility</h2>
+    <div class="inner">
+      <ul>
+        <li><strong>Tab</strong> to move; <strong>Enter/Space</strong> to activate. <strong>J/K</strong> focuses previous/next component header.</li>
+        <li>Use toolbar toggles for Theme, High Contrast, Audio, and Haptics.</li>
+        <li>Respects <code>prefers-reduced-motion</code> for lighter effects.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="site wrap" role="contentinfo">
+  <p>No external requests. Built as a self‑contained schematic sheet. © Retro‑tech UI.</p>
+</footer>
+
+<script>
+(() => {
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+  // ===== Settings & Toggles =====
+  const root = document.documentElement;
+  const body = document.body;
+  const themeBtn = $('#theme-toggle');
+  const contrastBtn = $('#contrast-toggle');
+  const audioBtn = $('#audio-toggle');
+  const hapticBtn = $('#haptic-toggle');
+
+  let audioOn = true;
+  let hapticsOn = true;
+  let themeMode = 'auto'; // auto|light|dark
+  let highContrast = false;
+
+  // Media preferences
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // State persistence (session-only to avoid privacy creep)
+  const S = {
+    save() {
+      try { sessionStorage.setItem('brainiac-state', JSON.stringify({audioOn, hapticsOn, themeMode, highContrast})); } catch {}
+    },
+    load() {
+      try {
+        const v = JSON.parse(sessionStorage.getItem('brainiac-state') || '{}');
+        if (typeof v.audioOn === 'boolean') audioOn = v.audioOn;
+        if (typeof v.hapticsOn === 'boolean') hapticsOn = v.hapticsOn;
+        if (typeof v.themeMode === 'string') themeMode = v.themeMode;
+        if (typeof v.highContrast === 'boolean') highContrast = v.highContrast;
+      } catch {}
+    }
+  };
+  S.load();
+
+  function applyTheme() {
+    root.setAttribute('data-theme', themeMode === 'auto' ? 'auto' : themeMode);
+    themeBtn.textContent = 'Theme: ' + (themeMode[0].toUpperCase() + themeMode.slice(1));
+    themeBtn.setAttribute('aria-pressed', themeMode !== 'auto');
+    if (themeMode === 'auto') {
+      // let CSS prefers-color-scheme handle it
+    }
+  }
+
+  function applyContrast() {
+    body.classList.toggle('high-contrast', highContrast);
+    contrastBtn.textContent = 'High Contrast: ' + (highContrast ? 'On' : 'Off');
+    contrastBtn.setAttribute('aria-pressed', String(highContrast));
+  }
+
+  function applyToggles() {
+    audioBtn.textContent = 'Audio: ' + (audioOn ? 'On' : 'Off');
+    audioBtn.setAttribute('aria-pressed', String(audioOn));
+    hapticBtn.textContent = 'Haptics: ' + (hapticsOn ? 'On' : 'Off');
+    hapticBtn.setAttribute('aria-pressed', String(hapticsOn));
+  }
+
+  themeBtn.addEventListener('click', () => {
+    const order = ['auto', 'light', 'dark'];
+    const idx = order.indexOf(themeMode);
+    themeMode = order[(idx + 1) % order.length];
+    applyTheme();
+    S.save();
+    blip(); vibe(8);
+  });
+  contrastBtn.addEventListener('click', () => { highContrast = !highContrast; applyContrast(); S.save(); blip(); vibe(8); });
+  audioBtn.addEventListener('click', () => { audioOn = !audioOn; applyToggles(); S.save(); vibe(6); });
+  hapticBtn.addEventListener('click', () => { hapticsOn = !hapticsOn; applyToggles(); S.save(); blip(); });
+
+  applyTheme(); applyContrast(); applyToggles();
+
+  // ===== Micro Audio (WebAudio) =====
+  let actx = null;
+  function getCtx() {
+    if (!actx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      actx = new AC();
+    }
+    return actx;
+  }
+  function envBeep(freq = 660, dur = 0.08, gain = 0.05) {
+    if (!audioOn) return;
+    const ctx = getCtx();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine'; osc.frequency.value = freq;
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(gain, now + dur * 0.2);
+    g.gain.exponentialRampToValueAtTime(1e-4, now + dur);
+    osc.connect(g).connect(ctx.destination);
+    osc.start(); osc.stop(now + dur);
+  }
+  function blip() { if (prefersReducedMotion) return envBeep(520, 0.05, 0.03); else envBeep(680, 0.06, 0.04); }
+  function chime() { envBeep(520, 0.06, 0.04); setTimeout(() => envBeep(780, 0.08, 0.04), 40); }
+
+  // ===== Micro Haptics =====
+  function vibe(ms = 10) {
+    if (!hapticsOn) return;
+    if (navigator.vibrate) navigator.vibrate(ms);
+  }
+
+  // ===== Accordion behavior =====
+  const accButtons = $$('.acc-button');
+  accButtons.forEach(btn => {
+    btn.addEventListener('click', () => togglePanel(btn));
+    btn.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePanel(btn); }
+      if (e.key.toLowerCase() === 'j') { e.preventDefault(); focusSibling(btn, -1); }
+      if (e.key.toLowerCase() === 'k') { e.preventDefault(); focusSibling(btn, +1); }
+    });
+    btn.addEventListener('focus', blip, true);
+    btn.addEventListener('pointerdown', () => vibe(12));
+  });
+
+  function focusSibling(btn, dir) {
+    const idx = accButtons.indexOf ? accButtons.indexOf(btn) : accButtons.findIndex(b => b === btn);
+    const next = accButtons[(idx + dir + accButtons.length) % accButtons.length];
+    if (next) next.focus();
+  }
+
+  function togglePanel(btn) {
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    const panel = document.getElementById(btn.getAttribute('aria-controls'));
+    btn.setAttribute('aria-expanded', String(!open));
+    const icon = btn.querySelector('.icon');
+    if (icon) icon.textContent = open ? '+' : '−';
+    if (!open) {
+      panel.classList.add('open');
+      panel.style.maxHeight = panel.scrollHeight + 'px';
+      chime(); vibe(14);
+    } else {
+      panel.style.maxHeight = panel.scrollHeight + 'px'; // set current for smooth collapse
+      requestAnimationFrame(() => {
+        panel.classList.remove('open');
+        panel.style.maxHeight = '0px';
+      });
+      chime(); vibe(8);
+    }
+  }
+
+  // ===== Tiny Logic Demo =====
+  const swA = $('#swA'), swB = $('#swB'), gateSel = $('#gate'), led = $('#led'), outText = $('#outText');
+  [swA, swB, gateSel].forEach(el => {
+    el.addEventListener('change', () => { compute(); vibe(8); blip(); });
+    el.addEventListener('focus', blip, true);
+    el.addEventListener('pointerdown', () => vibe(10));
+  });
+
+  function compute() {
+    const A = !!swA.checked; const B = !!swB.checked; const g = gateSel.value;
+    let out = false;
+    switch (g) {
+      case 'AND': out = A && B; break;
+      case 'OR': out = A || B; break;
+      case 'XOR': out = (A ? 1 : 0) ^ (B ? 1 : 0); break;
+      case 'NAND': out = !(A && B); break;
+      case 'NOR': out = !(A || B); break;
+    }
+    led.style.setProperty('--on', out ? 1 : 0);
+    outText.textContent = out ? '1' : '0';
+    outText.setAttribute('aria-label', 'Output ' + (out ? '1' : '0'));
+  }
+  compute();
+
+  // ===== Global micro blip on focus for interactive controls =====
+  $$('.btn, .acc-button, .select, input[type="checkbox"]').forEach(el => {
+    el.addEventListener('focus', blip, true);
+  });
+
+  // Activate audio context on first user gesture for mobile
+  window.addEventListener('pointerdown', () => { try { getCtx()?.resume?.(); } catch {} }, { once: true });
+})();
+</script>
+</body>
+</html>

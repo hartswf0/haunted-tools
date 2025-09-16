@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lunchables — Tray UI (Playful Compartments)</title>
+<style>
+  :root{
+    --bg: #f7f7fb;
+    --fg: #1b1b1f;
+    --muted:#6b7280;
+    --brand:#ffcf00; /* Lunchable sunshine */
+    --accent:#ff7a59; /* playful peel */
+    --mint:#b7f0c4;
+    --corn:#9ec5ff;
+    --rose:#ff6e8a;
+    --chip:#fff;
+    --tray:#ffffff;
+    --tray-edge:#e5e7eb;
+    --comp:#fbfbff;
+    --shadow: 0 10px 30px rgba(0,0,0,.10), 0 2px 6px rgba(0,0,0,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#121418; --fg:#f5f6f8; --muted:#9aa3af; --chip:#20242b; --tray:#151922; --tray-edge:#2a3240; --comp:#1a1f28; --shadow: 0 10px 30px rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.4);
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font: 15px/1.45 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, Noto Sans, "Apple Color Emoji", "Segoe UI Emoji";
+    background: linear-gradient(180deg, var(--bg), rgba(0,0,0,0) 40%), radial-gradient(1200px 600px at 20% -10%, rgba(255,207,0,.08), transparent 60%), radial-gradient(900px 500px at 100% 0, rgba(255,122,89,.08), transparent 60%);
+    color:var(--fg);
+  }
+  .app{ max-width: 980px; margin: clamp(12px, 2.5vw, 24px) auto; padding: clamp(10px,2vw,18px); }
+
+  header{
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(in oklab, var(--bg) 94%, transparent);
+    backdrop-filter: saturate(120%) blur(8px);
+    border-bottom: 1px solid color-mix(in oklab, var(--tray-edge) 70%, transparent);
+  }
+  .bar{ display:flex; align-items:center; gap:10px; padding: 10px 4px; }
+  .brand{display:flex; align-items:center; gap:10px}
+  .logo{ width:32px; height:32px; border-radius:9px; background: conic-gradient(from 0deg, var(--brand), var(--accent), var(--brand)); box-shadow: inset 0 0 0 2px rgba(255,255,255,.6);}
+  h1{ font-size: clamp(18px, 3.2vw, 24px); margin:0; letter-spacing:.2px }
+  .meta{ color:var(--muted); font-size: 12.5px }
+
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; padding: 10px 4px 14px }
+  .chip{ border:1px solid var(--tray-edge); background:var(--chip); color:var(--fg); border-radius:999px; padding:8px 10px; font-size:12.5px; display:inline-flex; align-items:center; gap:8px; box-shadow: 0 1px 0 rgba(0,0,0,.05); cursor:pointer }
+  .chip[data-active="true"]{ outline:2px solid color-mix(in oklab, var(--accent) 60%, transparent); outline-offset:2px }
+  .chip .dot{ width:8px; height:8px; border-radius:50% }
+
+  .controls{ display:flex; flex-wrap:wrap; gap:8px; padding: 6px 4px 12px }
+  .btn{ background:var(--fg); color: var(--bg); border: none; padding:10px 12px; border-radius:10px; font-weight:600; cursor:pointer; box-shadow: var(--shadow); font-size:13px }
+  .btn[aria-pressed="true"]{ background: var(--accent); color: #101113 }
+  .btn.secondary{ background: var(--chip); color: var(--fg); border:1px solid var(--tray-edge); box-shadow:none }
+
+  .tray-wrap{ position:relative; margin-top: 10px }
+  .tray{
+    background: var(--tray);
+    border: 1px solid var(--tray-edge);
+    border-radius: 18px; padding: 14px; box-shadow: var(--shadow);
+  }
+
+  /* Compartment grid: crackers big on left; meat top-right; cheese bottom-right */
+  .compartments{ display:grid; gap:12px; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 1fr 1fr; grid-template-areas:
+    "crackers meat cheese"
+    "crackers meat cheese"; min-height: 360px }
+
+  .comp{ position:relative; background:var(--comp); border: 1px solid var(--tray-edge); border-radius: 14px; overflow:hidden; display:flex; flex-direction:column }
+  .comp:focus-within{ outline:2px solid color-mix(in oklab, var(--corn) 55%, transparent); outline-offset:2px }
+  .comp .title{ font-weight:700; font-size: 13px; letter-spacing:.2px; padding:10px 12px; display:flex; align-items:center; gap:8px }
+  .comp .title .badge{ font-weight:700; font-size:11px; color: var(--bg); background: var(--fg); border-radius:6px; padding:3px 6px }
+  .comp .content{ padding: 6px 12px 12px; flex:1; display:grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap:8px; place-items:center }
+  .comp .item{ width: clamp(24px, 8vw, 44px); height: clamp(24px, 8vw, 44px); border-radius: 10px; border:1px dashed color-mix(in oklab, var(--muted) 40%, transparent); display:grid; place-items:center; user-select:none; cursor:pointer; transition: transform .18s ease }
+  .comp .item:active{ transform: scale(.96) }
+  .comp .item[data-added="true"]{ border-style: solid; box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--mint) 70%, transparent) }
+
+  .comp--crackers{ grid-area: crackers }
+  .comp--meat{ grid-area: meat }
+  .comp--cheese{ grid-area: cheese }
+
+  /* Seal overlays */
+  .seal{ position:absolute; inset:0; background: repeating-linear-gradient( 135deg, color-mix(in oklab, var(--accent) 35%, transparent) 0 12px, rgba(0,0,0,0) 12px 24px ); display:grid; place-items:center; pointer-events:none; transition: opacity .35s ease }
+  .seal .strip{ background: color-mix(in oklab, var(--accent) 92%, var(--chip)); color:#111; padding:6px 10px; border-radius:9px; font-weight:800; letter-spacing:.8px; box-shadow: 0 3px 8px rgba(0,0,0,.15); text-transform: uppercase; }
+  .comp[data-open="true"] .seal{ opacity:0 }
+
+  /* Branding wrap sleeve */
+  .sleeve{ position:absolute; inset: -6px; border-radius:22px; pointer-events:auto; display:grid; place-items:center; background:
+      linear-gradient(180deg, rgba(0,0,0,.06), rgba(0,0,0,0)) ,
+      linear-gradient(135deg, var(--brand), color-mix(in oklab, var(--accent) 40%, var(--brand)));
+    color:#1a1a1a; box-shadow: var(--shadow); border: 1px solid color-mix(in oklab, var(--fg) 10%, transparent); z-index:40;
+  }
+  .sleeve-inner{ text-align:center; padding: 18px }
+  .sleeve h2{ margin:0 0 6px; font-size: clamp(20px, 5vw, 28px); }
+  .sleeve p{ margin: 0 0 10px; font-size:13px }
+  .sleeve .unwrap{ background:#111; color:#fff; border:none; padding:10px 14px; border-radius:10px; font-weight:700; cursor:pointer }
+  .sleeve[hidden]{ display:none }
+
+  @media (prefers-reduced-motion: no-preference){
+    .sleeve{ animation: slideIn .6s cubic-bezier(.2,.8,.2,1) }
+    @keyframes slideIn{ from{ transform: translateY(-6px) scale(.98); opacity:0 } to{ transform:none; opacity:1 } }
+  }
+
+  /* Status strip */
+  .status{ margin-top:12px; display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13px; color:var(--muted) }
+  .status b{ color:var(--fg) }
+
+  /* Accessibility helpers */
+  .sr-only{ position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0 }
+
+</style>
+</head>
+<body>
+  <div class="app" id="app">
+    <header>
+      <div class="bar" role="banner">
+        <div class="brand" aria-label="Lunchables kit heading">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <h1>Lunchables <span class="meta">· Food Kit</span></h1>
+            <div class="meta">Mission: Offer convenient, self‑assembled lunch ritual. · Purpose: Save time; engage kids via assembly.</div>
+          </div>
+        </div>
+      </div>
+      <div class="chips" role="group" aria-label="Aesthetic tags">
+        <button class="chip" data-chip="bright gift-box" aria-pressed="false"><span class="dot" style="background:var(--brand)"></span>bright gift‑box</button>
+        <button class="chip" data-chip="peel-and-build" aria-pressed="false"><span class="dot" style="background:var(--accent)"></span>peel‑and‑build</button>
+        <button class="chip" data-chip="miniature factory" aria-pressed="false"><span class="dot" style="background:var(--corn)"></span>miniature factory</button>
+        <button class="chip" data-chip="processed play" aria-pressed="false"><span class="dot" style="background:var(--rose)"></span>processed play</button>
+      </div>
+      <div class="controls" role="toolbar" aria-label="Tray controls">
+        <button class="btn" id="btnUnwrap" aria-pressed="false">Unwrap Sleeve</button>
+        <button class="btn secondary" id="btnPeelAll" aria-pressed="false">Peel All Seals</button>
+        <button class="btn secondary" id="btnMute" aria-pressed="true" aria-label="Audio cues muted (toggle)">Mute Audio</button>
+      </div>
+    </header>
+
+    <main class="tray-wrap" aria-label="Tray layout">
+      <div class="tray" aria-describedby="trayDesc">
+        <p id="trayDesc" class="sr-only">A compartmental tray with crackers on the left, meat top-right, and cheese bottom-right. Each compartment is sealed until peeled.</p>
+
+        <section class="compartments">
+          <!-- Crackers / Mini Pizza -->
+          <article class="comp comp--crackers" data-component="crackers" data-open="false">
+            <div class="title"><span class="badge">C1</span> Crackers / Mini‑Pizza parts</div>
+            <div class="content" role="list" aria-label="Cracker items">
+              <button class="item" role="listitem" aria-pressed="false" title="Cracker">🍘</button>
+              <button class="item" role="listitem" aria-pressed="false" title="Sauce">🍅</button>
+              <button class="item" role="listitem" aria-pressed="false" title="Cracker">🍘</button>
+              <button class="item" role="listitem" aria-pressed="false" title="Shred">🧶</button>
+              <button class="item" role="listitem" aria-pressed="false" title="Cracker">🍘</button>
+              <button class="item" role="listitem" aria-pressed="false" title="Sauce">🍅</button>
+            </div>
+            <div class="seal" aria-hidden="true"><div class="strip">SEALED</div></div>
+          </article>
+
+          <!-- Meat -->
+          <article class="comp comp--meat" data-component="meat" data-open="false">
+            <div class="title"><span class="badge">M1</span> Meat</div>
+            <div class="content" role="list" aria-label="Meat items">
+              <button class="item" role="listitem" aria-pressed="false" title="Ham">🥓</button>
+              <button class="item" role="listitem" aria-pressed="false" title="Turkey">🍗</button>
+              <button class="item" role="listitem" aria-pressed="false" title="Bologna">🥩</button>
+            </div>
+            <div class="seal" aria-hidden="true"><div class="strip">SEALED</div></div>
+          </article>
+
+          <!-- Cheese -->
+          <article class="comp comp--cheese" data-component="cheese" data-open="false">
+            <div class="title"><span class="badge">H1</span> Cheese</div>
+            <div class="content" role="list" aria-label="Cheese items">
+              <button class="item" role="listitem" aria-pressed="false" title="Cheddar">🧀</button>
+              <button class="item" role="listitem" aria-pressed="false" title="Mozz">🧀</button>
+              <button class="item" role="listitem" aria-pressed="false" title="Swiss">🧀</button>
+            </div>
+            <div class="seal" aria-hidden="true"><div class="strip">SEALED</div></div>
+          </article>
+        </section>
+
+        <!-- Branding wrap sleeve overlay -->
+        <aside class="sleeve" id="sleeve" role="dialog" aria-modal="true" aria-label="Branding wrap">
+          <div class="sleeve-inner">
+            <h2>Lunchables®</h2>
+            <p>Bright gift‑box sleeve. Peel to play.</p>
+            <button class="unwrap" id="unwrap">Unwrap</button>
+          </div>
+        </aside>
+      </div>
+
+      <div class="status" aria-live="polite">
+        <div>Assembled items: <b id="count">0</b></div>
+        <div>Chips toggled: <b id="chipsCount">0</b></div>
+      </div>
+    </main>
+  </div>
+
+<script>
+(() => {
+  const qs = (s, el=document) => el.querySelector(s);
+  const qsa = (s, el=document) => [...el.querySelectorAll(s)];
+
+  // State
+  let audioEnabled = false; // start muted until first user interaction
+  let ctx, masterGain;
+
+  const media = {
+    init(){
+      if (ctx) return;
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = ctx.createGain();
+      masterGain.gain.value = 0.12; // soft
+      masterGain.connect(ctx.destination);
+    },
+    blip(freq=520, dur=0.08){ if(!audioEnabled||!ctx) return; const o=ctx.createOscillator(); const g=ctx.createGain(); o.type='sine'; o.frequency.value=freq; o.connect(g); g.connect(masterGain); const now=ctx.currentTime; g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(0.9, now+0.01); g.gain.exponentialRampToValueAtTime(0.001, now+dur); o.start(now); o.stop(now+dur+0.02); },
+    chime(root=660){ if(!audioEnabled||!ctx) return; const now=ctx.currentTime; [0,4,7].forEach((iv,i)=>{ const o=ctx.createOscillator(); const g=ctx.createGain(); o.type='triangle'; o.frequency.value=root*Math.pow(2,iv/12); o.connect(g); g.connect(masterGain); const t=now+i*0.03; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.8, t+0.02); g.gain.exponentialRampToValueAtTime(0.0008, t+0.25); o.start(t); o.stop(t+0.27); }); }
+  };
+
+  // Haptics
+  function buzz(len=8){ if(navigator.vibrate) try{ navigator.vibrate(len) }catch(_){} }
+
+  // Helper: toggle aria-pressed
+  function togglePressed(btn){ const pressed = btn.getAttribute('aria-pressed') === 'true'; btn.setAttribute('aria-pressed', String(!pressed)); return !pressed; }
+
+  // Sleeve unwrap
+  const sleeve = qs('#sleeve');
+  const unwrapBtn = qs('#unwrap');
+  const btnUnwrap = qs('#btnUnwrap');
+  unwrapBtn.addEventListener('click', () => { ensureAudio(); buzz(12); sleeve.hidden = true; media.chime(); });
+  btnUnwrap.addEventListener('click', () => { ensureAudio(); buzz(8); sleeve.hidden = !sleeve.hidden; const active = togglePressed(btnUnwrap); if(!sleeve.hidden){ media.blip(380) } else { media.chime(720) } });
+
+  // Peel all
+  const btnPeelAll = qs('#btnPeelAll');
+  btnPeelAll.addEventListener('click', () => {
+    ensureAudio(); buzz(10);
+    const comps = qsa('.comp');
+    const nowOpen = !comps.every(c => c.dataset.open === 'true');
+    comps.forEach(c => { c.dataset.open = String(nowOpen); });
+    togglePressed(btnPeelAll);
+    media.chime(nowOpen?700:400);
+    announce(nowOpen? 'All seals peeled.' : 'Seals restored.');
+  });
+
+  // Mute toggle
+  const btnMute = qs('#btnMute');
+  btnMute.addEventListener('click', () => {
+    ensureAudio();
+    audioEnabled = !audioEnabled;
+    btnMute.setAttribute('aria-pressed', String(!audioEnabled));
+    btnMute.textContent = audioEnabled? 'Audio On' : 'Mute Audio';
+    if(audioEnabled) media.blip(720);
+  });
+
+  // Chip toggles
+  const chips = qsa('.chip');
+  chips.forEach(ch => {
+    ch.addEventListener('click', () => {
+      ensureAudio(); buzz(6);
+      const active = togglePressed(ch);
+      ch.dataset.active = String(active);
+      media.blip(active? 540: 360);
+      updateChipCount();
+    });
+  });
+
+  function updateChipCount(){
+    const n = qsa('.chip[data-active="true"]').length;
+    qs('#chipsCount').textContent = n;
+  }
+
+  // Compartment behavior
+  const countEl = qs('#count');
+  let assembled = 0;
+
+  qsa('.comp').forEach(comp => {
+    // Toggle open state by clicking title/strip or pressing Enter on comp
+    comp.addEventListener('click', (e) => {
+      // clicks on items handled below
+      if(e.target.classList.contains('item')) return;
+      ensureAudio(); buzz(8);
+      const open = comp.dataset.open === 'true';
+      comp.dataset.open = String(!open);
+      media.chime(!open ? 680 : 420);
+      announce((!open? 'Peeled ':'Resealed ')+ comp.dataset.component);
+    });
+
+    // Items add/remove
+    qsa('.item', comp).forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation(); ensureAudio(); buzz(4);
+        const added = item.dataset.added === 'true';
+        item.dataset.added = String(!added);
+        item.setAttribute('aria-pressed', String(!added));
+        assembled += (!added? 1 : -1);
+        countEl.textContent = assembled;
+        media.blip(!added? 600: 320);
+        announce((!added? 'Added ':'Removed ')+ (item.title||'item'));
+      });
+    });
+  });
+
+  // Live region announcements
+  const live = document.createElement('div');
+  live.className = 'sr-only'; live.setAttribute('aria-live','polite');
+  document.body.appendChild(live);
+  function announce(msg){ live.textContent = msg }
+
+  // Ensure audio context (user gesture required), but respect reduced-motion users by default muting until toggled
+  function ensureAudio(){
+    if(!ctx){ media.init(); }
+    // enable audio upon first interaction unless button says muted
+    if(!audioEnabled && btnMute.getAttribute('aria-pressed') === 'true'){
+      // still muted
+    } else {
+      audioEnabled = true; btnMute.setAttribute('aria-pressed','false'); btnMute.textContent='Audio On';
+    }
+  }
+
+  // Keyboard helpers for accessibility (Space = click)
+  document.addEventListener('keydown', (e) => {
+    if((e.key === ' ' || e.key === 'Spacebar') && e.target instanceof HTMLElement && (e.target.matches('.btn, .chip, .item'))){
+      e.preventDefault(); e.target.click();
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🛠️ Haunted Tools Monthly — Retro Edition</title>
+<style>
+  :root{
+    /* Makita – Retro Precision */
+    --makita-teal:#198d8a; /* dusty teal */
+    --makita-cream:#f3efe5;
+    --makita-brick:#a8473a;
+
+    /* Ryobi – Retro DIY */
+    --ryobi-lime:#a5d63c; /* faded lime */
+    --ryobi-orange:#ef8a43; /* sun-bleached orange */
+    --ryobi-beige:#f6f1e3;
+
+    /* DeWalt – Retro Industrial */
+    --dewalt-mustard:#caa31a;
+    --dewalt-black:#111;
+    --dewalt-ivory:#fcfaf3;
+
+    /* Milwaukee – Retro Power */
+    --mke-red:#c8161d; /* warm retro red */
+    --mke-cream:#fff3e3;
+    --mke-chrome:#b7bcc3; /* simulated chrome */
+    --ink:#0e0e0e;
+
+    --radius:14px;
+    --shadow: 0 2px 0 rgba(0,0,0,.08), 0 12px 22px rgba(0,0,0,.12);
+  }
+  html,body{margin:0;height:100%;}
+  body{
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    color: var(--ink);
+    background: #faf7f1;
+    line-height: 1.5;
+  }
+  .page{
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+  header{
+    display:grid;
+    gap:8px;
+    margin: 8px 0 24px;
+  }
+  .tag{font-size:.85rem; letter-spacing:.08em; text-transform:uppercase; opacity:.7}
+  h1{font-size: clamp(1.8rem, 2.6vw + 1rem, 3rem); margin:0;}
+  h2{font-size: clamp(1.2rem, 1.4vw + .9rem, 1.7rem); margin:0 0 8px}
+  p{margin:0 0 8px}
+  .grid{display:grid; gap:18px}
+  @media (min-width: 880px){.grid{grid-template-columns: repeat(12, 1fr);} }
+
+  /* Card base */
+  .card{
+    grid-column: 1 / -1;
+    border-radius: var(--radius);
+    overflow: clip;
+    box-shadow: var(--shadow);
+    position: relative;
+    isolation: isolate; /* for filters */
+  }
+  .card .inner{padding: 18px 18px 20px;}
+  .meta{display:flex; gap:12px; flex-wrap:wrap; font-size:.92rem; opacity:.9}
+  .meta b{font-weight:700}
+  .hr{height:1px; background: rgba(0,0,0,.06); margin: 10px 0 12px}
+  .bullet{margin: 0 0 10px; padding-left: 18px}
+  .bullet li{margin: 6px 0}
+
+  /*
+   * Brand Section Skins
+   */
+
+  /* Makita: blueprint grid + schematic lines */
+  .makita{
+    background:
+      linear-gradient(var(--makita-cream), var(--makita-cream)) padding-box,
+      repeating-linear-gradient(0deg, rgba(0,0,0,.06) 0 1px, transparent 1px 28px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.04) 0 1px, transparent 1px 28px);
+    border: 2px solid var(--makita-teal);
+  }
+  .makita .band{
+    background: linear-gradient(90deg, var(--makita-teal), #167a77);
+    color: white;
+    font-weight: 700;
+    letter-spacing:.04em;
+    padding: 10px 16px;
+    display:flex; align-items:center; gap:10px;
+    text-transform: uppercase;
+  }
+  .makita .band::before{
+    content:"Makita — Retro Precision";
+    font-style: italic;
+  }
+  .makita .inner{border-top: 1px dashed rgba(0,0,0,.12)}
+  .makita .schematic{
+    position:absolute; inset:0; pointer-events:none; opacity:.25;
+    background:
+      radial-gradient( circle at 20% 30%, transparent 0 55%, var(--makita-brick) 56% 57%, transparent 58%),
+      linear-gradient(135deg, transparent 60%, var(--makita-brick) 61% 62%, transparent 63%);
+    mix-blend-mode:multiply;
+  }
+
+  /* Ryobi: halftone + playful blocks */
+  .ryobi{
+    background:
+      radial-gradient(circle at 10% 15%, rgba(0,0,0,.05) 0 2px, transparent 3px) 0 0/16px 16px,
+      linear-gradient(var(--ryobi-beige), var(--ryobi-beige));
+    border: 2px solid var(--ryobi-lime);
+  }
+  .ryobi .band{
+    background: linear-gradient(90deg, var(--ryobi-lime), #7fb52b);
+    color:#0f1a00;
+    font-weight:800;
+    padding: 10px 16px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .ryobi .band::before{content:"Ryobi — Retro DIY"}
+  .ryobi .sticker{
+    position:absolute; right:14px; top:14px;
+    background: var(--ryobi-orange);
+    padding:6px 10px; border-radius:8px; font-weight:700; color:#2a1200;
+    box-shadow: 0 3px 0 rgba(0,0,0,.12);
+  }
+
+  /* DeWalt: hazard stripes + stencil type */
+  .dewalt{
+    background:
+      repeating-linear-gradient( -45deg,
+        rgba(0,0,0,.12) 0 12px,
+        transparent 12px 24px),
+      linear-gradient(var(--dewalt-ivory), var(--dewalt-ivory));
+    border: 2px solid var(--dewalt-black);
+  }
+  .dewalt .band{
+    background: linear-gradient(90deg, var(--dewalt-mustard), #a8840d);
+    color: var(--dewalt-black);
+    padding: 10px 16px; font-weight:900; text-transform:uppercase;
+  }
+  .dewalt .band::before{content:"DeWalt — Retro Industrial"}
+  .stencil{ font-family: "Stencil Std", Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif; letter-spacing:.02em }
+
+  /* Milwaukee: neon script + chrome */
+  .milwaukee{
+    background:
+      linear-gradient(180deg, #fff, var(--mke-cream));
+    border: 2px solid var(--mke-red);
+    position:relative;
+  }
+  .milwaukee .band{
+    background: linear-gradient(90deg, var(--mke-red), #9b0f14);
+    color: #fff;
+    padding: 10px 16px; display:flex; align-items:center; gap:10px;
+  }
+  .milwaukee .band::before{content:"Milwaukee — Retro Power"}
+  .neon{
+    font-family: "Brush Script MT", "Lucida Handwriting", cursive;
+    font-size: clamp(1.4rem, 2.2vw + 1rem, 2.2rem);
+    color: #fff;
+    text-shadow:
+      0 0 2px #fff,
+      0 0 8px #fff,
+      0 0 12px var(--mke-red),
+      0 0 22px var(--mke-red);
+    animation: flicker 3.2s infinite steps(60);
+  }
+  @keyframes flicker {
+    0%,19%,21%,23%,25%,54%,56%,100% { opacity: 1 }
+    20%,24%,55% { opacity: .75 }
+    22% { opacity: .6 }
+  }
+  .chrome{
+    background: linear-gradient(180deg, #e7eaee, #9aa2a8 48%, #f8fafc 52%, #a6adb3);
+    -webkit-background-clip:text; background-clip:text; color: transparent;
+    filter: drop-shadow(0 1px 0 rgba(0,0,0,.35));
+    font-weight:800; letter-spacing:.03em;
+  }
+
+  /* Generic aisle styling */
+  .aisle{
+    background: linear-gradient(180deg, #fff, #f5f2ea);
+    border:2px solid #d7d2c8; border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .aisle h3{margin:0 0 8px}
+
+  .label{display:inline-block; padding:.2rem .5rem; border-radius:999px; font-size:.8rem;}
+  .brand{font-weight:700}
+
+  /* Buttons */
+  .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:8px}
+  button{
+    appearance:none; border:0; padding:10px 14px; border-radius:10px; cursor:pointer;
+    background:#111; color:#fff; font-weight:700; box-shadow: 0 2px 0 rgba(0,0,0,.3);
+  }
+  button.alt{ background:#fff; color:#111; border:2px solid #111 }
+
+  /* Print-friendly */
+  @media print{
+    body{background:#fff}
+    .card{box-shadow:none; break-inside: avoid}
+    .milwaukee .band .neon{animation: none}
+    .actions{display:none}
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="tag">Issue 07 • Retro Shop-Floor Edition</div>
+      <h1>🛠️ Haunted Tools Monthly</h1>
+      <p class="tag">Playing with Power Tools is the catalog that critiques catalogs: torque without nails, batteries without wiring, messiness in shrink-wrap.</p>
+    </header>
+
+    <section class="grid">
+      <!-- Makita Card -->
+      <article class="card makita" aria-label="Makita — Retro Precision">
+        <div class="band"><span class="label" style="background:var(--makita-cream); color:var(--makita-brick)">Retro 60–70s</span></div>
+        <div class="schematic" aria-hidden="true"></div>
+        <div class="inner">
+          <h2 class="stencil">Makita Torque-Regulator™ Ethics Driver</h2>
+          <div class="hr"></div>
+          <ul class="bullet">
+            <li><b>Specs:</b> Calibrates “well-being, dignity, justice” at 12 clutch settings.</li>
+            <li><b>Warning:</b> Will not actually fasten anything to structural beams. Perfect for appearances.</li>
+            <li><b>Marketing copy:</b> “Do the work!” — by which we mean, spin in place loudly while the house keeps sinking.</li>
+          </ul>
+          <div class="meta">
+            <span class="brand" style="color:var(--makita-brick)">Makita Teal • Blueprint Lines • Schematic Vibes</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Ryobi Card -->
+      <article class="card ryobi" aria-label="Ryobi — Retro DIY">
+        <div class="band"><span class="label" style="background:#142200; color:#c9ff7a">DIY 70–80s</span></div>
+        <div class="sticker">Weekend Project</div>
+        <div class="inner">
+          <h2>Ryobi Pastel-Green Access Drill Kit™</h2>
+          <div class="hr"></div>
+          <ul class="bullet">
+            <li><b>Includes:</b> One drill, no charger, five promises of inclusion.</li>
+            <li><b>Tagline:</b> “Everybody drills, nobody owns the outlet.”</li>
+            <li><b>Safety note:</b> May combust if asked to redistribute power. Not recommended for structural justice.</li>
+          </ul>
+          <div class="meta">
+            <span class="brand" style="color:#2a1200">Faded Lime • Halftone Texture • Playful Layout</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- DeWalt Card -->
+      <article class="card dewalt" aria-label="DeWalt — Retro Industrial">
+        <div class="band stencil"><span class="label" style="background:#181818; color:var(--dewalt-mustard)">Industrial 40–50s</span></div>
+        <div class="inner">
+          <h2 class="stencil">DeWalt Citation Hammer™ (Yellow/Black Edition)</h2>
+          <div class="hr"></div>
+          <ul class="bullet">
+            <li><b>Endorsed by:</b> Every construction foreman and your dissertation committee.</li>
+            <li><b>Function:</b> Nails down authority so hard that questioning it voids the warranty.</li>
+            <li><b>Disclaimer:</b> Provides “best practices” even when practices are worst.</li>
+          </ul>
+          <div class="meta">
+            <span class="brand" style="color:var(--dewalt-black)">Mustard • Hazard Stripes • Stencil Type</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Milwaukee Card -->
+      <article class="card milwaukee" aria-label="Milwaukee — Retro Power">
+        <div class="band"><span class="neon">Milwaukee — neon hot‑rod special</span></div>
+        <div class="inner">
+          <h2><span class="neon">Milwaukee Messiness Fuel™ Grinder Kit</span></h2>
+          <div class="hr"></div>
+          <ul class="bullet">
+            <li><b>Selling point:</b> Chaos in a convenient, red-anodized box.</li>
+            <li><b>Reality:</b> Warranty-registered anarchy. Sparks fly, but only along approved grooves.</li>
+            <li><b>Fine print:</b> “Embrace the messiness” comes pre-assembled with guard rails.</li>
+          </ul>
+          <div class="meta">
+            <span class="chrome">Red Script • Lightning Bolts • Chrome Flair</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Bonus aisle: non-brand specific items, styled neutral -->
+      <article class="card aisle" aria-label="Transformative Justice FLEXVOLT Battery">
+        <div class="inner">
+          <h2>Transformative Justice FLEXVOLT™ Battery</h2>
+          <div class="hr"></div>
+          <ul class="bullet">
+            <li><b>Slogan:</b> “World-building power for a world that doesn’t fit.”</li>
+            <li><b>Problem:</b> No wiring, no conduit, no load-bearing capacity. Just a heavy brick of utopia.</li>
+            <li><b>Catalog note:</b> Promises 60V forever. Powers nothing.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="card aisle" aria-label="Cordless Good Academic Drill (Virtue Edition)">
+        <div class="inner">
+          <h2>Cordless Good Academic Drill™ (Virtue Edition)</h2>
+          <div class="hr"></div>
+          <ul class="bullet">
+            <li><b>Features:</b> Self-recharges on citations. Lightweight, performative torque.</li>
+            <li><b>Great for:</b> Signaling ethical superiority while avoiding hardwired commitments.</li>
+            <li><b>Warning:</b> Will strip screws of credibility if used too often.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="card aisle" aria-label="Infinite Due Punch List">
+        <div class="inner">
+          <h2>Infinite Due Punch List™ (Contractor’s Nightmare)</h2>
+          <div class="hr"></div>
+          <ul class="bullet">
+            <li><b>Contents:</b> Endless screws, unfinished drywall, debts you can’t discharge.</li>
+            <li><b>Use case:</b> Reminds you that justice is never “done,” no matter how many toolkits you buy.</li>
+            <li><b>Slogan:</b> “Some jobsites haunt you forever.”</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="card aisle" aria-label="Closing Sale Tagline">
+        <div class="inner">
+          <h2>Closing Sale Tagline</h2>
+          <p>Playing with Power Tools is the catalog that critiques catalogs: torque without nails, batteries without wiring, messiness in shrink-wrap. Tools that “do work” while evading what’s due.</p>
+          <div class="actions">
+            <button onclick="window.print()">🖨️ Print</button>
+            <button class="alt" id="saveBtn">💾 Save HTML</button>
+          </div>
+        </div>
+      </article>
+
+    </section>
+  </div>
+
+<script>
+  // Simple self-save of the current document as a file
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    const blob = new Blob([document.documentElement.outerHTML], {type: 'text/html'});
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'), {
+      href: url,
+      download: 'haunted-tools-monthly-retro.html'
+    });
+    document.body.appendChild(a);
+    a.click();
+    URL.revokeObjectURL(url);
+    a.remove();
+  });
+</script>
+</body>
+</html>

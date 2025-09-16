@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Urban Pedagogy Kits (CUP) — Civic Policy Demystifier</title>
+<meta name="color-scheme" content="dark light" />
+<style>
+  :root{
+    /* Neutral base */
+    --bg: #0f1115;         /* dark */
+    --bg-soft:#141821;
+    --panel:#171b24;
+    --text:#e6e8ee;
+    --muted:#a6adbb;
+    --accent:#6ee7ff;      /* cyan */
+    --accent-2:#9fd96b;    /* green */
+    --warn:#ffb454;        /* amber */
+    --danger:#ff6682;      /* rose */
+    --chip:#0f2830;
+    --chip-brd:#2a3b43;
+    --ok:#3ddc97;
+    --link:#b4c5ff;
+    --focus:#ffe08a;
+    --shadow: 0 8px 24px rgba(0,0,0,.35);
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#f6f7fb; --bg-soft:#f1f3f9; --panel:#ffffff; --text:#0e1320; --muted:#3d4757;
+      --chip:#eaf7fb; --chip-brd:#cfe6ef; --shadow: 0 8px 24px rgba(0,0,0,.08);
+    }
+  }
+  [data-theme="light"]:root{ color-scheme: light; }
+  [data-theme="dark"]:root{ color-scheme: dark; }
+
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font: 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+  }
+  .skip-link{ position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
+  .skip-link:focus{ position:fixed; left:1rem; top:1rem; width:auto; height:auto; background:var(--focus); color:#000; padding:.5rem .75rem; border-radius:.5rem; z-index:9999; }
+
+  header{
+    position:sticky; top:0; background:linear-gradient(180deg, var(--bg) 0%, rgba(0,0,0,0) 100%);
+    backdrop-filter:saturate(1.1) blur(6px);
+    border-bottom:1px solid rgba(255,255,255,.06);
+    z-index:10;
+  }
+  .bar{ display:flex; align-items:center; gap:.75rem; padding:.75rem clamp(.75rem, 2vw, 1rem); }
+  .brand{
+    display:flex; align-items:center; gap:.6rem; font-weight:700; letter-spacing:.2px;
+  }
+  .logo{ width:28px; height:28px; border-radius:8px; background:conic-gradient(from 0deg, var(--accent), var(--accent-2)); box-shadow: var(--shadow); display:grid; place-items:center; }
+  .logo svg{ width:18px; height:18px; opacity:.9; }
+  .grow{ flex:1; }
+  .ctrls{ display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; }
+  .btn{ appearance:none; border:1px solid rgba(255,255,255,.15); border-radius:.75rem; background:var(--panel); color:var(--text);
+        padding:.45rem .7rem; font-weight:600; line-height:1; cursor:pointer; box-shadow: var(--shadow);
+  }
+  .btn[aria-pressed="true"]{ outline:2px solid var(--accent-2); }
+  .btn:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+  .btn.small{ font-size:.85rem; padding:.35rem .55rem; }
+
+  main{ display:grid; gap:1rem; padding:1rem; max-width:1100px; margin:0 auto; }
+  .hero{ background:var(--panel); border:1px solid rgba(255,255,255,.12); border-radius:1rem; padding:1rem; box-shadow:var(--shadow); }
+  .hero h1{ font-size:clamp(1.1rem, 3.6vw, 1.75rem); margin:.25rem 0 .5rem; }
+  .sub{ color:var(--muted); margin:0 0 .75rem; }
+
+  .chips{ display:flex; flex-wrap:wrap; gap:.5rem; }
+  .chip{ display:inline-flex; align-items:center; gap:.4rem; border:1px solid var(--chip-brd); background:var(--chip); color:var(--text); padding:.3rem .6rem; border-radius:999px; font-size:.8rem; }
+  .chip .dot{ width:.55rem; height:.55rem; border-radius:50%; background:currentColor; opacity:.65; }
+  .chip[role="button"]{ cursor:pointer; }
+  .chip:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  .grid{ display:grid; grid-template-columns: 1fr; gap:1rem; }
+  @media (min-width: 820px){ .grid{ grid-template-columns: 1.15fr .85fr; } }
+
+  .panel{ background:var(--panel); border:1px solid rgba(255,255,255,.12); border-radius:1rem; padding:.75rem; box-shadow:var(--shadow); }
+
+  /* Accessible Accordion */
+  .accordion{ display:grid; gap:.5rem; }
+  .acc-item{ border-radius:.75rem; border:1px solid rgba(255,255,255,.12); overflow:hidden; background:linear-gradient(180deg, var(--panel), color-mix(in srgb, var(--panel) 85%, transparent)); }
+  .acc-hdr{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:.8rem 1rem; background:transparent; color:inherit; text-align:left; cursor:pointer; border:0; }
+  .acc-hdr .ttl{ font-weight:700; }
+  .acc-hdr svg{ width:18px; height:18px; transform:rotate(0deg); transition:transform .2s ease; }
+  .acc-hdr[aria-expanded="true"] svg{ transform:rotate(180deg); }
+  .acc-pnl{ padding:0 1rem 1rem; display:grid; gap:.75rem; }
+  .acc-pnl[hidden]{ display:none; }
+
+  .mini{ display:grid; gap:.6rem; grid-template-columns: 1fr; }
+  @media (min-width:700px){ .mini{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  .card{ border:1px dashed rgba(255,255,255,.18); border-radius:.75rem; padding:.75rem; display:grid; gap:.4rem; }
+  .card h4{ margin:.1rem 0; font-size:1rem; }
+  .muted{ color:var(--muted); }
+
+  /* ULURP flow */
+  .flow{ display:grid; gap:.75rem; }
+  .flow-bar{ display:flex; gap:.35rem; flex-wrap:wrap; }
+  .step{ --c: var(--accent); flex:1 1 120px; display:flex; align-items:center; gap:.5rem; padding:.5rem .6rem; border-radius:.6rem; border:1px solid rgba(255,255,255,.14); background:linear-gradient(180deg, color-mix(in srgb, var(--c) 8%, var(--panel)), var(--panel)); cursor:pointer; }
+  .step .i{ width:10px; height:10px; border-radius:50%; background:var(--c); box-shadow:0 0 0 3px color-mix(in srgb, var(--c) 30%, transparent); }
+  .step[aria-current="step"]{ outline:2px solid var(--c); }
+  .flow-details{ border:1px solid rgba(255,255,255,.12); border-radius:.75rem; padding:.75rem; background:var(--bg-soft); }
+
+  .tiny{ font-size:.85rem; }
+  .kbd{ font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.22); padding:.05rem .35rem; border-radius:.35rem; }
+
+  footer{ opacity:.9; padding:2rem 1rem; text-align:center; color:var(--muted); }
+
+  /* SVG helpers */
+  .svgwrap{ display:grid; place-items:center; background:linear-gradient(180deg, rgba(255,255,255,.03), transparent); border-radius:.5rem; border:1px solid rgba(255,255,255,.1); padding:.5rem; }
+
+  /* Focus styles */
+  :where(button,[role="button"],a,input,summary,.step){ outline: none; }
+  :where(button,[role="button"],a,input,summary,.step):focus-visible{ outline:2px solid var(--focus); outline-offset:2px; }
+
+  /* Reduce motion: disable transitions */
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; animation:none !important; }
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header role="banner">
+  <div class="bar" aria-label="Top bar">
+    <div class="brand" aria-label="Brand">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+      </span>
+      <span>CUP – Urban Pedagogy Kits</span>
+    </div>
+    <div class="grow" aria-hidden="true"></div>
+    <div class="ctrls" role="group" aria-label="View & feedback controls">
+      <button id="themeBtn" class="btn small" aria-pressed="false" title="Toggle theme (L/D)">Theme</button>
+      <button id="audioBtn" class="btn small" aria-pressed="true" title="Toggle audio cues">Audio</button>
+      <button id="hapticBtn" class="btn small" aria-pressed="true" title="Toggle haptic taps">Haptics</button>
+      <button id="helpBtn" class="btn small" aria-haspopup="dialog" aria-controls="help" title="Keyboard & a11y help"><span aria-hidden="true">?</span><span class="sr"> Help</span></button>
+    </div>
+  </div>
+</header>
+
+<main id="main" role="main">
+  <section class="hero" aria-label="Intro">
+    <h1>Demystify policy with friendly, tactile visuals</h1>
+    <p class="sub">Built for civic literacy and participation: understand how decisions are made, who gets a say, and what levers you can pull—without the bureaucratese.</p>
+    <div class="chips" aria-label="Aesthetic tags">
+      <span class="chip" role="button" tabindex="0" data-tag="graphics" aria-label="friendly civic graphics"><span class="dot" style="color:var(--accent)"></span>friendly civic graphics</span>
+      <span class="chip" role="button" tabindex="0" data-tag="rules" aria-label="tactile rules"><span class="dot" style="color:var(--warn)"></span>tactile rules</span>
+      <span class="chip" role="button" tabindex="0" data-tag="play" aria-label="playful instruction"><span class="dot" style="color:var(--accent-2)"></span>playful instruction</span>
+    </div>
+  </section>
+
+  <section class="grid" aria-label="Overview and Flow">
+    <article class="panel flow" aria-labelledby="flowTtl">
+      <h2 id="flowTtl">ULURP — NYC land‑use process in plain steps</h2>
+      <p class="tiny">Tap a step to learn it. Press <span class="kbd">→</span>/<span class="kbd">←</span> to move. This model is simplified for learning.</p>
+      <div class="flow-bar" role="list" aria-label="ULURP steps">
+        <!-- Steps inserted by JS -->
+      </div>
+      <div class="flow-details" aria-live="polite" id="flowDetails">
+        <!-- Details populated dynamically -->
+      </div>
+      <div style="display:flex; gap:.5rem; align-items:center;">
+        <button id="prevStep" class="btn small" aria-label="Previous step">Prev</button>
+        <button id="nextStep" class="btn small" aria-label="Next step">Next</button>
+        <div class="tiny" id="stepStatus" aria-live="polite"></div>
+      </div>
+    </article>
+
+    <aside class="panel" aria-labelledby="kitMetaTtl">
+      <h2 id="kitMetaTtl">About the kit</h2>
+      <div class="mini">
+        <div class="card">
+          <h4>Name</h4>
+          <p class="muted">Urban Pedagogy Kits (CUP)</p>
+        </div>
+        <div class="card">
+          <h4>Category</h4>
+          <p class="muted">Pedagogy</p>
+        </div>
+        <div class="card">
+          <h4>Mission</h4>
+          <p>Demystify urban bureaucracy for the public.</p>
+        </div>
+        <div class="card">
+          <h4>Purpose</h4>
+          <p>Build civic literacy and participation.</p>
+        </div>
+      </div>
+      <div class="svgwrap" aria-hidden="true" style="margin-top:.6rem;">
+        <!-- Friendly civic skyline SVG -->
+        <svg viewBox="0 0 640 120" width="100%" height="120" role="img" aria-label="Civic skyline with people and signs">
+          <g fill="none" stroke="currentColor" stroke-width="2" opacity="0.85">
+            <rect x="24" y="40" width="40" height="56" rx="6" />
+            <rect x="80" y="24" width="56" height="72" rx="6" />
+            <rect x="152" y="32" width="80" height="64" rx="6" />
+            <rect x="248" y="20" width="40" height="76" rx="6" />
+            <rect x="304" y="44" width="72" height="52" rx="6" />
+            <rect x="392" y="28" width="64" height="68" rx="6" />
+            <rect x="472" y="48" width="56" height="48" rx="6" />
+            <rect x="544" y="36" width="72" height="60" rx="6" />
+            <circle cx="112" cy="104" r="8"/>
+            <circle cx="132" cy="104" r="8"/>
+            <path d="M110 92 h24"/>
+            <rect x="438" y="92" width="52" height="10" rx="5" />
+            <path d="M486 86 v16"/>
+          </g>
+        </svg>
+      </div>
+    </aside>
+  </section>
+
+  <section class="panel" aria-labelledby="accTtl">
+    <h2 id="accTtl">Components (accordion)</h2>
+    <div class="accordion" id="acc" role="list">
+      <!-- Models -->
+      <div class="acc-item" role="listitem">
+        <button class="acc-hdr" aria-expanded="false" aria-controls="p_models" id="h_models">
+          <span class="ttl">Models</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div id="p_models" class="acc-pnl" role="region" aria-labelledby="h_models" hidden>
+          <div class="mini">
+            <div class="card">
+              <h4>Block Builder (Zoning sandbox)</h4>
+              <p class="muted">Drag density chips to see how setbacks, height, and open space change a block.</p>
+              <div class="svgwrap">
+                <svg id="zoneSandbox" viewBox="0 0 240 120" width="100%" height="120" aria-label="Zoning sandbox">
+                  <rect x="8" y="92" width="224" height="20" fill="currentColor" opacity="0.08" />
+                  <rect class="bld" x="30" y="70" width="40" height="22" rx="2" fill="currentColor" opacity="0.5"/>
+                  <rect class="bld" x="80" y="56" width="48" height="36" rx="2" fill="currentColor" opacity="0.5"/>
+                  <rect class="bld" x="140" y="42" width="56" height="50" rx="2" fill="currentColor" opacity="0.5"/>
+                  <circle class="chipD" cx="210" cy="18" r="10" fill="var(--accent)"/>
+                </svg>
+              </div>
+              <p class="tiny">Tip: move the density chip (circle) with arrow keys to watch buildings grow/shrink.</p>
+            </div>
+            <div class="card">
+              <h4>Budget Balancer</h4>
+              <p class="muted">Slide dollars between services. See trade‑offs immediately.</p>
+              <div style="display:grid; gap:.35rem;">
+                <label>Housing <input id="bud1" type="range" min="0" max="100" value="35" /></label>
+                <label>Transit <input id="bud2" type="range" min="0" max="100" value="35" /></label>
+                <label>Parks <input id="bud3" type="range" min="0" max="100" value="30" /></label>
+                <div class="tiny" id="budOut" aria-live="polite"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Games -->
+      <div class="acc-item" role="listitem">
+        <button class="acc-hdr" aria-expanded="false" aria-controls="p_games" id="h_games">
+          <span class="ttl">Games</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div id="p_games" class="acc-pnl" role="region" aria-labelledby="h_games" hidden>
+          <div class="mini">
+            <div class="card">
+              <h4>Stakeholder Shuffle</h4>
+              <p class="muted">Match voices to stages—who speaks when? Learn timing & leverage.</p>
+              <div class="tiny" id="shuffleOut" aria-live="polite">Shuffle to start.</div>
+              <div style="display:flex; gap:.5rem;">
+                <button class="btn small" id="shuffleBtn">Shuffle roles</button>
+              </div>
+            </div>
+            <div class="card">
+              <h4>Hearing Hero</h4>
+              <p class="muted">Practice a 60‑second comment with prompts.</p>
+              <button class="btn small" id="cueBtn">Give me a prompt</button>
+              <div class="tiny" id="cueOut" aria-live="polite"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Films -->
+      <div class="acc-item" role="listitem">
+        <button class="acc-hdr" aria-expanded="false" aria-controls="p_films" id="h_films">
+          <span class="ttl">Films</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div id="p_films" class="acc-pnl" role="region" aria-labelledby="h_films" hidden>
+          <div class="mini">
+            <div class="card">
+              <h4>Visual explainers</h4>
+              <p class="muted">Short animations turn jargon into plain language.</p>
+              <div class="svgwrap" aria-hidden="true">
+                <svg viewBox="0 0 220 80" width="100%" height="80">
+                  <rect x="10" y="16" width="200" height="48" rx="8" fill="currentColor" opacity="0.08"/>
+                  <circle cx="34" cy="40" r="10" fill="currentColor" opacity="0.45"/>
+                  <rect x="60" y="30" width="128" height="20" rx="4" fill="currentColor" opacity="0.5"/>
+                </svg>
+              </div>
+              <p class="tiny">Accessibility: captions, transcripts, and descriptive audio recommended.</p>
+            </div>
+            <div class="card">
+              <h4>Neighborhood voices</h4>
+              <p class="muted">Interviews capture lived experience alongside policy.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Explainers -->
+      <div class="acc-item" role="listitem">
+        <button class="acc-hdr" aria-expanded="false" aria-controls="p_explain" id="h_explain">
+          <span class="ttl">Explainers: housing, zoning, ULURP</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div id="p_explain" class="acc-pnl" role="region" aria-labelledby="h_explain" hidden>
+          <div class="mini">
+            <div class="card">
+              <h4>What is zoning?</h4>
+              <p class="muted">Local rules about what can be built and how it is used.</p>
+              <ul class="tiny">
+                <li><strong>Bulk:</strong> size/shape. FAR (floor area ratio) limits total floor area.</li>
+                <li><strong>Use:</strong> housing, industrial, commercial, mixed.</li>
+                <li><strong>Form:</strong> height, setbacks, open space.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>What is ULURP?</h4>
+              <p class="muted">NYC’s public review process for major land‑use changes.</p>
+              <ul class="tiny">
+                <li>Starts after an application is <em>certified complete</em>.</li>
+                <li>Community Boards hold public hearings.</li>
+                <li>City Planning Commission & Council vote.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h4>Housing basics</h4>
+              <p class="muted">Supply, affordability, and protections work together.</p>
+              <ul class="tiny">
+                <li><strong>Production:</strong> build where near jobs & transit.</li>
+                <li><strong>Subsidy:</strong> target households by income bands.</li>
+                <li><strong>Protection:</strong> tenant rights, good cause, vouchers.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="howTtl">
+    <h2 id="howTtl">How to use this kit</h2>
+    <ol class="tiny">
+      <li><strong>Learn:</strong> Walk the ULURP steps. Note when public comment happens.</li>
+      <li><strong>Play:</strong> Try the models to feel trade‑offs (density, budget).</li>
+      <li><strong>Act:</strong> Find your Community Board & Council district; plan a 60‑second comment in plain language.</li>
+    </ol>
+  </section>
+
+  <section class="panel" aria-labelledby="glossTtl">
+    <h2 id="glossTtl">Glossary (plain language)</h2>
+    <dl class="tiny">
+      <dt>Community Board</dt><dd>Local advisory group that holds public hearings and votes on recommendations.</dd>
+      <dt>City Planning Commission</dt><dd>Appointed body that reviews proposals and votes before Council.</dd>
+      <dt>FAR</dt><dd>Floor Area Ratio: how much floor area a lot can contain relative to its size.</dd>
+      <dt>EIS</dt><dd>Environmental Impact Statement: studies potential impacts and mitigations.</dd>
+    </dl>
+  </section>
+
+</main>
+
+<footer role="contentinfo">
+  Built single‑file with inline CSS/JS. WCAG‑minded: keyboard, focus, captions guidance, reduced‑motion/audio respect.
+</footer>
+
+<dialog id="help" aria-labelledby="helpTtl">
+  <form method="dialog" style="margin:0;">
+    <div class="panel" style="padding:1rem;">
+      <h2 id="helpTtl">Help & keyboard</h2>
+      <ul class="tiny">
+        <li><span class="kbd">Tab</span> to focus controls. <span class="kbd">Enter</span>/<span class="kbd">Space</span> to activate.</li>
+        <li>ULURP steps: <span class="kbd">←</span>/<span class="kbd">→</span> to move, <span class="kbd">Enter</span> to open.</li>
+        <li>Press <strong>Theme</strong> for light/dark. Toggle <strong>Audio</strong> and <strong>Haptics</strong> as needed.</li>
+      </ul>
+      <div style="display:flex; justify-content:flex-end; gap:.5rem; margin-top:.5rem;">
+        <button class="btn small">Close</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(function(){
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+  // THEME
+  const themeBtn = $('#themeBtn');
+  const root = document.documentElement;
+  function getSystemTheme(){ return matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; }
+  function applyTheme(t){ root.setAttribute('data-theme', t==='auto' ? getSystemTheme() : t); localStorage.setItem('theme', t); themeBtn.setAttribute('aria-pressed', t==='dark'); }
+  const savedTheme = localStorage.getItem('theme') || 'auto';
+  applyTheme(savedTheme);
+  themeBtn.addEventListener('click', ()=>{
+    const cur = root.getAttribute('data-theme');
+    const next = (cur==='dark')? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    themeBtn.setAttribute('aria-pressed', next==='dark');
+    vibe(8); blip();
+  });
+
+  // AUDIO (soft blips/chimes)
+  let audioOn = true;
+  const audioBtn = $('#audioBtn');
+  const prefersRM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersRM) audioOn = false;
+  audioBtn.setAttribute('aria-pressed', String(audioOn));
+  let actx, master;
+  function ensureAudio(){
+    if (!audioOn) return null;
+    if (!actx){
+      actx = new (window.AudioContext||window.webkitAudioContext)();
+      master = actx.createGain(); master.gain.value = 0.12; master.connect(actx.destination);
+    }
+    return actx;
+  }
+  function env(t, g=1, d=0.18){ const now = t.currentTime; const gain = t.createGain(); gain.gain.setValueAtTime(0, now); gain.gain.linearRampToValueAtTime(g, now+0.01); gain.gain.exponentialRampToValueAtTime(0.001, now+d); return gain; }
+  function blip(){
+    if(!ensureAudio()) return; const t=actx; const osc=t.createOscillator(); osc.type='sine'; osc.frequency.value=660; const e=env(t, 0.9, 0.12); osc.connect(e).connect(master); osc.start(); osc.stop(t.currentTime+0.14);
+  }
+  function chime(up=true){ if(!ensureAudio()) return; const t=actx; const o=t.createOscillator(); o.type='triangle'; const g=env(t, 0.8, 0.28); const base= up? 520:420; o.frequency.setValueAtTime(base, t.currentTime); o.frequency.linearRampToValueAtTime(base+(up?240:-180), t.currentTime+0.25); o.connect(g).connect(master); o.start(); o.stop(t.currentTime+0.3); }
+  audioBtn.addEventListener('click', ()=>{ audioOn=!audioOn; audioBtn.setAttribute('aria-pressed', String(audioOn)); blip(); });
+
+  // HAPTICS
+  let hapticsOn = !prefersRM; const hapticBtn = $('#hapticBtn'); hapticBtn.setAttribute('aria-pressed', String(hapticsOn));
+  function vibe(ms=10){ if(hapticsOn && 'vibrate' in navigator) navigator.vibrate(ms); }
+  hapticBtn.addEventListener('click', ()=>{ hapticsOn=!hapticsOn; hapticBtn.setAttribute('aria-pressed', String(hapticsOn)); blip(); });
+
+  // HELP DIALOG
+  const help = $('#help');
+  $('#helpBtn').addEventListener('click', ()=>{ help.showModal(); blip(); });
+  help.addEventListener('close', ()=>{ vibe(6); });
+
+  // CHIPS (playful focusable tags)
+  $$('.chip').forEach(ch=>{
+    const fx = ()=>{ ch.classList.toggle('active'); vibe(8); blip(); };
+    ch.addEventListener('click', fx);
+    ch.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); fx(); } });
+  });
+
+  // ACCESSIBLE ACCORDION
+  $$('.acc-hdr').forEach(btn=>{
+    const panel = $('#'+btn.getAttribute('aria-controls'));
+    btn.addEventListener('click', ()=> toggle(btn,panel));
+    btn.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); toggle(btn,panel);} });
+  });
+  function toggle(btn,panel){
+    const open = btn.getAttribute('aria-expanded')==='true';
+    btn.setAttribute('aria-expanded', String(!open));
+    panel.hidden = open;
+    vibe(open?5:10); chime(!open);
+  }
+
+  // ULURP FLOW
+  const steps = [
+    { name:'Certification', color:'var(--accent)', brief:'Application deemed complete; the public clock starts.' },
+    { name:'Community Board', color:'var(--accent-2)', brief:'Local hearing & advisory vote (60 days).' },
+    { name:'Borough President', color:'var(--warn)', brief:'Advisory recommendation (30 days).' },
+    { name:'City Planning Commission', color:'var(--accent)', brief:'Public hearing & vote (60 days).' },
+    { name:'City Council', color:'var(--danger)', brief:'Committee hearing, negotiation, final vote (50 days).' },
+    { name:'Mayor / Implementation', color:'var(--ok)', brief:'Potential veto; if approved, changes take effect.' }
+  ];
+  const bar = $('.flow-bar');
+  const details = $('#flowDetails');
+  const status = $('#stepStatus');
+  let ix = 0;
+  steps.forEach((s,i)=>{
+    const b = document.createElement('button');
+    b.className='step'; b.setAttribute('role','listitem'); b.style.setProperty('--c', s.color);
+    b.innerHTML = `<span class="i" aria-hidden="true"></span><span>${i+1}. ${s.name}</span>`;
+    b.setAttribute('aria-current', i===0?'step':'false');
+    b.addEventListener('click', ()=>{ setStep(i); vibe(10); chime(true); });
+    b.addEventListener('mouseenter', ()=>{ blip(); });
+    bar.appendChild(b);
+  });
+  function render(){
+    const s = steps[ix];
+    const all = $$('.step');
+    all.forEach((el,j)=> el.setAttribute('aria-current', j===ix?'step':'false'));
+    details.innerHTML = `<strong>${ix+1}. ${s.name}</strong><div class="tiny" style="margin-top:.35rem;">${s.brief}</div>`;
+    status.textContent = `Step ${ix+1} of ${steps.length}`;
+  }
+  function setStep(i){ ix = (i+steps.length)%steps.length; render(); }
+  $('#prevStep').addEventListener('click', ()=>{ setStep(ix-1); vibe(8); });
+  $('#nextStep').addEventListener('click', ()=>{ setStep(ix+1); vibe(8); });
+  window.addEventListener('keydown', (e)=>{
+    if (document.activeElement.closest('dialog')) return; // ignore inside dialog
+    if(e.key==='ArrowRight'){ setStep(ix+1); }
+    else if(e.key==='ArrowLeft'){ setStep(ix-1); }
+  });
+  render();
+
+  // MODELS — Zoning Sandbox simple interaction
+  const svg = $('#zoneSandbox');
+  if(svg){
+    const chip = svg.querySelector('.chipD');
+    let cx = 210, cy = 18;
+    function updateBuildings(){
+      const dens = Math.max(0.5, Math.min(1.8, 0.5 + (220-cx)/120));
+      svg.querySelectorAll('.bld').forEach((r, k)=>{
+        const baseH = [22,36,50][k];
+        const h = Math.round(baseH * dens);
+        const y = 92 - h;
+        r.setAttribute('y', y);
+        r.setAttribute('height', h);
+        r.setAttribute('opacity', 0.35 + 0.25*k + 0.1*dens);
+      });
+    }
+    function move(dx, dy){ cx = Math.max(16, Math.min(224, cx+dx)); cy = Math.max(16, Math.min(36, cy+dy)); chip.setAttribute('cx', cx); chip.setAttribute('cy', cy); updateBuildings(); blip(); }
+    svg.setAttribute('tabindex','0');
+    svg.addEventListener('keydown', (e)=>{
+      const step = 6; if(e.key==='ArrowLeft') move(-step,0); else if(e.key==='ArrowRight') move(step,0); else if(e.key==='ArrowUp') move(0,-step); else if(e.key==='ArrowDown') move(0,step);
+    });
+    svg.addEventListener('click', (e)=>{
+      const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; const ctm = svg.getScreenCTM().inverse(); const p = pt.matrixTransform(ctm); cx=p.x; cy=p.y; chip.setAttribute('cx',cx); chip.setAttribute('cy',cy); updateBuildings(); vibe(8); blip();
+    });
+    updateBuildings();
+  }
+
+  // MODELS — Budget Balancer (keeps total ≈100)
+  const r1=$('#bud1'), r2=$('#bud2'), r3=$('#bud3'), out=$('#budOut');
+  function clamp(v){ return Math.max(0, Math.min(100, v)); }
+  function rebalance(changed){
+    const sliders=[r1,r2,r3]; const sum = sliders.reduce((a,s)=>a+Number(s.value),0);
+    if(sum===100) return;
+    const others = sliders.filter(s=>s!==changed);
+    const diff = sum-100; // positive = too much
+    const half = diff/2;
+    others[0].value = clamp(Number(others[0].value) - half);
+    others[1].value = clamp(Number(others[1].value) - half);
+    blip();
+    report();
+  }
+  function report(){ out.textContent = `Housing ${r1.value} • Transit ${r2.value} • Parks ${r3.value} (kept near 100)`; }
+  [r1,r2,r3].forEach(r=> r && r.addEventListener('input', ()=>rebalance(r)) );
+  report();
+
+  // GAMES — Stakeholder Shuffle
+  const roles = [
+    'Tenant (public comment)',
+    'Developer (application & hearing)',
+    'Planner (analysis & hearing)',
+    'Community Board (advisory vote)',
+    'City Council (final vote)',
+    'Borough President (advisory)'
+  ];
+  $('#shuffleBtn')?.addEventListener('click', ()=>{
+    const picks = roles.slice().sort(()=>Math.random()-0.5).slice(0,3);
+    $('#shuffleOut').textContent = `Today’s line‑up: ${picks.join(' → ')}`;
+    chime(true); vibe(12);
+  });
+
+  // GAMES — Hearing Hero prompt
+  const cues = [
+    'Share a personal story tied to transit access.',
+    'Describe how zoning affects your block’s storefronts.',
+    'Ask for clearer language and visuals in notices.',
+    'Propose a community‑friendly condition for approval.',
+    'Invite officials to a neighborhood walk‑through.'
+  ];
+  $('#cueBtn')?.addEventListener('click', ()=>{
+    const msg = cues[Math.floor(Math.random()*cues.length)];
+    $('#cueOut').textContent = msg; chime(true); vibe(12);
+  });
+
+})();
+</script>
+</body>
+</html>

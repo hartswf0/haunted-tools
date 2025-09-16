@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Field Aid — Calm, Clear First‑Aid Readiness</title>
+<meta name="description" content="Field Aid: calm immediacy, clarity beats drama. Supplies checklist, CPR metronome, pressure timer, RICE mnemonic, labels, and exports. NOT medical advice." />
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font:400 16px/1.5 system-ui; background:#F7F9FA; color:#0B0C10;}
+  button,input,select,textarea{font:inherit}
+
+  :root{
+    --primary:#0B0C10;
+    --accent:#2ECC71;
+    --alert:#D90429;
+    --canvas:#F7F9FA;
+    --neutral:#6C757D;
+    --radius:8px;
+    --stroke:2px;
+  }
+
+  header{position:sticky; top:0; background:#fff; border-bottom:2px solid var(--neutral); padding:1rem;}
+  .title{font-family:system-ui; font-weight:700; font-size:1.2rem;}
+  .disclaimer{margin-top:.5rem; padding:.5rem; border:2px solid var(--alert); border-radius:var(--radius); background:#fff; color:var(--alert); font-weight:600;}
+
+  main{padding:1rem; display:grid; gap:1rem; grid-template-columns: repeat(auto-fit,minmax(300px,1fr));}
+  .card{background:#fff; border:var(--stroke) solid var(--neutral); border-radius:var(--radius); padding:1rem;}
+  .card h2{margin:0 0 .5rem; font-family:system-ui; font-weight:700;}
+  .big-number{font-variant-numeric: tabular-nums; font-size:3rem; font-weight:800; text-align:center; margin:.5rem 0;}
+  .btn{display:inline-block; padding:.6rem 1rem; border-radius:var(--radius); border:var(--stroke) solid var(--neutral); background:var(--accent); color:#fff; font-weight:700; cursor:pointer;}
+  .btn.secondary{background:#fff; color:var(--primary);}
+  .btn.alert{background:var(--alert); color:#fff;}
+  .needs{color:var(--alert); font-weight:700;}
+  .chip{display:inline-block; padding:.2rem .6rem; border:var(--stroke) solid var(--neutral); border-radius:999px; font-size:.8rem; color:var(--neutral); margin:.2rem;}
+  .print-note{font-size:.85rem; color:var(--neutral);}
+
+  @media print{
+    header,.no-print{display:none!important}
+    .card{border:1px solid #000;}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="title">Field Aid</div>
+  <div class="disclaimer">Not medical advice. Call emergency services now.</div>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Signature CPR Key</h2>
+    <p class="print-note">Giant start/stop key, 100–120 BPM. Woodblock sound muted by default. Space/Enter toggles.</p>
+    <div class="big-number" id="beatVis">—</div>
+    <button class="btn" id="toggleMet">Start</button>
+  </section>
+
+  <section class="card">
+    <h2>Pressure Timer</h2>
+    <p class="print-note">Apply firm pressure. Replace if sterile compromised.</p>
+    <div class="big-number" id="timerRead">00:00</div>
+    <button class="btn" id="startTimer">Start</button>
+    <button class="btn secondary" id="pauseTimer">Pause</button>
+    <button class="btn alert" id="resetTimer">Reset</button>
+  </section>
+
+  <section class="card">
+    <h2>Supplies Checklist</h2>
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr><th>Item</th><th>Sterile?</th><th>Need</th><th>Have</th></tr></thead>
+      <tbody id="invBody"></tbody>
+    </table>
+    <button class="btn no-print" id="addItem">Add Item</button>
+    <button class="btn secondary no-print" id="exportCSV">Export CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>RICE</h2>
+    <p><strong>R</strong>est. <strong>I</strong>ce. <strong>C</strong>ompression. <strong>E</strong>levation.</p>
+    <p class="print-note">Clarity beats drama. Severe cases: seek emergency help.</p>
+  </section>
+
+  <section class="card">
+    <h2>Labels</h2>
+    <div id="labelsGrid"></div>
+    <button class="btn secondary no-print" id="downloadLabels">Download Labels</button>
+  </section>
+</main>
+
+<script>
+const invBody=document.getElementById('invBody');
+let inventory=[{name:'Gloves',sterile:true,need:5,have:5},{name:'Gauze',sterile:true,need:10,have:6},{name:'Bandage',sterile:true,need:15,have:10}];
+function renderInv(){invBody.innerHTML=inventory.map((i,idx)=>`<tr><td>${i.name}</td><td>${i.sterile?'Sterile':'Non‑sterile'}</td><td>${i.need}</td><td>${i.have}${i.have<i.need?'<span class="needs"> Needs</span>':''}</td></tr>`).join('');}
+renderInv();
+document.getElementById('addItem').onclick=()=>{inventory.push({name:'New',sterile:false,need:1,have:0});renderInv();};
+document.getElementById('exportCSV').onclick=()=>{let csv='Item,Sterile,Need,Have\n'+inventory.map(i=>`${i.name},${i.sterile},${i.need},${i.have}`).join('\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='field_aid_inventory.csv';a.click();};
+
+// CPR metronome
+let metInt=null,bpm=110;const beatVis=document.getElementById('beatVis');
+function renderBeat(){beatVis.textContent='●';setTimeout(()=>beatVis.textContent='—',120);} 
+function startMet(){stopMet();metInt=setInterval(renderBeat,60000/bpm);renderBeat();document.getElementById('toggleMet').textContent='Stop';}
+function stopMet(){clearInterval(metInt);metInt=null;document.getElementById('toggleMet').textContent='Start';}
+document.getElementById('toggleMet').onclick=()=>{metInt?stopMet():startMet();};
+
+// Timer
+let timer=0,timerInt=null;function upd(){document.getElementById('timerRead').textContent=`${String(Math.floor(timer/60)).padStart(2,'0')}:${String(timer%60).padStart(2,'0')}`;}
+document.getElementById('startTimer').onclick=()=>{if(timerInt)return;timer=120;upd();timerInt=setInterval(()=>{timer--;upd();if(timer<=0){clearInterval(timerInt);timerInt=null;}},1000);};
+document.getElementById('pauseTimer').onclick=()=>{clearInterval(timerInt);timerInt=null;};
+document.getElementById('resetTimer').onclick=()=>{clearInterval(timerInt);timerInt=null;timer=0;upd();};upd();
+
+// Labels simple icons
+const labels=[{text:'Gloves'},{text:'Bandage'},{text:'Gauze'}];
+document.getElementById('labelsGrid').innerHTML=labels.map(l=>`<div class="chip">${l.text}</div>`).join('');
+document.getElementById('downloadLabels').onclick=()=>{let svg='<?xml version="1.0"?><svg xmlns="http://www.w3.org/2000/svg" width="400" height="100">'+labels.map((l,i)=>`<text x="20" y="${20+i*20}" font-size="14">${l.text}</text>`).join('')+'</svg>';let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));a.download='field_aid_labels.svg';a.click();};
+</script>
+</body>
+</html>

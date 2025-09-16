@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Du Boisian Visualization Toolkit</title>
+  <style>
+    /* ===================
+       Du Boisian Toolkit
+       =================== */
+    :root{
+      --bg: #f6f2e6;        /* archival cream */
+      --card: #fffdfa;
+      --ink: #121212;       /* dignified near-black */
+      --muted: #5c5c5c;
+      --accent: #153e6b;    /* indigo blue */
+      --accent-2: #9e2a2f;  /* deep carmine */
+      --accent-3: #6b7d2a;  /* olive */
+      --accent-4: #1f6f7a;  /* teal */
+      --gold: #c7a000;      /* brass/gold */
+      --chip-bg: #efe6cf;
+      --focus: #ffbf3f;
+      --ring: 3px;
+      --radius: 14px;
+      --shadow: 0 2px 10px rgba(0,0,0,.07);
+    }
+    .dark{ --bg:#0e0e0e; --card:#151515; --ink:#f4f1e9; --muted:#c6c6c6; --chip-bg:#262016; --focus:#ffd36b; --shadow: 0 2px 10px rgba(0,0,0,.35);}    
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background:var(--bg); color:var(--ink);
+    }
+
+    /* Accessibility: motion reduction */
+    @media (prefers-reduced-motion: reduce){
+      *{animation: none !important; transition: none !important}
+    }
+
+    a{color:var(--accent)}
+    .wrap{max-width: 980px; margin: 0 auto; padding: 1rem;}
+
+    /* Skip link */
+    .skip-link{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+    .skip-link:focus{left:1rem;top:1rem;width:auto;height:auto;background:var(--focus);color:#111;padding:.5rem .75rem;border-radius:8px;z-index:999}
+
+    header{
+      position:sticky; top:0; z-index:10; background:linear-gradient(180deg,var(--bg),color-mix(in oklab,var(--bg) 90%, #000 10%));
+      border-bottom: 2px solid color-mix(in oklab, var(--ink) 20%, transparent);
+      backdrop-filter: blur(4px);
+    }
+    .head{
+      display:flex; gap:.75rem; align-items:center; justify-content:space-between; padding:.75rem 1rem;
+    }
+    .title{display:flex; align-items:center; gap:.75rem}
+    .mark{width:34px;height:34px;border-radius:10px; background: conic-gradient(from 0deg, var(--accent) 0 90deg, var(--gold) 90deg 180deg, var(--accent-2) 180deg 270deg, var(--accent-4) 270deg 360deg); box-shadow: var(--shadow); border:2px solid #00000022}
+    h1{font-size:1.15rem; letter-spacing:.04em; margin:0; text-transform:uppercase}
+    .controls{display:flex; gap:.5rem; align-items:center}
+    .btn, .chip{border:1.5px solid color-mix(in oklab,var(--ink) 20%, transparent); background:var(--card); color:var(--ink); padding:.5rem .7rem; border-radius: 999px; cursor:pointer; box-shadow: var(--shadow)}
+    .btn[aria-pressed="true"], .chip[aria-pressed="true"]{outline:2px solid var(--gold)}
+    .btn:focus-visible, .chip:focus-visible{outline: var(--ring) solid var(--focus); outline-offset:2px}
+
+    main{padding-block: .5rem 3rem}
+
+    /* Chips row */
+    .chip-row{display:flex; flex-wrap:wrap; gap:.5rem; margin:.25rem 0 1rem}
+    .chip{background:var(--chip-bg); font-size:.85rem}
+
+    /* Cards */
+    .card{background:var(--card); border-radius: var(--radius); border:1.5px solid color-mix(in oklab,var(--ink) 15%, transparent); box-shadow: var(--shadow); padding:1rem}
+
+    /* Section headings */
+    h2{font-size:1.05rem; text-transform:uppercase; letter-spacing:.08em; margin:.25rem 0 .5rem}
+    h3{font-size:1rem; margin:.25rem 0 .25rem}
+
+    .grid{display:grid; gap:1rem}
+    @media (min-width: 880px){ .grid{grid-template-columns: 1.1fr .9fr} }
+
+    /* Playground */
+    .toolbar{display:grid; gap:.5rem; grid-template-columns:1fr; margin-bottom:.75rem}
+    @media(min-width:600px){ .toolbar{grid-template-columns: 1fr 1fr 1fr auto} }
+    label{font-size:.85rem}
+    select, textarea{width:100%; padding:.5rem .6rem; border-radius:10px; border:1.5px solid color-mix(in oklab,var(--ink) 20%, transparent); background:var(--bg); color:var(--ink)}
+    textarea{min-height:120px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:.85rem}
+
+    figure{margin:0}
+    .chart-frame{background: var(--card); border:2px solid var(--ink); border-radius: 10px; padding:.5rem; position:relative}
+    .chart-title{position:absolute; left:.5rem; top:.5rem; background: var(--gold); color:#111; padding:.2rem .45rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; border: 2px solid #111}
+    .legend{display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.5rem}
+    .legend .chip{padding:.25rem .5rem}
+
+    /* Accordion */
+    details{border:1.5px solid color-mix(in oklab,var(--ink) 20%, transparent); border-radius: 12px; background:var(--card)}
+    summary{padding:.75rem 1rem; list-style:none; cursor:pointer; display:flex; align-items:center; gap:.6rem; font-weight:600}
+    summary::-webkit-details-marker{display:none}
+    details[open] summary{border-bottom:1px solid color-mix(in oklab,var(--ink) 20%, transparent)}
+    .pane{padding: .75rem 1rem}
+
+    .mini{
+      display:grid; grid-template-columns: 1fr; gap:.75rem
+    }
+    @media(min-width:700px){ .mini{ grid-template-columns: 1fr 1fr } }
+
+    /* Palette chips */
+    .swatch{display:inline-flex; align-items:center; gap:.5rem; padding:.35rem .6rem; border-radius:999px; border:1px solid #0002; background:#fff; box-shadow:var(--shadow)}
+    .s{width:20px;height:12px;border-radius:4px;border:1px solid #0005}
+
+    /* Footer */
+    footer{margin-top:2rem; font-size:.9rem; color:var(--muted)}
+    .kbd{font-family: ui-monospace, Menlo, Consolas, monospace; background: #00000010; padding:.05rem .35rem; border-radius:6px; border:1px solid #00000020}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header role="banner">
+    <div class="head wrap">
+      <div class="title" aria-label="Toolkit title">
+        <div class="mark" aria-hidden="true"></div>
+        <h1>Du Boisian Visualization Toolkit</h1>
+      </div>
+      <div class="controls" role="group" aria-label="View controls">
+        <button id="themeToggle" class="btn" aria-pressed="false" title="Toggle dark theme (T)">Dark</button>
+        <button id="audioToggle" class="btn" role="switch" aria-checked="false" title="Toggle audio (A)">Audio</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="wrap" role="main">
+    <section class="card" aria-labelledby="intro-h">
+      <h2 id="intro-h">Purpose</h2>
+      <p>This compact, mobile-first toolkit pays homage to W.E.B. Du Bois’s 1900 Paris Exposition charts. It offers dignified, annotation-forward graphics without external libraries, plus a components list, style chips, and accessible interactions. Example datasets are fictional, provided for demonstration.</p>
+      <div class="chip-row" role="list" aria-label="Aesthetic tags">
+        <span class="chip" role="listitem" tabindex="0">rigorous charts</span>
+        <span class="chip" role="listitem" tabindex="0">archival homage</span>
+        <span class="chip" role="listitem" tabindex="0">dignified palettes</span>
+      </div>
+    </section>
+
+    <div class="grid" aria-live="polite">
+      <!-- =====================
+           PLAYGROUND (left)
+           ===================== -->
+      <section class="card" aria-labelledby="play-h">
+        <h2 id="play-h">Chart Playground</h2>
+        <div class="toolbar" role="group" aria-label="Chart configuration">
+          <label>
+            Dataset
+            <select id="datasetSel" aria-label="Choose dataset">
+              <option value="time">Example · Population Over Time</option>
+              <option value="category">Example · Literacy by Group</option>
+              <option value="share">Example · Occupations by Share</option>
+            </select>
+          </label>
+          <label>
+            Diagram Template
+            <select id="templateSel" aria-label="Choose diagram template">
+              <option value="bars">Du Bois · Slanted Bars</option>
+              <option value="radial">Du Bois · Radial Wedges</option>
+            </select>
+          </label>
+          <label>
+            Title
+            <input id="titleInp" type="text" value="Illustrative Chart (Fictional Data)" aria-label="Chart title" style="width:100%; padding:.5rem .6rem; border-radius:10px; border:1.5px solid color-mix(in oklab,var(--ink) 20%, transparent); background:var(--bg); color:var(--ink)" />
+          </label>
+          <button id="renderBtn" class="btn" title="Render chart (R)">Render</button>
+        </div>
+
+        <details>
+          <summary aria-controls="dataPane" aria-expanded="false">Edit Data (JSON)</summary>
+          <div id="dataPane" class="pane">
+            <textarea id="dataBox" aria-label="Dataset JSON"></textarea>
+            <div style="display:flex; gap:.5rem; margin-top:.5rem">
+              <button id="copyBtn" class="btn" title="Copy JSON">Copy</button>
+              <button id="downloadBtn" class="btn" title="Download JSON">Download</button>
+            </div>
+          </div>
+        </details>
+
+        <figure class="chart-frame" aria-describedby="chart-desc">
+          <figcaption id="chart-desc" class="visually-hidden">Interactive chart region. Use the configuration above to select dataset and template.</figcaption>
+          <div class="chart-title" id="chartTitle">Illustrative Chart (Fictional Data)</div>
+          <svg id="svg" viewBox="0 0 700 420" role="img" aria-labelledby="chartTitle" focusable="true" tabindex="0"></svg>
+          <div class="legend" id="legend" aria-label="Legend"></div>
+        </figure>
+      </section>
+
+      <!-- =====================
+           COMPONENTS (right)
+           ===================== -->
+      <section class="card" aria-labelledby="comp-h">
+        <h2 id="comp-h">Components</h2>
+
+        <details>
+          <summary>Datasets</summary>
+          <div class="pane mini">
+            <div>
+              <h3>Population Over Time (Example)</h3>
+              <p>Fictional time series resembling period charts. Fields: <span class="kbd">year</span>, <span class="kbd">value</span>.</p>
+              <button class="btn use-dataset" data-kind="time">Use in Playground</button>
+            </div>
+            <div>
+              <h3>Literacy by Group (Example)</h3>
+              <p>Fictional category distribution. Fields: <span class="kbd">label</span>, <span class="kbd">value</span>.</p>
+              <button class="btn use-dataset" data-kind="category">Use in Playground</button>
+            </div>
+            <div>
+              <h3>Occupations by Share (Example)</h3>
+              <p>Fictional shares that sum to 100. Fields: <span class="kbd">label</span>, <span class="kbd">value</span>.</p>
+              <button class="btn use-dataset" data-kind="share">Use in Playground</button>
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Diagram Templates</summary>
+          <div class="pane mini">
+            <div>
+              <h3>Du Bois · Slanted Bars</h3>
+              <svg width="100%" viewBox="0 0 260 100" aria-hidden="true">
+                <rect x="2" y="2" width="256" height="96" fill="#fffdfa" stroke="#111" stroke-width="2"/>
+                <g transform="translate(10,10)">
+                  <rect x="0" y="50" width="40" height="40" fill="#153e6b" stroke="#111" stroke-width="2" transform="skewX(-12)"/>
+                  <rect x="50" y="35" width="40" height="55" fill="#9e2a2f" stroke="#111" stroke-width="2" transform="skewX(-12)"/>
+                  <rect x="100" y="20" width="40" height="70" fill="#c7a000" stroke="#111" stroke-width="2" transform="skewX(-12)"/>
+                  <rect x="150" y="10" width="40" height="80" fill="#1f6f7a" stroke="#111" stroke-width="2" transform="skewX(-12)"/>
+                </g>
+              </svg>
+              <button class="btn use-template" data-template="bars">Use Template</button>
+            </div>
+            <div>
+              <h3>Du Bois · Radial Wedges</h3>
+              <svg width="100%" viewBox="0 0 260 100" aria-hidden="true">
+                <rect x="2" y="2" width="256" height="96" fill="#fffdfa" stroke="#111" stroke-width="2"/>
+                <g transform="translate(130,50)">
+                  <path d="M0 0 L40 0 A40 40 0 0 1 -34.6 20 Z" fill="#9e2a2f" stroke="#111" stroke-width="2"/>
+                  <path d="M0 0 L-34.6 20 A40 40 0 0 1 -12.3 -38.1 Z" fill="#1f6f7a" stroke="#111" stroke-width="2"/>
+                  <path d="M0 0 L-12.3 -38.1 A40 40 0 0 1 40 0 Z" fill="#c7a000" stroke="#111" stroke-width="2"/>
+                </g>
+              </svg>
+              <button class="btn use-template" data-template="radial">Use Template</button>
+            </div>
+          </div>
+        </details>
+
+        <details>
+          <summary>Style Guides</summary>
+          <div class="pane">
+            <h3>Palette (High Contrast)</h3>
+            <div class="chip-row" role="list">
+              <span class="swatch" role="listitem"><span class="s" style="background:#153e6b"></span> Indigo</span>
+              <span class="swatch" role="listitem"><span class="s" style="background:#9e2a2f"></span> Carmine</span>
+              <span class="swatch" role="listitem"><span class="s" style="background:#c7a000"></span> Brass</span>
+              <span class="swatch" role="listitem"><span class="s" style="background:#1f6f7a"></span> Teal</span>
+              <span class="swatch" role="listitem"><span class="s" style="background:#6b7d2a"></span> Olive</span>
+              <span class="swatch" role="listitem"><span class="s" style="background:#121212"></span> Ink</span>
+              <span class="swatch" role="listitem"><span class="s" style="background:#f6f2e6"></span> Archival Cream</span>
+            </div>
+            <h3>Typography</h3>
+            <p><strong>Titles:</strong> Uppercase, generous letter-spacing. <strong>Labels:</strong> concise, aligned to geometry. <strong>Annotations:</strong> short, declarative.</p>
+            <h3>Conventions</h3>
+            <ul>
+              <li>Thick chart borders; minimal ticks; emphatic color blocks.</li>
+              <li>Clear provenance in titles or captions.</li>
+              <li>Respect <span class="kbd">prefers-reduced-motion</span> and offer a mute toggle.</li>
+            </ul>
+          </div>
+        </details>
+
+      </section>
+    </div>
+
+    <footer role="contentinfo" class="wrap">
+      <p>Inspired by the charts created for the 1900 Paris Exposition by W.E.B. Du Bois and collaborators. This demo uses fictional data for instructional purposes only.</p>
+      <p>Keyboard: <span class="kbd">T</span> toggle theme · <span class="kbd">A</span> toggle audio · <span class="kbd">R</span> render</p>
+    </footer>
+
+    <div id="live" aria-live="polite" class="visually-hidden"></div>
+  </main>
+
+  <script>
+  // ======== Utilities: a11y, haptics, audio ========
+  const mmReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let audioEnabled = !mmReduce.matches; // default off if user prefers reduced motion
+  let vibEnabled = !mmReduce.matches;
+  const live = document.getElementById('live');
+
+  function announce(msg){ live.textContent = msg; }
+  function vib(ms=10){ try{ if(vibEnabled && 'vibrate' in navigator) navigator.vibrate(ms); }catch{} }
+
+  // Simple WebAudio blip/chime
+  const AudioKit = (()=>{
+    let ctx;
+    function getCtx(){ if(!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)(); return ctx; }
+    function env(node, t=0.15){ const now = getCtx().currentTime; node.gain.setValueAtTime(0, now); node.gain.linearRampToValueAtTime(0.35, now+0.01); node.gain.exponentialRampToValueAtTime(0.0001, now+t); }
+    function blip(){ if(!audioEnabled) return; const c=getCtx(); const g=c.createGain(); env(g,0.12); const o=c.createOscillator(); o.type='sine'; o.frequency.value=660; o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+0.14); }
+    function chime(){ if(!audioEnabled) return; const c=getCtx(); const freqs=[392,523.25,784]; const now=c.currentTime; freqs.forEach((f,i)=>{ const g=c.createGain(); const o=c.createOscillator(); o.type='triangle'; o.frequency.value=f; o.connect(g); g.connect(c.destination); g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(0.25, now+0.02+i*0.02); g.gain.exponentialRampToValueAtTime(0.0001, now+0.35+i*0.03); o.start(now+i*0.01); o.stop(now+0.5+i*0.03); }); }
+    return { blip, chime };
+  })();
+
+  // ======== Theme / Audio Toggles ========
+  const themeBtn = document.getElementById('themeToggle');
+  const audioBtn = document.getElementById('audioToggle');
+  function setTheme(dark){ document.documentElement.classList.toggle('dark', dark); themeBtn.setAttribute('aria-pressed', String(dark)); themeBtn.textContent = dark? 'Light' : 'Dark'; }
+  function setAudio(on){ audioEnabled = !!on; audioBtn.setAttribute('aria-checked', String(on)); audioBtn.textContent = on? 'Audio On' : 'Audio'; }
+  setTheme(false);
+  setAudio(audioEnabled);
+
+  themeBtn.addEventListener('click', ()=>{ vib(); setTheme(!document.documentElement.classList.contains('dark')); AudioKit.blip(); announce('Theme toggled'); });
+  audioBtn.addEventListener('click', ()=>{ vib(); setAudio(!audioEnabled); AudioKit.blip(); announce('Audio '+ (audioEnabled? 'enabled':'muted')); });
+
+  document.addEventListener('keydown', (e)=>{
+    if(e.key==='t' || e.key==='T'){ setTheme(!document.documentElement.classList.contains('dark')); }
+    if(e.key==='a' || e.key==='A'){ setAudio(!audioEnabled); }
+    if(e.key==='r' || e.key==='R'){ render(); }
+  });
+
+  // ======== Example Data ========
+  const DATA = {
+    time: {
+      meta:{ type:'time', unit:'index', title:'Population (Example)' },
+      values:[
+        {year:1870, value:50}, {year:1880, value:62}, {year:1890, value:78},
+        {year:1900, value:93}, {year:1910, value:117}
+      ]
+    },
+    category: {
+      meta:{ type:'category', unit:'%', title:'Literacy by Group (Example)' },
+      values:[
+        {label:'Children', value:78}, {label:'Adults', value:68}, {label:'Elders', value:44}
+      ]
+    },
+    share: {
+      meta:{ type:'category', unit:'%', title:'Occupations by Share (Example)' },
+      values:[
+        {label:'Agriculture', value:46}, {label:'Manufacturing', value:22}, {label:'Domestic', value:18}, {label:'Professional', value:14}
+      ]
+    }
+  };
+
+  // ======== DOM ========
+  const svg = document.getElementById('svg');
+  const legend = document.getElementById('legend');
+  const dataBox = document.getElementById('dataBox');
+  const datasetSel = document.getElementById('datasetSel');
+  const templateSel = document.getElementById('templateSel');
+  const titleInp = document.getElementById('titleInp');
+  const chartTitleTag = document.getElementById('chartTitle');
+
+  // Seed editor
+  function loadEditor(kind){
+    dataBox.value = JSON.stringify(DATA[kind], null, 2);
+  }
+  loadEditor('time');
+
+  // Helpers
+  function clamp(n,min,max){return Math.max(min, Math.min(max, n));}
+  function niceTicks(max, count=5){
+    if(max<=0) return [0,1];
+    const step = Math.pow(10, Math.floor(Math.log10(max/count)));
+    const ticks=[]; for(let k=0;k<=max;k+=step) ticks.push(k);
+    if(ticks[ticks.length-1]!==max) ticks.push(max);
+    return ticks;
+  }
+
+  // Color scale (Du Boisian accent set)
+  const COLORS = ['#153e6b','#9e2a2f','#c7a000','#1f6f7a','#6b7d2a','#6b2f5a'];
+
+  // Rendering
+  function clear(node){ while(node.firstChild) node.removeChild(node.firstChild); }
+
+  function renderBars(model){
+    const W=680, H=360, pad=50; // inner plot
+    svg.setAttribute('viewBox','0 0 700 420');
+    clear(svg);
+
+    // Frame
+    const frame = rect(10,10,680,400,'none','#111',2); svg.appendChild(frame);
+
+    const g = group(0,0); svg.appendChild(g);
+
+    const values = model.meta.type==='time' ? model.values.map(d=>({label:String(d.year), value:d.value})) : model.values;
+    const maxV = Math.max(...values.map(d=>d.value));
+
+    // Axes
+    const ticks = niceTicks(maxV, 6);
+    // y grid
+    ticks.forEach(t=>{
+      const y = map(t, 0,maxV, H-pad, pad);
+      const line = path(`M ${pad} ${y} H ${W}`, '#00000033', 1);
+      g.appendChild(line);
+      const lbl = text(pad-8, y+4, t, 'end'); lbl.setAttribute('font-size','12'); lbl.setAttribute('fill','#333'); g.appendChild(lbl);
+    });
+
+    // Bars
+    const n = values.length; const bw = (W - pad*1.5)/n * 0.7; const gap = ((W - pad*1.5)/n) - bw; let x = pad + gap*0.75;
+    values.forEach((d,i)=>{
+      const h = map(d.value, 0,maxV, 0, H-pad*1.1);
+      const y = (H - pad) - h;
+      const color = COLORS[i % COLORS.length];
+      // Slanted parallelogram
+      const skew = 12; // degrees
+      const skewRad = skew * Math.PI/180; const dx = Math.tan(skewRad) * h;
+      const poly = polygon([
+        [x, y], [x+bw, y-dx], [x+bw, y-dx+h], [x, y+h]
+      ], color, '#111');
+      g.appendChild(poly);
+
+      // Bar label
+      const lblY = Math.max(y-6, pad*0.7);
+      const lbl = text(x + bw/2, lblY, d.label, 'middle'); lbl.setAttribute('font-size','12'); lbl.setAttribute('font-weight','600'); g.appendChild(lbl);
+
+      // Value annotation
+      const val = text(x + bw/2, y + h + 14, d.value + (model.meta.unit?` ${model.meta.unit}`:''), 'middle'); val.setAttribute('font-size','12'); val.setAttribute('fill','#333'); g.appendChild(val);
+
+      x += bw + gap;
+    });
+
+    // Title band
+    chartTitleTag.textContent = titleInp.value || (model.meta.title||'');
+
+    // Legend
+    clear(legend);
+    values.forEach((d,i)=>{ const chip = document.createElement('span'); chip.className='chip'; chip.style.background = 'color-mix(in oklab,'+COLORS[i%COLORS.length]+' 25%, var(--chip-bg))'; chip.textContent=d.label; legend.appendChild(chip); });
+  }
+
+  function renderRadial(model){
+    const W=680, H=360; svg.setAttribute('viewBox','0 0 700 420'); clear(svg);
+    const frame = rect(10,10,680,400,'none','#111',2); svg.appendChild(frame);
+    const g = group(350,210); svg.appendChild(g);
+
+    const values = model.values.slice();
+    const sum = values.reduce((a,b)=>a+b.value,0)||1;
+    let start = -Math.PI/2; const R1=60, R2=150;
+    clear(legend);
+
+    values.forEach((d,i)=>{
+      const frac = d.value/sum; const end = start + frac*2*Math.PI;
+      const color = COLORS[i%COLORS.length];
+      const wedge = ringWedge(0,0,R1,R2,start,end,color,'#111'); g.appendChild(wedge);
+      // label (mid-angle)
+      const a = (start+end)/2; const rx = Math.cos(a)*(R2+16); const ry = Math.sin(a)*(R2+16);
+      const lbl = text(rx, ry, `${d.label} · ${Math.round(frac*100)}%`, (rx>=0?'start':'end')); lbl.setAttribute('font-size','12'); lbl.setAttribute('font-weight','600'); g.appendChild(lbl);
+
+      const chip = document.createElement('span'); chip.className='chip'; chip.style.background = 'color-mix(in oklab,'+color+' 25%, var(--chip-bg))'; chip.textContent = d.label; legend.appendChild(chip);
+      start = end;
+    });
+
+    chartTitleTag.textContent = titleInp.value || (model.meta.title||'');
+  }
+
+  // SVG helpers
+  function svgEl(n){ return document.createElementNS('http://www.w3.org/2000/svg', n); }
+  function rect(x,y,w,h,fill,stroke,sw){ const r=svgEl('rect'); r.setAttribute('x',x); r.setAttribute('y',y); r.setAttribute('width',w); r.setAttribute('height',h); if(fill) r.setAttribute('fill',fill); if(stroke) r.setAttribute('stroke',stroke); if(sw) r.setAttribute('stroke-width',sw); return r; }
+  function text(x,y,str,anchor='start'){ const t=svgEl('text'); t.setAttribute('x',x); t.setAttribute('y',y); t.setAttribute('text-anchor',anchor); t.textContent=str; return t; }
+  function group(tx=0,ty=0){ const g=svgEl('g'); if(tx||ty) g.setAttribute('transform',`translate(${tx},${ty})`); return g; }
+  function path(d, stroke='#111', sw=2){ const p=svgEl('path'); p.setAttribute('d', d); p.setAttribute('fill','none'); p.setAttribute('stroke', stroke); p.setAttribute('stroke-width', sw); return p; }
+  function polygon(points, fill, stroke='#111', sw=2){ const p=svgEl('polygon'); p.setAttribute('points', points.map(p=>p.join(',')).join(' ')); p.setAttribute('fill', fill); p.setAttribute('stroke', stroke); p.setAttribute('stroke-width', sw); return p; }
+  function map(v,in0,in1,out0,out1){ const t = (v-in0)/(in1-in0||1); return out0 + t*(out1-out0); }
+  function arcPath(cx,cy,r,a0,a1){ const large = (a1-a0) > Math.PI ? 1:0; const x0=cx+r*Math.cos(a0), y0=cy+r*Math.sin(a0); const x1=cx+r*Math.cos(a1), y1=cy+r*Math.sin(a1); return `M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1} Z`; }
+  function ringWedge(cx,cy,rInner,rOuter,a0,a1,fill,stroke){ const large=(a1-a0)>Math.PI?1:0; const x0i=cx+rInner*Math.cos(a0), y0i=cy+rInner*Math.sin(a0); const x1i=cx+rInner*Math.cos(a1), y1i=cy+rInner*Math.sin(a1); const x0o=cx+rOuter*Math.cos(a0), y0o=cy+rOuter*Math.sin(a0); const x1o=cx+rOuter*Math.cos(a1), y1o=cy+rOuter*Math.sin(a1); const d=[`M ${x0i} ${y0i}`,`L ${x0o} ${y0o}`,`A ${rOuter} ${rOuter} 0 ${large} 1 ${x1o} ${y1o}`,`L ${x1i} ${y1i}`,`A ${rInner} ${rInner} 0 ${large} 0 ${x0i} ${y0i}`,`Z`].join(' '); const p=svgEl('path'); p.setAttribute('d',d); p.setAttribute('fill',fill); p.setAttribute('stroke',stroke); p.setAttribute('stroke-width','2'); return p; }
+
+  // Render controller
+  function parseModel(){ try{ return JSON.parse(dataBox.value); } catch(e){ alert('JSON parse error: '+e.message); return null; } }
+
+  function render(){ vib(8); AudioKit.chime(); const model = parseModel(); if(!model) return; if(templateSel.value==='bars') renderBars(model); else renderRadial(model); announce('Chart rendered'); }
+
+  // Wire controls
+  document.getElementById('renderBtn').addEventListener('click', render);
+  document.querySelectorAll('.use-dataset').forEach(btn=>btn.addEventListener('click', (e)=>{
+    const k = e.currentTarget.getAttribute('data-kind'); datasetSel.value = k; loadEditor(k); vib(); AudioKit.blip(); announce('Dataset loaded: '+k);
+  }));
+  document.querySelectorAll('.use-template').forEach(btn=>btn.addEventListener('click', (e)=>{
+    const t = e.currentTarget.getAttribute('data-template'); templateSel.value = t; vib(); AudioKit.blip(); announce('Template selected: '+t);
+  }));
+
+  datasetSel.addEventListener('change', ()=>{ loadEditor(datasetSel.value); vib(); AudioKit.blip(); });
+  templateSel.addEventListener('change', ()=>{ vib(); AudioKit.blip(); });
+
+  // Copy / Download
+  document.getElementById('copyBtn').addEventListener('click', async ()=>{ try{ await navigator.clipboard.writeText(dataBox.value); vib(); AudioKit.blip(); announce('JSON copied'); }catch{ alert('Copy failed'); } });
+  document.getElementById('downloadBtn').addEventListener('click', ()=>{ const blob = new Blob([dataBox.value], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'dataset.json'; document.body.appendChild(a); a.click(); a.remove(); vib(); AudioKit.blip(); announce('JSON downloaded'); });
+
+  // Initial paint
+  render();
+  </script>
+
+  <style>
+    /* Visually hidden util at end to avoid cascade conflicts */
+    .visually-hidden{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
+  </style>
+</body>
+</html>

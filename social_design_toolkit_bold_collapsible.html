@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Social Design Toolkit — Bold</title>
+  <meta name="color-scheme" content="light dark">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #111111;
+      --muted: #5a5a5a;
+      --accent: #e11900; /* agit‑prop red */
+      --ink: #000000;
+      --card: #f7f7f7;
+      --chip: #111111;
+      --chip-fg: #ffffff;
+      --ring: var(--accent);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f0f10;
+        --fg: #f5f5f5;
+        --muted: #b5b5b5;
+        --card: #151517;
+        --chip: #f5f5f5;
+        --chip-fg: #0f0f10;
+        --ink: #ffffff;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font: 400 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg);
+      color: var(--fg);
+    }
+
+    a.skip {
+      position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden;
+    }
+    a.skip:focus {
+      left: 16px; top: 16px; width: auto; height: auto; padding: 8px 12px; background: var(--ink); color: var(--bg);
+      outline: 3px solid var(--ring);
+    }
+
+    header.site {
+      position: sticky; top: 0; z-index: 10;
+      background: var(--bg); border-bottom: 3px solid var(--ink);
+    }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 20px clamp(16px, 3vw, 28px); }
+
+    h1 {
+      font-weight: 900; letter-spacing: .02em; text-transform: uppercase; line-height: 1.05;
+      font-size: clamp(28px, 5vw, 56px);
+      margin: 6px 0 8px 0;
+    }
+    .kicker { font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 10px; border-radius: 999px; border: 2px solid var(--ink);
+      background: var(--chip); color: var(--chip-fg); font-weight: 800; text-transform: uppercase; font-size: 12px; letter-spacing: .06em;
+    }
+    .chip::before { content: "•"; font-weight: 900; }
+
+    .grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+    @media (min-width: 840px) { .grid { grid-template-columns: 1.2fr .8fr; } }
+
+    section[role="region"] { border: 3px solid var(--ink); background: var(--card); }
+    section[role="region"] header { border-bottom: 3px solid var(--ink); background: var(--bg); }
+    section[role="region"] header h2 { margin: 0; padding: 14px 14px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; }
+
+    .slab { padding: 14px; }
+    p.lede { font-weight: 800; font-size: 18px; }
+    .meta { color: var(--muted); font-size: 14px; }
+
+    details.tool {
+      border: 3px solid var(--ink); background: var(--bg);
+    }
+    details.tool + details.tool { margin-top: 12px; }
+    details.tool[open] { outline: 3px solid var(--ring); outline-offset: 3px; }
+    summary {
+      list-style: none; cursor: pointer; position: relative; padding: 14px 48px 14px 14px; user-select: none;
+      font-weight: 900; text-transform: uppercase; letter-spacing: .04em; display: flex; align-items: center; gap: 10px;
+    }
+    summary:focus { outline: none; }
+    summary:focus-visible { outline: 3px solid var(--ring); outline-offset: 3px; }
+    summary::-webkit-details-marker { display: none; }
+    .caret { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; border: 3px solid var(--ink); border-radius: 6px; display: grid; place-items: center; font-weight: 900; }
+    .badge { background: var(--accent); color: #fff; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 900; letter-spacing: .04em; }
+
+    .panel { padding: 12px 14px 16px 14px; border-top: 3px solid var(--ink); }
+    .panel ul { margin: 8px 0 0 1rem; }
+    .panel li { margin: 6px 0; }
+
+    .controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .btn {
+      appearance: none; border: 3px solid var(--ink); background: var(--bg); color: var(--fg);
+      padding: 8px 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; border-radius: 10px;
+      cursor: pointer;
+    }
+    .btn[aria-pressed="true"] { background: var(--accent); color: #fff; }
+    .btn:focus-visible { outline: 3px solid var(--ring); outline-offset: 3px; }
+
+    footer.site { border-top: 3px solid var(--ink); }
+
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+    /* Minimal motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      .caret { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip">Skip to main content</a>
+
+  <header class="site" role="banner">
+    <div class="wrap">
+      <div class="kicker" aria-label="Category">Relation / Justice</div>
+      <h1>Social Design Toolkit</h1>
+      <div class="chips" role="list" aria-label="Aesthetics">
+        <span class="chip" role="listitem">agit‑prop</span>
+        <span class="chip" role="listitem">bold didactic</span>
+        <span class="chip" role="listitem">counter‑hegemonic</span>
+        <span class="chip" role="listitem">critical DIY</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="wrap grid" role="main">
+
+    <section role="region" aria-labelledby="mission-h">
+      <header><h2 id="mission-h">Mission & Purpose</h2></header>
+      <div class="slab">
+        <p class="lede"><strong>Mission:</strong> Equip communities to resist hegemonic / NGO extraction.</p>
+        <p class="lede"><strong>Purpose:</strong> Build critical literacy and counter‑design capacity.</p>
+        <p class="meta">Design stance: power‑aware, community‑led, refusal‑compatible. Use the components below as prompts to co‑produce strategy, not as off‑the‑shelf solutions.</p>
+        <div class="controls" aria-label="Interface options">
+          <button class="btn" id="audioToggle" aria-pressed="false">Audio: Off</button>
+          <button class="btn" id="hapticsToggle" aria-pressed="true">Haptics: On</button>
+          <span class="sr-only" id="live" aria-live="polite"></span>
+        </div>
+      </div>
+    </section>
+
+    <section role="region" aria-labelledby="components-h">
+      <header><h2 id="components-h">Components (Collapsible)</h2></header>
+      <div class="slab" id="components">
+
+        <details class="tool" data-key="probes">
+          <summary aria-controls="panel-probes" aria-expanded="false">
+            <span class="badge">01</span> Cultural Probes
+            <span class="caret" aria-hidden="true">↕</span>
+          </summary>
+          <div id="panel-probes" class="panel" role="region" aria-label="Cultural Probes">
+            <ul>
+              <li>Photo/Audio diaries that map <em>extraction touchpoints</em> (forms, checkpoints, metrics).</li>
+              <li>“Power postcards”: participants mail a card to future selves naming red lines & non‑negotiables.</li>
+              <li>Shadow the metric: log every time a KPI distorts care; collect counter‑metrics.</li>
+              <li>Refusal kit: script phrases for declining harmful participation (<em>say no without losing voice</em>).</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="tool" data-key="activities">
+          <summary aria-controls="panel-acts" aria-expanded="false">
+            <span class="badge">02</span> Activities
+            <span class="caret" aria-hidden="true">↕</span>
+          </summary>
+          <div id="panel-acts" class="panel" role="region" aria-label="Activities">
+            <ul>
+              <li>Map the money: diagram where funds flow, who chooses, who benefits; publish a one‑page zine.</li>
+              <li>Contra‑brief: rewrite the client brief from the community’s standpoint; add harms & safeguards.</li>
+              <li>Borrowed agency audit: list all actors claiming to speak for the community; validate consent.</li>
+              <li>Design embargo: define conditions under which work pauses until accountability is met.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="tool" data-key="readings">
+          <summary aria-controls="panel-readings" aria-expanded="false">
+            <span class="badge">03</span> Postcolonial Readings
+            <span class="caret" aria-hidden="true">↕</span>
+          </summary>
+          <div id="panel-readings" class="panel" role="region" aria-label="Postcolonial Readings">
+            <ul>
+              <li>Spivak — <em>Can the Subaltern Speak?</em> (representation vs. re‑presentation).</li>
+              <li>Escobar — <em>Encountering Development</em> (development as discourse & apparatus).</li>
+              <li>Tuck & Yang — <em>Decolonization Is Not a Metaphor</em> (against settler moves to innocence).</li>
+              <li>hooks — <em>Talking Back</em> (pedagogies of voice & liberation).</li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="tool" data-key="movements">
+          <summary aria-controls="panel-movements" aria-expanded="false">
+            <span class="badge">04</span> Movement References
+            <span class="caret" aria-hidden="true">↕</span>
+          </summary>
+          <div id="panel-movements" class="panel" role="region" aria-label="Movement References">
+            <ul>
+              <li>Participatory action research (PAR) & community tech zines.</li>
+              <li>Mutual aid networks: governance templates, care agreements, forkable bylaws.</li>
+              <li>Design justice principles (DJN) adapted as <em>local</em> charters; track accountability.</li>
+              <li>Union toolkits: grievance flows, shop‑floor surveys, strike school basics.</li>
+            </ul>
+          </div>
+        </details>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site" role="contentinfo">
+    <div class="wrap" style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
+      <div style="font-weight:900;text-transform:uppercase;letter-spacing:.08em">Counter‑Hegemonic • Critical DIY</div>
+      <div class="meta">Built as a single, accessible sheet. No external dependencies.</div>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      const live = document.getElementById('live');
+      const audioBtn = document.getElementById('audioToggle');
+      const hapticsBtn = document.getElementById('hapticsToggle');
+      const details = document.querySelectorAll('details.tool');
+
+      // Accessibility: keep aria-expanded in sync for summary
+      details.forEach(d => {
+        const sum = d.querySelector('summary');
+        const onToggle = () => {
+          const expanded = d.open;
+          sum.setAttribute('aria-expanded', String(expanded));
+          ping(expanded ? 'open' : 'close');
+          buzz(8);
+          speak(expanded ? 'Opened' : 'Closed');
+        };
+        d.addEventListener('toggle', onToggle);
+        // also allow Enter/Space on summary for browsers that need it
+        sum.addEventListener('keydown', (e)=>{
+          if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); d.open = !d.open; }
+        });
+      });
+
+      // Audio (Web Audio) — subtle blip/chime
+      let ctx = null; let audioOn = false;
+      function ensureCtx(){
+        if(!ctx){
+          try{ ctx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ ctx = null; }
+        }
+        return ctx;
+      }
+      function tone(freq=440, dur=0.08, type='sine', gain=0.03){
+        if(!audioOn || !ensureCtx()) return;
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = type; osc.frequency.value = freq;
+        g.gain.value = gain;
+        osc.connect(g).connect(ctx.destination);
+        const now = ctx.currentTime;
+        g.gain.setValueAtTime(gain, now);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+        osc.start(now); osc.stop(now + dur);
+      }
+      function ping(kind='blip'){
+        if(!audioOn) return;
+        if(kind === 'open'){ tone(520, 0.09, 'triangle', 0.04); tone(780, 0.07, 'sine', 0.02); }
+        else if(kind === 'close'){ tone(360, 0.07, 'sine', 0.03); }
+        else { tone(440, 0.06, 'sine', 0.02); }
+      }
+      function speak(msg){ if(live){ live.textContent = msg; } }
+
+      // Haptics
+      let hapticsOn = true;
+      function buzz(ms=6){ if(hapticsOn && 'vibrate' in navigator){ navigator.vibrate(ms); } }
+
+      // Toggle buttons
+      audioBtn.addEventListener('click', async () => {
+        audioOn = !audioOn; audioBtn.setAttribute('aria-pressed', String(audioOn));
+        audioBtn.textContent = `Audio: ${audioOn ? 'On' : 'Off'}`;
+        if(audioOn && ctx && ctx.state === 'suspended'){ try { await ctx.resume(); } catch(e){} }
+        if(audioOn && !ctx){ ensureCtx(); }
+        ping('blip'); buzz(8);
+      });
+      hapticsBtn.addEventListener('click', () => {
+        hapticsOn = !hapticsOn; hapticsBtn.setAttribute('aria-pressed', String(hapticsOn));
+        hapticsBtn.textContent = `Haptics: ${hapticsOn ? 'On' : 'Off'}`;
+        ping('blip'); buzz(12);
+      });
+
+      // Micro feedback on focus/hover of summaries (non-intrusive)
+      document.querySelectorAll('summary').forEach(s => {
+        s.addEventListener('pointerenter', ()=>{ ping('blip'); });
+        s.addEventListener('focus', ()=>{ ping('blip'); });
+        s.addEventListener('click', ()=>{ buzz(6); });
+      });
+    })();
+  </script>
+</body>
+</html>

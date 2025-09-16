@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Metaphors Toolkit (Imaginaries Lab) — Collage Cards & Activities</title>
+<style>
+  :root{
+    /* Palette aims for WCAG AA by default */
+    --ink:#0c0c0c;
+    --paper:#faf9f3;
+    --paper-2:#fffef8;
+    --tape:#f1e6b8;
+    --accent:#1e40af; /* indigo-800 */
+    --accent-2:#f59e0b; /* amber-500 */
+    --accent-3:#b91c1c; /* red-700 */
+    --mint:#10b981; /* green teals for success */
+    --shadow:0 10px 20px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.06);
+    --radius:18px;
+    --radius-sm:12px;
+    --ring:0 0 0 3px rgba(30,64,175,.25);
+    --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+  }
+  [data-contrast="high"]{
+    --paper:#ffffff; --paper-2:#ffffff; --ink:#000000; --accent:#000000; --accent-2:#000000; --accent-3:#000000;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --paper:#0b0b0b; --paper-2:#111111; --ink:#f6f6f6; --tape:#3b3b2a; --shadow:0 10px 20px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.3);} 
+  }
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--paper);
+    color:var(--ink); font:16px/1.5 var(--font);
+  }
+  a{color:var(--accent)}
+  .visually-hidden{position:absolute !important; height:1px; width:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); white-space:nowrap;}
+  .skip-link{position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;}
+  .skip-link:focus{left:12px; top:12px; width:auto; height:auto; padding:.5rem .75rem; background:var(--accent); color:white; border-radius:8px; z-index:1000}
+  header{
+    position:sticky; top:0; z-index:20; backdrop-filter: blur(6px);
+    background:linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,.2));
+    border-bottom:1px dashed rgba(0,0,0,.12);
+  }
+  @media (prefers-color-scheme: dark){
+    header{background:linear-gradient(180deg, rgba(20,20,20,.7), rgba(20,20,20,.2)); border-bottom:1px dashed rgba(255,255,255,.14)}
+  }
+  .inner{max-width:1100px; margin:0 auto; padding: clamp(12px, 2vw, 20px);}  
+  .top{
+    display:grid; grid-template-columns:1fr auto; gap:14px; align-items:center;
+  }
+  .brand{
+    display:flex; gap:12px; align-items:center;
+  }
+  .stamp{position:relative; width:44px; height:44px; border-radius:50%; background:var(--accent-2); box-shadow: var(--shadow); transform: rotate(-3deg);}
+  .stamp:before{content:""; position:absolute; inset:4px; border:3px dashed rgba(0,0,0,.25); border-radius:50%;}
+  h1{font-size:clamp(1.15rem, 2.2vw, 1.6rem); margin:.2rem 0 0 0; letter-spacing:.2px}
+  .mission{font-size:.95rem; opacity:.9}
+
+  .controls{display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:flex-end}
+  .btn{appearance:none; border:2px solid var(--ink); background:var(--paper-2); color:var(--ink); border-radius:999px; padding:.5rem .9rem; font-weight:700; box-shadow:var(--shadow); cursor:pointer}
+  .btn:hover, .btn:focus{outline:none; box-shadow:var(--shadow), var(--ring)}
+  .btn[aria-pressed="true"]{background:var(--accent); color:#fff; border-color:var(--accent)}
+
+  main{max-width:1100px; margin:0 auto; padding: 10px clamp(12px, 2vw, 20px) 64px;}
+
+  /* Collage background accents */
+  .collage{
+    position:relative; padding:18px; border-radius:var(--radius); background:var(--paper-2);
+    box-shadow:var(--shadow);
+  }
+  .collage:before, .collage:after{
+    content:""; position:absolute; width:120px; height:26px; background:var(--tape); opacity:.9;
+    transform:rotate(-3deg); top:-12px; left:12px; border:1px dashed rgba(0,0,0,.15);
+  }
+  .collage:after{ right:12px; left:auto; transform:rotate(4deg);}
+
+  .section-title{display:flex; align-items:center; gap:.6rem; margin: 26px 6px 12px; font-weight:900; font-size:1.1rem}
+  .chip{display:inline-flex; align-items:center; gap:.4rem; padding:.25rem .55rem; border-radius:999px; border:1.5px solid var(--ink); background:var(--paper-2); font-size:.8rem; font-weight:700}
+
+  /* Grid of metaphor cards */
+  .grid{display:grid; grid-template-columns: repeat( auto-fit, minmax(220px, 1fr) ); gap:14px}
+  .card{position:relative; background:var(--paper); border:2px solid var(--ink); border-radius:var(--radius); padding:12px 12px 14px; 
+    box-shadow: var(--shadow); transition: transform .18s ease, box-shadow .18s ease;}
+  .card:hover{transform: translateY(-2px) rotate(-.3deg)}
+  .card h3{margin:0 0 8px; font-size:1.05rem}
+  .meta{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px}
+  .meta .chip{border-style:dashed}
+  .torn{position:absolute; inset:0; pointer-events:none;}
+  .torn svg{position:absolute; width:50px; height:20px; opacity:.4}
+  .torn svg:nth-child(1){top:-2px; left:10px}
+  .torn svg:nth-child(2){bottom:-2px; right:16px; transform:scaleX(-1)}
+
+  .card .actions{display:flex; gap:8px; margin-top:8px; flex-wrap:wrap}
+  .pill{appearance:none; border:none; background:var(--accent); color:#fff; border-radius:999px; padding:.4rem .7rem; font-weight:800; cursor:pointer}
+  .pill.secondary{background:var(--accent-2);}
+  .pill.ghost{background:transparent; color:var(--ink); border:2px dashed var(--ink)}
+  .card details{border:1.5px dashed var(--ink); border-radius:12px; padding:.5rem .6rem; background:var(--paper-2)}
+  .card details summary{cursor:pointer; font-weight:800}
+
+  /* Activities */
+  .accordion{display:grid; gap:12px}
+  .activity{border:2px solid var(--ink); border-radius:var(--radius); background:var(--paper-2); box-shadow:var(--shadow);}
+  .activity header{position:relative; inset:unset; border-bottom:2px dashed var(--ink); background:transparent; backdrop-filter:none}
+  .activity h4{margin:0; font-size:1rem}
+  .activity .body{padding:12px 16px}
+  .steps{margin:0; padding-left:1.1rem}
+
+  /* Collage board */
+  .board-wrap{margin-top:18px}
+  .board{
+    position:relative; min-height:260px; border:2px dashed var(--ink); border-radius:var(--radius);
+    background: repeating-linear-gradient(135deg, rgba(0,0,0,.04), rgba(0,0,0,.04) 10px, transparent 10px, transparent 20px);
+    overflow:hidden;
+  }
+  .sticker{position:absolute; display:inline-block; padding:.55rem .7rem; background:var(--paper); border:2px solid var(--ink); border-radius:12px; box-shadow: var(--shadow); transform: rotate(var(--rot, 0deg)); touch-action:none}
+  .sticker:focus{outline:none; box-shadow: var(--ring), var(--shadow)}
+  .sticker .pin{position:absolute; width:14px; height:14px; background:var(--accent-3); border-radius:50%; top:-8px; left:8px; box-shadow:0 2px 0 rgba(0,0,0,.25)}
+
+  footer{max-width:1100px; margin:28px auto 40px; padding:0 16px; font-size:.9rem; opacity:.85}
+
+  /* Print tweaks */
+  @media print{
+    header, .controls, .board-wrap{display:none}
+    .card, .activity{break-inside:avoid}
+    body{background:#fff}
+  }
+</style>
+</head>
+<body data-contrast="normal">
+<a class="skip-link" href="#main">Skip to content</a>
+<header>
+  <div class="inner top">
+    <div class="brand" aria-label="Toolkit heading">
+      <div class="stamp" aria-hidden="true"></div>
+      <div>
+        <h1>Metaphors Toolkit <span aria-hidden="true">—</span> <span class="visually-hidden">(</span>Imaginaries Lab<span class="visually-hidden">)</span></h1>
+        <div class="mission">Expand conceptual framing via metaphor • Reframe problems and possibilities.</div>
+      </div>
+    </div>
+    <div class="controls" role="group" aria-label="Settings">
+      <button class="btn" id="soundBtn" aria-pressed="true">Sound: On</button>
+      <button class="btn" id="hapticBtn" aria-pressed="true">Haptics: On</button>
+      <button class="btn" id="motionBtn" aria-pressed="true">Motion: On</button>
+      <button class="btn" id="contrastBtn" aria-pressed="false" aria-label="Toggle high contrast">High Contrast</button>
+      <button class="btn" id="draw3">Draw 3 Cards</button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="inner">
+  <section class="collage" aria-labelledby="cardsTitle">
+    <h2 class="section-title" id="cardsTitle">
+      <span class="chip" aria-hidden="true">🎴</span>
+      Metaphor Cards
+    </h2>
+    <p>Pick a card, flip for prompts, then <strong>Pin to Board</strong> to build a playful collage of frames. Use <em>Draw 3 Cards</em> for fast reframing.</p>
+    <div id="cards" class="grid" role="list"></div>
+  </section>
+
+  <section class="collage" aria-labelledby="activitiesTitle">
+    <h2 class="section-title" id="activitiesTitle">
+      <span class="chip" aria-hidden="true">🧩</span>
+      Activities
+    </h2>
+    <div class="accordion" id="activities"></div>
+  </section>
+
+  <section class="collage board-wrap" aria-labelledby="boardTitle">
+    <h2 class="section-title" id="boardTitle">
+      <span class="chip" aria-hidden="true">📌</span>
+      Collage Board
+    </h2>
+    <p>Pin cards here as stickers. Drag with mouse/touch. Keyboard users: focus a sticker and use arrow keys to nudge.</p>
+    <div class="board" id="board" aria-live="polite" aria-label="Collage board for pinned metaphors"></div>
+  </section>
+</main>
+
+<footer>
+  <p><strong>Aesthetics:</strong> <span class="chip">speculative play</span> <span class="chip">collage prompts</span> <span class="chip">open-ended</span></p>
+  <p>Respects <abbr title="Web Content Accessibility Guidelines">WCAG</abbr> AA contrast by default. Motion & audio honor user settings. No external assets.</p>
+</footer>
+
+<div class="visually-hidden" aria-live="polite" id="live"></div>
+
+<script>
+(function(){
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const store = {
+    soundOn: JSON.parse(localStorage.getItem('metaphor_soundOn') ?? String(!prefersReducedMotion)),
+    hapticsOn: JSON.parse(localStorage.getItem('metaphor_hapticsOn') ?? 'true'),
+    motionOn: JSON.parse(localStorage.getItem('metaphor_motionOn') ?? String(!prefersReducedMotion)),
+    contrast: localStorage.getItem('metaphor_contrast') || 'normal'
+  };
+
+  // Settings buttons
+  const soundBtn = document.getElementById('soundBtn');
+  const hapticBtn = document.getElementById('hapticBtn');
+  const motionBtn = document.getElementById('motionBtn');
+  const contrastBtn = document.getElementById('contrastBtn');
+  const draw3Btn = document.getElementById('draw3');
+  const live = document.getElementById('live');
+
+  function setPressed(btn, on, labelOn, labelOff){
+    btn.setAttribute('aria-pressed', String(on));
+    btn.textContent = `${labelOn.split(':')[0]}: ${on? 'On':'Off'}`;
+  }
+
+  function vibrate(ms=12){ if(store.hapticsOn && 'vibrate' in navigator){ navigator.vibrate(ms); } }
+
+  // WebAudio minimal synth
+  let audioCtx = null;
+  function ensureAudio(){ if(!audioCtx && store.soundOn){ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } }
+  function envGain(duration=0.2){
+    if(!store.soundOn || !audioCtx) return null;
+    const g = audioCtx.createGain();
+    g.gain.value = 0.0001; g.connect(audioCtx.destination);
+    const t = audioCtx.currentTime;
+    g.gain.exponentialRampToValueAtTime(0.3, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+    return g;
+  }
+  function blip(){
+    if(!store.soundOn) return; ensureAudio(); if(!audioCtx) return;
+    const osc = audioCtx.createOscillator(); osc.type = 'triangle'; osc.frequency.value = 660;
+    const g = envGain(0.18); if(!g) return; osc.connect(g); osc.start(); osc.stop(audioCtx.currentTime+0.18);
+  }
+  function chime(){
+    if(!store.soundOn) return; ensureAudio(); if(!audioCtx) return;
+    const o1 = audioCtx.createOscillator(); const o2 = audioCtx.createOscillator();
+    o1.type='sine'; o2.type='sine'; o1.frequency.value=523.25; o2.frequency.value=784.0; // C5 + G5
+    const g = envGain(0.35); if(!g) return; const g2 = envGain(0.5); if(!g2) return;
+    o1.connect(g); o2.connect(g2); o1.start(); o2.start();
+    const stopAt = audioCtx.currentTime+0.42; o1.stop(stopAt); o2.stop(stopAt);
+  }
+
+  // Apply stored settings
+  document.body.setAttribute('data-contrast', store.contrast);
+  setPressed(soundBtn, store.soundOn, 'Sound: On', 'Sound: Off');
+  setPressed(hapticBtn, store.hapticsOn, 'Haptics: On', 'Haptics: Off');
+  setPressed(motionBtn, store.motionOn, 'Motion: On', 'Motion: Off');
+  contrastBtn.setAttribute('aria-pressed', store.contrast==='high');
+
+  soundBtn.addEventListener('click', ()=>{ store.soundOn = !store.soundOn; localStorage.setItem('metaphor_soundOn', store.soundOn); setPressed(soundBtn, store.soundOn, 'Sound: On'); vibrate(); blip(); });
+  hapticBtn.addEventListener('click', ()=>{ store.hapticsOn = !store.hapticsOn; localStorage.setItem('metaphor_hapticsOn', store.hapticsOn); setPressed(hapticBtn, store.hapticsOn, 'Haptics: On'); vibrate(); });
+  motionBtn.addEventListener('click', ()=>{ store.motionOn = !store.motionOn; localStorage.setItem('metaphor_motionOn', store.motionOn); setPressed(motionBtn, store.motionOn, 'Motion: On'); vibrate(); });
+  contrastBtn.addEventListener('click', ()=>{ const high = document.body.getAttribute('data-contrast')==='high'; document.body.setAttribute('data-contrast', high? 'normal':'high'); localStorage.setItem('metaphor_contrast', high? 'normal':'high'); contrastBtn.setAttribute('aria-pressed', String(!high)); vibrate(); blip(); });
+
+  // Data — metaphors and activities
+  const metaphors = [
+    {title:'Garden', tags:['nature','growth'], prompts:{use:'Cultivate conditions; prune, compost, seed.', consider:'Seasons, pests, soil health, biodiversity.', watch:'Over-pruning; monoculture; slow feedback.'}},
+    {title:'Orchestra', tags:['coordination','timing'], prompts:{use:'Score, conductor, sections, rehearsal.', consider:'Tempo, dynamics, listening across parts.', watch:'Rigid hierarchy; virtuoso bias.'}},
+    {title:'Ecosystem', tags:['systems','adaptation'], prompts:{use:'Interdependence; niches; trophic levels.', consider:'Resilience, keystones, feedback loops.', watch:'Invasive species; fragile couplings.'}},
+    {title:'Toolbox', tags:['pragmatic','craft'], prompts:{use:'Choose right tool; maintain & sharpen.', consider:'Jigs/templates; shared workshop norms.', watch:'Maslow’s hammer; unsafe hacks.'}},
+    {title:'Bridge', tags:['connection','access'], prompts:{use:'Span divides; staging & load limits.', consider:'Approach ramps; tolls; maintenance.', watch:'Who pays/benefits; choke points.'}},
+    {title:'Lens', tags:['perception','focus'], prompts:{use:'Zoom, filter, polarize, refocus.', consider:'Frame edges; aberrations; glare.', watch:'Tunnel vision; surveillance optics.'}},
+    {title:'Laboratory', tags:['experiment','evidence'], prompts:{use:'Hypothesize, test, replicate, record.', consider:'Controls; instruments; ethics review.', watch:'Lab-world drift; sample bias.'}},
+    {title:'Loom', tags:['weaving','integration'], prompts:{use:'Warp/Weft; patterns; shuttle pass.', consider:'Tension, knots, selvedge strength.', watch:'Tangling; brittle weave.'}},
+    {title:'Game', tags:['rules','play'], prompts:{use:'Player roles; goals; scoring; loops.', consider:'Fairness; exploits; emergent meta.', watch:'Metric chasing; zero-sum traps.'}},
+    {title:'Map', tags:['orientation','abstraction'], prompts:{use:'Layers; legends; scales; routes.', consider:'What’s omitted; projections; updates.', watch:'Mistaking map for territory.'}},
+    {title:'Kaleidoscope', tags:['multiplicity','pattern'], prompts:{use:'Rotate to reveal new symmetries.', consider:'Mirrors; shards; illumination.', watch:'Dazzle without insight.'}},
+    {title:'Mirror', tags:['reflection','identity'], prompts:{use:'Feedback on self/brand/product.', consider:'Angle of view; social mirroring.', watch:'Narcissism; performativity.'}},
+    {title:'Library', tags:['memory','access'], prompts:{use:'Catalogs; APIs; circulation rules.', consider:'Metadata; preservation; commons.', watch:'Gatekeeping; dead stacks.'}},
+    {title:'Theater', tags:['staging','audience'], prompts:{use:'Scenes, props, cues, lighting.', consider:'Backstage labor; scripts; improv.', watch:'Spectacle over substance.'}},
+    {title:'Market', tags:['exchange','incentives'], prompts:{use:'Supply/demand; pricing; signals.', consider:'Externalities; commons; equity.', watch:'Perverse incentives.'}},
+    {title:'Ecosphere', tags:['planet','limits'], prompts:{use:'Material flows; carbon; cycles.', consider:'Planetary boundaries; justice.', watch:'Greenwashing metaphors.'}}
+  ];
+
+  const activities = [
+    {name:'Forced Pairing (2× metaphors)', mins:10, steps:[
+      'Draw two random metaphor cards.',
+      'Describe your challenge as if it lived inside each metaphor.',
+      'Synthesize: What design move appears at the overlap?',
+      'Pin both to the Collage Board with a short note.'
+    ]},
+    {name:'Metaphor Mad‑Libs', mins:8, steps:[
+      'Template: “Our [product/service] is like a [metaphor] because [reason].”',
+      'Generate three variations; rate clarity vs. novelty.',
+      'Keep the one that best reframes stakeholder talk.'
+    ]},
+    {name:'Inversion Drill', mins:7, steps:[
+      'Pick any card; flip each prompt to its opposite.',
+      'Ask: What if we intentionally did the opposite?',
+      'Note risks and a safe experiment you could run.'
+    ]},
+    {name:'Remix Matrix', mins:12, steps:[
+      'Make a 3×3: choose 3 metaphors × 3 features.',
+      'Populate intersections with small design tests.',
+      'Prioritize one test to run this week.'
+    ]},
+    {name:'Journey as Theater', mins:9, steps:[
+      'Map your user journey as acts & scenes.',
+      'Identify props, lighting, backstage labor.',
+      'Rewrite one scene to shift the audience’s role.'
+    ]}
+  ];
+
+  // Render cards
+  const cardsEl = document.getElementById('cards');
+  metaphors.forEach((m, idx)=>{
+    const li = document.createElement('article');
+    li.className='card'; li.setAttribute('role','listitem');
+    li.innerHTML = `
+      <div class="torn" aria-hidden="true">
+        ${tornSVG()} ${tornSVG()}
+      </div>
+      <h3>${m.title}</h3>
+      <div class="meta">${m.tags.map(t=>`<span class="chip">${t}</span>`).join('')}</div>
+      <details>
+        <summary aria-expanded="false">Prompts</summary>
+        <ul>
+          <li><strong>Use:</strong> ${m.prompts.use}</li>
+          <li><strong>Consider:</strong> ${m.prompts.consider}</li>
+          <li><strong>Watch:</strong> ${m.prompts.watch}</li>
+        </ul>
+      </details>
+      <div class="actions">
+        <button class="pill" data-pin="${idx}">Pin to Board</button>
+        <button class="pill secondary" data-pair="${idx}">Pair with Random</button>
+        <button class="pill ghost" data-example="${idx}">Example</button>
+      </div>
+    `;
+    cardsEl.appendChild(li);
+  });
+
+  // Details a11y
+  cardsEl.addEventListener('toggle', (e)=>{
+    if(e.target.tagName.toLowerCase()==='details'){
+      const open = e.target.open; e.target.querySelector('summary')?.setAttribute('aria-expanded', String(open));
+      vibrate(10); chime();
+    }
+  }, true);
+
+  // Button actions on cards
+  const board = document.getElementById('board');
+  cardsEl.addEventListener('click', (e)=>{
+    const t = e.target; if(!(t instanceof HTMLElement)) return;
+    if(t.dataset.pin){
+      const m = metaphors[Number(t.dataset.pin)];
+      addSticker(m.title);
+      announce(`${m.title} pinned to board`);
+      vibrate(15); blip();
+    }
+    if(t.dataset.pair){
+      const m1 = metaphors[Number(t.dataset.pair)];
+      const m2 = randomMetaphorExcept(m1.title);
+      addSticker(`${m1.title} × ${m2.title}`);
+      announce(`${m1.title} paired with ${m2.title}`);
+      vibrate(18); chime();
+    }
+    if(t.dataset.example){
+      const m = metaphors[Number(t.dataset.example)];
+      const ex = exampleFor(m.title);
+      addSticker(`${m.title}: ${ex}`);
+      announce(`Example added for ${m.title}`);
+      vibrate(12); blip();
+    }
+  });
+
+  // Draw 3
+  draw3Btn.addEventListener('click', ()=>{
+    const picks = pickN(3); picks.forEach(m=> addSticker(m.title));
+    announce('Three metaphors pinned.'); vibrate(20); chime();
+  });
+
+  function pickN(n){
+    const bag = [...metaphors]; const out=[]; 
+    while(out.length<n && bag.length){ out.push(bag.splice(Math.floor(Math.random()*bag.length),1)[0]); }
+    return out;
+  }
+  function randomMetaphorExcept(title){
+    const options = metaphors.filter(m=>m.title!==title); return options[Math.floor(Math.random()*options.length)];
+  }
+  function exampleFor(title){
+    const ex = {
+      'Garden':'Onboarding as seasonal care plan instead of funnel.',
+      'Orchestra':'Multi‑team release conducted with shared tempo map.',
+      'Ecosystem':'Platform as habitat supporting third‑party niches.',
+      'Toolbox':'Feature flags as shop jigs for safe experiments.',
+      'Bridge':'API gateway lowering access friction across silos.',
+      'Lens':'Customer research as switching between macro/micro.',
+      'Laboratory':'Dark‑launch as controlled experiment, with ethics gate.',
+      'Loom':'Service stitching that keeps tension even across touchpoints.',
+      'Game':'Loyalty program reframed as cooperative quest, not grind.',
+      'Map':'Living architecture map with provenance, not static diagram.',
+      'Kaleidoscope':'Interface themes to surface pattern variety quickly.',
+      'Mirror':'Feedback ritual that reflects back to the org, not just users.',
+      'Library':'Design tokens + docs as a lending commons.',
+      'Theater':'Demo days as staged scenes revealing backstage labor.',
+      'Market':'Credit for externalities (repair, reuse) in pricing model.',
+      'Ecosphere':'Roadmap budgeted against planetary boundaries.'
+    };
+    return ex[title] || 'Reframe a familiar element via this metaphor.';
+  }
+
+  // Render activities
+  const activitiesEl = document.getElementById('activities');
+  activities.forEach((a, i)=>{
+    const wrap = document.createElement('article'); wrap.className='activity'; wrap.setAttribute('role','region'); wrap.setAttribute('aria-labelledby', `act-${i}`);
+    wrap.innerHTML = `
+      <header class="inner" style="display:flex; align-items:center; gap:10px; justify-content:space-between;">
+        <h4 id="act-${i}"> ${a.name} <span class="chip" aria-label="minutes">⏱️ ${a.mins}m</span></h4>
+        <div style="display:flex; gap:8px;">
+          <button class="btn" data-start="${i}">Start</button>
+          <button class="btn" data-draw="${i}">Draw</button>
+        </div>
+      </header>
+      <div class="body">
+        <ol class="steps">${a.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+      </div>
+    `;
+    activitiesEl.appendChild(wrap);
+  });
+
+  activitiesEl.addEventListener('click', (e)=>{
+    const t = e.target; if(!(t instanceof HTMLElement)) return;
+    if(t.dataset.start){ vibrate(20); chime(); announce('Activity started: '+activities[Number(t.dataset.start)].name); }
+    if(t.dataset.draw){ vibrate(12); blip(); const m = pickN(1)[0]; addSticker(m.title); announce('Drew '+m.title); }
+  });
+
+  // Collage stickers
+  function addSticker(text){
+    const s = document.createElement('button'); s.className='sticker'; s.type='button'; s.setAttribute('aria-label', `Sticker: ${text}`); s.textContent=text;
+    s.style.setProperty('--rot', (Math.random()*8 - 4) + 'deg');
+    const x = 20 + Math.random()*(board.clientWidth-120);
+    const y = 20 + Math.random()*(board.clientHeight-80);
+    s.style.left = x+'px'; s.style.top = y+'px';
+    const pin = document.createElement('span'); pin.className='pin'; pin.setAttribute('aria-hidden','true'); s.appendChild(pin);
+    board.appendChild(s); s.focus();
+
+    let dragging=false, startX=0, startY=0, startLeft=0, startTop=0;
+    const onDown=(ev)=>{ dragging=true; vibrate(6); blip(); const p=getPoint(ev); startX=p.x; startY=p.y; const r=s.getBoundingClientRect(); startLeft=r.left - board.getBoundingClientRect().left; startTop=r.top - board.getBoundingClientRect().top; ev.preventDefault();}
+    const onMove=(ev)=>{ if(!dragging) return; const p=getPoint(ev); const dx=p.x-startX, dy=p.y-startY; place(startLeft+dx, startTop+dy); }
+    const onUp=()=>{ if(dragging){ dragging=false; vibrate(4); }}
+
+    s.addEventListener('pointerdown', onDown); window.addEventListener('pointermove', onMove); window.addEventListener('pointerup', onUp);
+
+    s.addEventListener('keydown', (ev)=>{
+      const step = (ev.shiftKey? 12 : 4);
+      if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(ev.key)){
+        ev.preventDefault();
+        const rect = s.getBoundingClientRect(); const brect = board.getBoundingClientRect();
+        let l = rect.left - brect.left; let t = rect.top - brect.top;
+        if(ev.key==='ArrowUp') t -= step; if(ev.key==='ArrowDown') t += step; if(ev.key==='ArrowLeft') l -= step; if(ev.key==='ArrowRight') l += step;
+        place(l,t);
+      }
+      if(ev.key==='Delete' || ev.key==='Backspace'){ s.remove(); announce('Sticker removed'); vibrate(6); blip(); }
+    });
+
+    function place(l,t){
+      const maxL = board.clientWidth - s.offsetWidth - 6; const maxT = board.clientHeight - s.offsetHeight - 6;
+      s.style.left = Math.max(6, Math.min(maxL, l))+'px'; s.style.top = Math.max(6, Math.min(maxT, t))+'px';
+    }
+  }
+
+  function getPoint(ev){ if(ev.touches && ev.touches[0]) return {x:ev.touches[0].clientX, y:ev.touches[0].clientY}; return {x:ev.clientX, y:ev.clientY}; }
+
+  function announce(msg){ live.textContent = msg; }
+
+  // Decorative torn-edge SVG
+  function tornSVG(){
+    return `<svg viewBox="0 0 50 20" aria-hidden="true" focusable="false">
+      <path d="M0 10 Q5 0 10 10 T20 10 T30 10 T40 10 T50 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity=".35" />
+    </svg>`;
+  }
+
+  // Respect motion
+  if(!store.motionOn){
+    document.documentElement.style.setProperty('scroll-behavior','auto');
+    document.querySelectorAll('.card').forEach(c=> c.style.transition='none');
+  }
+})();
+</script>
+</body>
+</html>

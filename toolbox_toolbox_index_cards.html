@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ToolboxToolbox — Index</title>
+  <style>
+    :root{
+      --bg:#FBFBFB; --fg:#1B1B1B; --muted:#666; --accent:#2F6FED; --card:#FFFFFF; --line:#E5E5E5;
+      --chip-bg:#F3F3F3; --chip-fg:#222; --focus:#1A73E8; --kbd:#EEE;
+    }
+    @media (prefers-color-scheme: dark){
+      :root{ --bg:#121316; --fg:#EAEAEA; --muted:#9AA0A6; --accent:#8AB4F8; --card:#1A1B1F; --line:#2B2D33; --chip-bg:#23252B; --chip-fg:#EAEAEA; --kbd:#2B2D33; }
+    }
+    body[data-theme="dark"]{ --bg:#101114; --fg:#F2F2F2; --muted:#A3A7AD; --accent:#9CC1FF; --card:#17191E; --line:#2A2C33; --chip-bg:#20232A; --chip-fg:#F2F2F2; }
+    body[data-theme="contrast"]{ --bg:#FFFFFF; --fg:#000000; --muted:#000000; --accent:#000000; --card:#FFFFFF; --line:#000000; --chip-bg:#FFFFFF; --chip-fg:#000000; }
+
+    /* Base */
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";}
+    a{color:var(--accent);text-decoration-thickness: .08em;text-underline-offset:2px}
+    .sr-only{position:absolute!important;left:-9999px!important;top:auto!important;width:1px!important;height:1px!important;overflow:hidden!important}
+
+    /* Header */
+    header{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);z-index:9}
+    .bar{display:grid;grid-template-columns:1fr auto;gap:.75rem;align-items:center;padding: .75rem clamp(.75rem,2.5vw,1.25rem)}
+    .title{font-weight:700;letter-spacing:.2px}
+    .controls{display:flex;gap:.5rem;flex-wrap:wrap;justify-self:end}
+    .input, select, button{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:.5rem;padding:.55rem .65rem}
+    .input{min-width:16ch}
+    .toggle{cursor:pointer}
+    .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; background:var(--kbd); padding:.1rem .35rem; border-radius:.3rem; border:1px solid var(--line); font-size:.8em}
+
+    /* Filters */
+    .filters{display:flex;flex-wrap:wrap;gap:.35rem;padding: .5rem clamp(.75rem,2.5vw,1.25rem) .75rem}
+    .chip{display:inline-block;border:1px solid var(--line);padding:.25rem .5rem;border-radius:.4rem;background:var(--chip-bg);color:var(--chip-fg);cursor:pointer;user-select:none}
+    .chip[aria-pressed="true"]{outline:2px solid var(--focus)}
+
+    /* List */
+    main{padding: .5rem clamp(.75rem,2.5vw,1.25rem) 2.5rem}
+    .count{color:var(--muted);font-size:.95rem;margin:.25rem 0 .5rem}
+    .grid{display:grid;grid-template-columns:1fr;gap:.75rem}
+    @media (min-width:640px){ .grid{grid-template-columns:repeat(2,1fr)} }
+    @media (min-width:960px){ .grid{grid-template-columns:repeat(3,1fr)} }
+
+    .card{background:var(--card);border:1px solid var(--line);border-radius:.65rem;padding:.85rem;display:grid;gap:.35rem}
+    .card h3{margin:0;font-size:1.05rem}
+    .meta{color:var(--muted);font-size:.9rem}
+    .tags{display:flex;flex-wrap:wrap;gap:.35rem}
+    .tag{border:1px solid var(--line);padding:.15rem .4rem;border-radius:.35rem;background:transparent;color:inherit}
+
+    footer{color:var(--muted);padding: 2rem clamp(.75rem,2.5vw,1.25rem) 3rem;border-top:1px solid var(--line)}
+
+    /* Focus visuals */
+    :where(a,button,[role="button"],.input,select):focus{outline:2px solid var(--focus); outline-offset:2px}
+  </style>
+</head>
+<body>
+  <a href="#content" class="sr-only">Skip to content</a>
+  <header role="banner">
+    <div class="bar" aria-label="Top bar">
+      <div class="title" aria-live="polite">ToolboxToolbox — Index <span class="sr-only">(links, metadata, tags)</span></div>
+      <div class="controls">
+        <label>
+          <span class="sr-only">Search</span>
+          <input id="q" class="input" type="search" placeholder="Search ( / )" aria-label="Search toolboxes" autocomplete="off" />
+        </label>
+        <label>
+          <span class="sr-only">Sort</span>
+          <select id="sort" aria-label="Sort results">
+            <option value="title">Sort: Title</option>
+            <option value="year">Sort: Year</option>
+            <option value="source">Sort: Source</option>
+          </select>
+        </label>
+        <button id="theme" class="toggle" aria-pressed="false" aria-label="Toggle dark/light">Theme</button>
+        <button id="contrast" class="toggle" aria-pressed="false" aria-label="Toggle high contrast">High Contrast</button>
+        <button id="sound" class="toggle" aria-pressed="false" aria-label="Toggle subtle audio">Sound</button>
+      </div>
+    </div>
+    <div id="filterBar" class="filters" role="toolbar" aria-label="Tag filters"></div>
+  </header>
+
+  <main id="content" role="main" tabindex="-1">
+    <div id="count" class="count" aria-live="polite"></div>
+    <section id="list" class="grid" aria-label="Index list"></section>
+  </main>
+
+  <footer role="contentinfo">
+    <p>
+      Index-card minimalism; text only. No external assets. Keyboard-friendly, mobile-first.
+      Haptics and subtle audio respect reduced-motion preferences. Data persists locally.
+    </p>
+  </footer>
+
+  <script>
+    // ---------------------------
+    // Data (minimal, text-only)
+    // ---------------------------
+    const ITEMS = [
+      { title:"IDEO Design Kit", url:"https://www.designkit.org/", source:"IDEO.org", year:2014, meta:"Design / Methods", tags:["design","methods","guide","mindsets"] },
+      { title:"MethodKit", url:"https://methodkit.com/", source:"MethodKit", year:2012, meta:"Design / Cards", tags:["cards","facilitation","grid","neutral"] },
+      { title:"Ethical Explorer", url:"https://ethicalexplorer.org/", source:"Omidyar Network", year:2020, meta:"Responsible Tech / Risks", tags:["ethics","risk","discussion"] },
+      { title:"CUP — Urban Investigation", url:"https://welcometocup.org/", source:"Center for Urban Pedagogy", year:2009, meta:"Civic / Education", tags:["civic","pedagogy","explainers"] },
+      { title:"Neighborhoods Now Toolkit", url:"https://archleague.org/project/neighborhoods-now/", source:"The Architectural League", year:2020, meta:"Civic / DIY Urbanism", tags:["civic","toolkit","streets"] },
+      { title:"Participatory Development Kit", url:"#", source:"Field", year:"—", meta:"Relation / Justice", tags:["participation","co-design","activities"] },
+      { title:"Earthseed Resource Kits", url:"#", source:"Mutual Aid", year:"—", meta:"Care / Ritual", tags:["care","mutual-aid","ritual"] },
+      { title:"New Survivalism Kits", url:"https://www.parsonscharlesworth.com/projects/new-survivalism/", source:"Parsons & Charlesworth", year:2014, meta:"Speculative / Survival", tags:["speculative","survival","narrative"] },
+      { title:"Portable Network Kit (CTNY)", url:"https://communitytechnyc.org/", source:"Community Tech NYC", year:2021, meta:"Infra / Community Networks", tags:["infrastructure","networks","justice"] },
+      { title:"First Aid Kit (MSF)", url:"https://www.msf.org/", source:"Médecins Sans Frontières", year:"—", meta:"Medical / Field", tags:["medical","field","modules"] },
+      { title:"ToolboxToolbox", url:"https://toolboxtoolbox.com/", source:"Meta Index", year:2018, meta:"Meta / Discovery", tags:["meta","index","compare"] }
+    ];
+
+    // ---------------------------
+    // State
+    // ---------------------------
+    const state = {
+      q: "",
+      sort: localStorage.getItem('tt.sort') || 'title',
+      tagSet: new Set(JSON.parse(localStorage.getItem('tt.tags')||'[]')),
+      theme: localStorage.getItem('tt.theme') || 'auto', // auto | dark | light
+      contrast: localStorage.getItem('tt.contrast') === 'true',
+      sound: localStorage.getItem('tt.sound') === 'true',
+      audioReady:false,
+    };
+
+    // Respect reduced motion by default disabling sound & haptics unless user opts in
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion && localStorage.getItem('tt.sound')===null) state.sound = false;
+
+    // ---------------------------
+    // DOM refs
+    // ---------------------------
+    const listEl = document.getElementById('list');
+    const countEl = document.getElementById('count');
+    const filterBar = document.getElementById('filterBar');
+    const qEl = document.getElementById('q');
+    const sortEl = document.getElementById('sort');
+    const themeBtn = document.getElementById('theme');
+    const contrastBtn = document.getElementById('contrast');
+    const soundBtn = document.getElementById('sound');
+
+    // ---------------------------
+    // Theme / contrast
+    // ---------------------------
+    function applyTheme(){
+      document.body.removeAttribute('data-theme');
+      if (state.contrast){ document.body.setAttribute('data-theme','contrast'); return; }
+      if (state.theme==='dark'){ document.body.setAttribute('data-theme','dark'); }
+      else if (state.theme==='light'){ /* default light via CSS vars */ }
+    }
+
+    themeBtn.addEventListener('click', ()=>{
+      vib(8); chime();
+      state.theme = state.theme==='auto' ? 'dark' : state.theme==='dark' ? 'light' : 'auto';
+      themeBtn.setAttribute('aria-pressed', String(state.theme!=='auto'));
+      localStorage.setItem('tt.theme', state.theme);
+      applyTheme();
+    });
+
+    contrastBtn.addEventListener('click', ()=>{
+      vib(10); chime();
+      state.contrast = !state.contrast;
+      contrastBtn.setAttribute('aria-pressed', String(state.contrast));
+      localStorage.setItem('tt.contrast', state.contrast);
+      applyTheme();
+    });
+
+    soundBtn.addEventListener('click', ()=>{
+      state.sound = !state.sound; soundBtn.setAttribute('aria-pressed', String(state.sound));
+      localStorage.setItem('tt.sound', state.sound);
+      if (state.sound) prepAudio();
+      vib(5); blip();
+    });
+
+    // ---------------------------
+    // Filters / search / sort
+    // ---------------------------
+    function uniqueTags(){
+      return Array.from(new Set(ITEMS.flatMap(i=>i.tags))).sort((a,b)=>a.localeCompare(b));
+    }
+
+    function renderTagBar(){
+      filterBar.innerHTML = '';
+      uniqueTags().forEach(t=>{
+        const b = document.createElement('button');
+        b.className='chip'; b.type='button'; b.textContent = `#${t}`; b.setAttribute('aria-pressed', state.tagSet.has(t));
+        b.addEventListener('click', ()=>{ toggleTag(t); });
+        filterBar.appendChild(b);
+      });
+    }
+
+    function toggleTag(tag){
+      vib(6); blip();
+      if (state.tagSet.has(tag)) state.tagSet.delete(tag); else state.tagSet.add(tag);
+      localStorage.setItem('tt.tags', JSON.stringify(Array.from(state.tagSet)));
+      renderTagBar(); render();
+    }
+
+    qEl.addEventListener('input', ()=>{ state.q = qEl.value.trim(); render(); });
+    sortEl.value = state.sort;
+    sortEl.addEventListener('change', ()=>{ state.sort = sortEl.value; localStorage.setItem('tt.sort', state.sort); vib(3); blip(); render(); });
+
+    // Keyboard shortcut to focus search
+    window.addEventListener('keydown', (e)=>{
+      if (e.key === '/' && document.activeElement !== qEl){ e.preventDefault(); qEl.focus(); qEl.select(); }
+    });
+
+    function filtered(){
+      const q = state.q.toLowerCase();
+      return ITEMS
+        .filter(it=>{
+          const inTags = state.tagSet.size===0 || it.tags.some(t=>state.tagSet.has(t));
+          const inQ = !q || [it.title,it.source,String(it.year),it.meta, ...it.tags].join(' ').toLowerCase().includes(q);
+          return inTags && inQ;
+        })
+        .sort((a,b)=>{
+          const s = state.sort;
+          if (s==='title') return a.title.localeCompare(b.title);
+          if (s==='source') return a.source.localeCompare(b.source);
+          if (s==='year') return String(a.year).localeCompare(String(b.year));
+          return 0;
+        });
+    }
+
+    function render(){
+      const rows = filtered();
+      countEl.textContent = `${rows.length} item${rows.length!==1?'s':''}`;
+      listEl.innerHTML = '';
+      rows.forEach(it=>{
+        const card = document.createElement('article');
+        card.className='card'; card.tabIndex=0; card.setAttribute('role','article');
+        card.addEventListener('pointerdown', ()=>{ vib(2); });
+        card.addEventListener('focus', blip);
+
+        const h3 = document.createElement('h3');
+        const a = document.createElement('a'); a.href = it.url; a.target = '_blank'; a.rel='noopener noreferrer'; a.textContent = it.title;
+        a.addEventListener('click', ()=>{ vib(10); chime(); });
+        h3.appendChild(a);
+
+        const meta = document.createElement('p'); meta.className='meta'; meta.textContent = `${it.source} • ${it.year} • ${it.meta}`;
+
+        const tags = document.createElement('p'); tags.className='tags'; tags.setAttribute('aria-label','tags');
+        it.tags.forEach(t=>{
+          const span = document.createElement('button');
+          span.type='button'; span.className='tag'; span.textContent = `#${t}`; span.setAttribute('aria-label',`filter by ${t}`);
+          span.addEventListener('click', ()=> toggleTag(t));
+          tags.appendChild(span);
+        });
+
+        card.append(h3, meta, tags);
+        listEl.appendChild(card);
+      });
+    }
+
+    // ---------------------------
+    // Haptics & Audio (subtle)
+    // ---------------------------
+    function vib(ms=8){ if (prefersReducedMotion) return; if (navigator.vibrate) try{ navigator.vibrate(ms); }catch(_){} }
+
+    let actx, master;
+    function prepAudio(){
+      if (actx) return; try{
+        actx = new (window.AudioContext||window.webkitAudioContext)();
+        master = actx.createGain(); master.gain.value = 0.05; master.connect(actx.destination);
+      }catch(_){}
+      state.audioReady = true;
+    }
+
+    function tone(freq=660, dur=0.07, type='sine'){
+      if (!state.sound || !actx) return;
+      const o = actx.createOscillator(); const g = actx.createGain();
+      o.type = type; o.frequency.value=freq; o.connect(g); g.connect(master);
+      const now = actx.currentTime; g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(1.0, now+0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, now+dur);
+      o.start(now); o.stop(now+dur);
+    }
+    function blip(){ tone(740, 0.05, 'triangle'); }
+    function chime(){ tone(520, 0.09, 'sine'); setTimeout(()=>tone(780,0.08,'sine'), 50); }
+
+    // Prime audio on first interaction if sound enabled
+    window.addEventListener('pointerdown', ()=>{ if (state.sound && !state.audioReady) prepAudio(); }, {once:false});
+
+    // ---------------------------
+    // Init
+    // ---------------------------
+    qEl.value = state.q;
+    themeBtn.setAttribute('aria-pressed', String(state.theme!=='auto'));
+    contrastBtn.setAttribute('aria-pressed', String(state.contrast));
+    soundBtn.setAttribute('aria-pressed', String(state.sound));
+    applyTheme(); renderTagBar(); render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🛠️ Haunted Tools Monthly — Print Catalog (Retro Essays + Image Slots)</title>
+<meta name="color-scheme" content="light dark" />
+<style>
+/* =====================
+   PRINT CATALOG SETTINGS
+   ===================== */
+:root{
+  /* Global inks */
+  --ink:#111; --paper:#F5F1E8; --paper-ryobi:#F6F0E4; --paper-dewalt:#F1E8CF; --paper-milw:#F3ECE9; --paper-makita:#ECEFED;
+  --rule:#1a1a1a20; --accent:#C84B31;
+  --teal:#2a9fa1; --cream:#F7EFE3; --brick:#9E3B33;
+  --lime:#B7E21A; --beige:#E9D9B9; --orange:#E58E3B;
+  --mustard:#D8AE2E; --hazblk:#111111; --offwhite:#F5F1E8;
+  --milw:#CF202E; --chrome:#C9C9C9; --coal:#222;
+  --blueprint:#0C1F2E; --line:#7aa7c9;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans";
+}
+html,body{background:var(--paper);color:var(--ink);font-family:var(--sans);margin:0;}
+
+/* Page & spread simulation (mobile-friendly scroll, but print-perfect) */
+.catalog{counter-reset: page;}
+.page{position:relative; box-sizing:border-box; width: min(100%, 900px); margin: 0 auto 18px; background: var(--paper); color: var(--ink); border:1px solid var(--rule);
+  padding: 28px 34px; box-shadow: 0 10px 40px rgba(0,0,0,.15);
+}
+.page:after{counter-increment: page; content: counter(page);
+  position:absolute; bottom:10px; right:20px; font: 600 12px var(--mono); opacity:.6}
+.spread{display:grid; grid-template-columns: 1fr; gap:18px;}
+@media(min-width:1000px){.spread{grid-template-columns:1fr 1fr}}
+.h1{font-weight:900; letter-spacing:.5px; font-size: clamp(26px,5.2vw,48px); margin:0}
+.h2{font-weight:900; letter-spacing:.4px; font-size: clamp(18px,3.2vw,28px); margin:0 0 6px}
+.h3{font-weight:800; letter-spacing:.3px; font-size: clamp(16px,2.5vw,22px); margin:0 0 6px}
+.small{font-size:13px; opacity:.75}
+.rule{height:1px; background:var(--rule); margin:10px 0 14px}
+.columns{columns: 2 280px; column-gap: 26px}
+.fig{border:1px solid var(--rule); background:#fff; padding:12px; border-radius:14px; overflow:clip; box-shadow: 0 2px 0 rgba(0,0,0,.06), 0 12px 22px rgba(0,0,0,.12)}
+.badge{display:inline-block; font:700 11px var(--mono); letter-spacing:.8px; padding:4px 8px; border:1px solid var(--rule); border-radius:999px;}
+.meta{font:600 12px var(--mono); opacity:.8}
+.kv{display:grid; grid-template-columns: 120px 1fr; gap:6px; font-size:14px}
+.kv b{font-weight:800}
+.toc li{list-style:none; display:flex; justify-content:space-between; border-bottom:1px dashed var(--rule); padding:6px 0}
+.toc li span{opacity:.7}
+
+/* Essay ornaments */
+.dropcap:first-letter{float:left; font: 900 40px var(--sans); line-height: .8; padding-right:8px; margin-top:4px}
+.pull{font: 800 16px var(--sans); padding:10px 12px; border-left:4px solid var(--accent); background: #00000008; margin:8px 0}
+.note{font:600 12px var(--mono); opacity:.7}
+.caption{font:600 12px var(--mono); opacity:.85}
+
+/* Retro textures (CSS-only) */
+.halftone{background-image: radial-gradient(#0002 1px, transparent 1px); background-size: 6px 6px}
+.checker{background-image: linear-gradient(45deg, #00000006 25%, transparent 25%),
+                          linear-gradient(-45deg, #00000006 25%, transparent 25%),
+                          linear-gradient(45deg, transparent 75%, #00000006 75%),
+                          linear-gradient(-45deg, transparent 75%, #00000006 75%);
+        background-size:10px 10px; background-position:0 0,0 5px,5px -5px,-5px 0}
+.blueprint{background: radial-gradient(200px 200px at 20% 10%, #102a3d 0, #0b1a27 60%);
+  color:#E6F0F7; border-color:#17384f}
+.blueprint .rule{background:#2c5471}
+.blueprint .fig{ background:#fff; color: var(--ink); }
+.blueprint .fig .h2, .blueprint .fig .h3 { color: var(--ink); }
+.blueprint .fig .pull { border-left-color: var(--accent); background: #00000008; color: var(--ink); }
+.bp-grid{position:absolute; inset:0; background-image:
+  linear-gradient(#5a9bc540 1px, transparent 1px), linear-gradient(90deg, #5a9bc540 1px, transparent 1px);
+  background-size: 24px 24px; pointer-events:none}
+
+/* Ensure decorative layers sit behind readable content */
+.page > * { position: relative; z-index: 1; }
+.bp-grid { z-index: 0; }
+
+/* Brand plates */
+.makita{background:linear-gradient(180deg,var(--paper-makita),#fff);} .makita .plate{border-left:8px solid var(--teal); padding-left:12px} .makita .accent{color:var(--brick)}
+.ryobi{background:linear-gradient(180deg,var(--paper-ryobi),#fff)} .ryobi .plate{border-left:8px solid var(--lime); padding-left:12px} .ryobi .accent{color:var(--orange)}
+.dewalt{background:linear-gradient(180deg,var(--paper-dewalt),#fff)} .dewalt .plate{border-left:8px solid var(--mustard); padding-left:12px} .dewalt .accent{color:var(--hazblk)}
+.milw{background:linear-gradient(180deg,var(--paper-milw),#fff)} .milw .plate{border-left:8px solid var(--milw); padding-left:12px} .milw .accent{color:var(--coal)}
+
+/* Image slot styles */
+.imgbox{position:relative; border:1px dashed var(--rule); background: #fff; margin:8px 0 12px;}
+.imgbox[data-aspect="3:2"]{aspect-ratio:3/2}
+.imgbox[data-aspect="4:3"]{aspect-ratio:4/3}
+.imgbox[data-aspect="16:9"]{aspect-ratio:16/9}
+.imgbox img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+.imgbox .ph{position:absolute; inset:0; display:grid; place-items:center; text-align:center; padding:12px; color:#666; font:600 12px var(--mono); background: repeating-linear-gradient(45deg, #0001 0 10px, transparent 10px 20px)}
+.imgbox .img-controls{position:absolute; right:8px; top:8px; display:flex; gap:6px}
+.imgbox .btn{appearance:none; border:1px solid var(--rule); background:#00000008; font:700 11px var(--mono); padding:6px 8px; border-radius:8px; cursor:pointer}
+
+/* Hide UI bits when printing */
+@media print{ .imgbox .img-controls{display:none} .ph{display:none} }
+
+/* High-contrast brand header bands (ported from styled-tools) */
+.fig .badge{ display:block; border:0; border-radius:0; padding:14px 18px; font-weight:900; letter-spacing:.05em; text-transform:uppercase; margin:-12px -12px 12px; position:relative; box-shadow: 0 3px 0 rgba(0,0,0,.12) }
+.makita .fig .badge{ background: linear-gradient(90deg, var(--teal), #167a77); color:#fff }
+.ryobi .fig .badge{ background: linear-gradient(90deg, var(--lime), #7fb52b); color:#0f1a00 }
+.dewalt .fig .badge{ background: linear-gradient(90deg, var(--mustard), #a8840d); color: var(--hazblk); text-transform: uppercase }
+.milw .fig .badge{ background: linear-gradient(90deg, var(--milw), #9b0f14); color:#fff }
+
+/* Contained brand mark inside the badge bar (big, subtle, clipped) */
+.fig .badge{ overflow:hidden }
+.makita .fig .badge::before{ content: "MAKITA"; position:absolute; inset:0; pointer-events:none; z-index:0;
+  display:flex; align-items:center; justify-content:flex-end; padding-right:14px;
+  font: 900 clamp(22px,8vw,56px) var(--sans); letter-spacing:.08em; color: rgba(255,255,255,.18) }
+.ryobi .fig .badge::before{ content: "RYOBI"; position:absolute; inset:0; pointer-events:none; z-index:0;
+  display:flex; align-items:center; justify-content:flex-end; padding-right:14px;
+  font: 900 clamp(22px,8vw,56px) var(--sans); letter-spacing:.08em; color: rgba(0,0,0,.12) }
+.dewalt .fig .badge::before{ content: "DEWALT"; position:absolute; inset:0; pointer-events:none; z-index:0;
+  display:flex; align-items:center; justify-content:flex-end; padding-right:14px;
+  font: 900 clamp(22px,8vw,56px) var(--sans); letter-spacing:.12em; color: rgba(0,0,0,.18) }
+.milw .fig .badge::before{ content: "MILWAUKEE"; position:absolute; inset:0; pointer-events:none; z-index:0;
+  display:flex; align-items:center; justify-content:flex-end; padding-right:14px;
+  font: 900 clamp(22px,8vw,52px) var(--sans); letter-spacing:.10em; color: rgba(255,255,255,.22) }
+
+/* Ryobi playful sticker accent (pseudo-element, no markup change) */
+.ryobi .fig .badge::after{
+  content: "Weekend Project";
+  position:absolute; right:12px; top:10px;
+  background: var(--orange); color:#2a1200; font-weight:800; padding:6px 10px; border-radius:8px;
+  box-shadow: 0 3px 0 rgba(0,0,0,.12);
+}
+
+/* Slightly larger headings inside cards to match styled feel */
+.fig .h2{ font-size: clamp(20px,3.6vw,30px); }
+
+/* Brand-colored heading underlines */
+.makita .fig .h2::after{content:""; display:block; height:3px; background: linear-gradient(90deg, var(--teal), #167a77); margin-top:6px; border-radius:2px}
+.ryobi .fig .h2::after{content:""; display:block; height:3px; background: linear-gradient(90deg, var(--lime), #7fb52b); margin-top:6px; border-radius:2px}
+.dewalt .fig .h2::after{content:""; display:block; height:3px; background:
+  repeating-linear-gradient(-45deg, rgba(0,0,0,.18) 0 8px, transparent 8px 16px),
+  linear-gradient(90deg, var(--mustard), #a8840d);
+  margin-top:6px; border-radius:2px}
+.milw .fig .h2::after{content:""; display:block; height:3px; background: linear-gradient(90deg, var(--milw), #9b0f14); margin-top:6px; border-radius:2px}
+
+/* Typography helpers (from styled-tools, tuned for print safety) */
+.stencil{ font-family: "Stencil Std", Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif; letter-spacing:.02em }
+.neon{
+  font-family: "Brush Script MT", "Lucida Handwriting", cursive;
+  text-shadow:
+    0 0 2px #fff,
+    0 0 8px #fff,
+    0 0 12px var(--milw),
+    0 0 22px var(--milw);
+}
+/* Chrome helper for shiny ad text */
+.chrome{
+  background: linear-gradient(180deg, #e7eaee, #9aa2a8 48%, #f8fafc 52%, #a6adb3);
+  -webkit-background-clip:text; background-clip:text; color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(0,0,0,.35));
+  font-weight:800; letter-spacing:.03em;
+}
+
+/* Brand-specific heading emphasis */
+.makita .fig .h2{ color: var(--teal); font-weight:900 }
+.ryobi .fig .h2{ color: #142200; font-weight:900 }
+.dewalt .fig .h2{ color: var(--hazblk); font-weight:900; text-transform: uppercase; }
+.dewalt .fig .h2.stencil{ letter-spacing:.03em }
+.milw .fig .h2{ color: var(--milw); font-weight:900 }
+
+/* Keep animated effects off when printing */
+@media print{
+  .neon{ text-shadow: none }
+}
+
+/* ================= Ad-like brand accents per essay ================= */
+/* Makita: teal spine + faint schematic overlay */
+.makita .fig{ padding-left: 18px; position:relative }
+.makita .fig::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:8px; background: var(--teal) }
+.makita .fig::after{ content:""; position:absolute; inset:0; pointer-events:none; opacity:.12;
+  background:
+    radial-gradient( circle at 20% 30%, transparent 0 55%, var(--brick) 56% 57%, transparent 58%),
+    linear-gradient(135deg, transparent 60%, var(--brick) 61% 62%, transparent 63%);
+}
+
+/* Ryobi: halftone inside card + washi tape corner */
+.ryobi .fig{ position:relative; background:
+  radial-gradient(circle at 10% 15%, rgba(0,0,0,.05) 0 2px, transparent 3px) 0 0/16px 16px,
+  #fff }
+.ryobi .fig::before{ content:""; position:absolute; left:10px; top:-8px; width:120px; height:22px; background: var(--orange); transform: rotate(-6deg);
+  box-shadow: 0 3px 0 rgba(0,0,0,.12); opacity:.9 }
+.ryobi .fig::after{ content:""; position:absolute; right:16px; top:-10px; width:90px; height:18px; background: var(--lime); transform: rotate(5deg); opacity:.85 }
+
+/* DeWalt: hazard stripe footer bar */
+.dewalt .fig{ position:relative }
+.dewalt .fig::after{ content:""; position:absolute; left:0; right:0; bottom:0; height:14px;
+  background: repeating-linear-gradient(-45deg, rgba(0,0,0,.18) 0 10px, transparent 10px 20px), linear-gradient(90deg, var(--mustard), #a8840d) }
+
+/* Milwaukee: lightning bolt accent + chrome meta */
+.milw .fig{ position:relative }
+.milw .fig::before{ content:""; position:absolute; right:-6px; top:-6px; width:120px; height:120px; pointer-events:none; opacity:.18;
+  background: conic-gradient(from 45deg, transparent 0 20%, #fff 20% 22%, transparent 22% 100%),
+              linear-gradient(135deg, transparent 55%, #fff 55% 58%, transparent 58%);
+  filter: drop-shadow(0 0 6px var(--milw));
+}
+.milw .fig .meta{ 
+  background: linear-gradient(180deg, #e7eaee, #9aa2a8 48%, #f8fafc 52%, #a6adb3);
+  -webkit-background-clip:text; background-clip:text; color: transparent; filter: drop-shadow(0 1px 0 rgba(0,0,0,.35));
+}
+
+/* Removed large brand word watermarks for a cleaner, stronger header look */
+.makita .fig .h2::before,
+.ryobi  .fig .h2::before,
+.dewalt .fig .h2::before,
+.milw   .fig .h2::before { content: none !important }
+
+/* Brand-specific image slot styling */
+.makita .imgbox{ border-color: var(--teal); box-shadow: inset 0 0 0 2px #0000, 0 0 0 0 rgba(0,0,0,0) }
+.makita .imgbox::before{ content:"Makita"; position:absolute; left:8px; top:6px; font:700 11px var(--mono); color:#fff; background: var(--teal); padding:2px 6px; border-radius:6px }
+
+.ryobi .imgbox{ border-color: var(--lime) }
+.ryobi .imgbox::before{ content:"Ryobi"; position:absolute; left:8px; top:6px; font:800 11px var(--mono); color:#0f1a00; background: var(--lime); padding:2px 6px; border-radius:6px }
+
+.dewalt .imgbox{ border-color: var(--mustard) }
+.dewalt .imgbox::before{ content:"DeWalt"; position:absolute; left:8px; top:6px; font:900 11px var(--mono); color:var(--hazblk); background: var(--mustard); padding:2px 6px; border-radius:6px }
+
+.milw .imgbox{ border-color: var(--milw) }
+.milw .imgbox::before{ content:"Milwaukee"; position:absolute; left:8px; top:6px; font:800 11px var(--mono); color:#fff; background: var(--milw); padding:2px 6px; border-radius:6px }
+
+/* Brand caption accents */
+.makita figcaption.caption{ color:#1a3a3a }
+.ryobi figcaption.caption{ color:#243800 }
+.dewalt figcaption.caption{ color:#222 }
+.milw figcaption.caption{ color:#5a0a0f }
+
+/* Brand dropcaps and pullquote accents */
+.makita .fig .dropcap:first-letter{ color: var(--teal) }
+.ryobi .fig .dropcap:first-letter{ color: var(--lime) }
+.dewalt .fig .dropcap:first-letter{ color: var(--mustard) }
+.milw .fig .dropcap:first-letter{ color: var(--milw) }
+
+.makita .fig .pull{ border-left-color: var(--teal) }
+.ryobi .fig .pull{ border-left-color: var(--lime) }
+.dewalt .fig .pull{ border-left-color: var(--mustard) }
+.milw .fig .pull{ border-left-color: var(--milw) }
+
+/* Brand rules */
+.makita .fig .rule{ background: color-mix(in srgb, var(--teal) 30%, #0000) }
+.ryobi .fig .rule{ background: color-mix(in srgb, var(--lime) 30%, #0000) }
+.dewalt .fig .rule{ background: color-mix(in srgb, var(--mustard) 35%, #0000) }
+.milw .fig .rule{ background: color-mix(in srgb, var(--milw) 30%, #0000) }
+
+/* Catalog cover flourishes */
+.cover{position:relative; overflow:hidden}
+.cover::before{content:""; position:absolute; inset:0; pointer-events:none; z-index:0;
+  /* Light veil over the stripes to boost text contrast */
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,.75) 0%,
+    rgba(255,255,255,.65) 35%,
+    rgba(255,255,255,.45) 60%,
+    rgba(255,255,255,.25) 80%,
+    rgba(255,255,255,.15) 100%
+  );
+}
+.cover .titlemark{position:absolute; inset:auto -60px 0 -60px; height:190px; transform:skewY(-6deg);
+  /* Stronger, visible stripes with classic spacing */
+  background: repeating-linear-gradient(90deg, rgba(200,75,49,.85) 0 14px, transparent 14px 26px)}
+.cover .titlemark{ z-index:-1; pointer-events:none }
+.cover .stamp{position:absolute; top:20px; right:20px; border:2px solid var(--ink); padding:10px 12px; font:800 12px var(--mono); transform:rotate(-8deg)}
+
+/* Improve legibility of cover headings over decorative background */
+.cover .h1, .cover .h2, .cover .h3, .cover p{
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.85),
+    0 0 10px rgba(255,255,255,.45),
+    0 2px 14px rgba(255,255,255,.35);
+}
+
+/* Add soft white chip only where needed (plate), keep stripes visible under H1/meta */
+.cover .plate{
+  display: inline-block;
+  background: rgba(255,255,255,.92);
+  padding: 4px 8px;
+  border-radius: 8px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* Print media */
+@media print{
+  @page{size:letter; margin:18mm}
+  body{background:#fff}
+  .page{box-shadow:none; border:0; margin:0 0 8mm; width:auto}
+  .spread{gap:0}
+}
+
+/* Accessibility niceties */
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ======== HOME DEPOT BRAND LAYER ======== */
+/* Vars */
+:root{
+  --hd-orange:#F96302;        /* The Home Depot orange */
+  --hd-char:#111;             /* ink */
+  --hd-concrete:#EDE8DD;      /* concrete paper tint */
+  --hd-strap:#efb089;         /* faint leather strap hint */
+  --hd-grid:#d6cbb9;          /* lumber grid lines */
+  --hd-stencil: Impact, Haettenschweiler, "Arial Narrow Bold", "Stencil Std", sans-serif;
+}
+
+/* Scope: affect ALL pages EXCEPT brand tool spreads */
+.page:not(.makita):not(.ryobi):not(.dewalt):not(.milw){
+  background: linear-gradient(180deg, var(--hd-concrete), #fff);
+  color: var(--hd-char);
+  border-color: color-mix(in srgb, var(--hd-char) 10%, transparent);
+}
+
+/* Headings pick up sturdy, contractor vibe */
+.page:not(.makita):not(.ryobi):not(.dewalt):not(.milw) .h1,
+.page:not(.makita):not(.ryobi):not(.dewalt):not(.milw) .h2,
+.page:not(.makita):not(.ryobi):not(.dewalt):not(.milw) .h3{
+  letter-spacing:.6px;
+  text-transform:none;
+  font-weight:900;
+}
+
+/* Stencil accent for hero headings */
+.page:not(.makita):not(.ryobi):not(.dewalt):not(.milw) .h1,
+.page:not(.makita):not(.ryobi):not(.dewalt):not(.milw) .h2.stencil{
+  font-family: var(--hd-stencil);
+}
+
+/* Rules & badges: HD orange */
+.page:not(.makita):not(.ryobi):not(.dewalt):not(.milw) .rule{
+  background: color-mix(in srgb, var(--hd-orange) 55%, #0000);
+}
+.page:not(.makita):not(.ryobi):not(.dewalt):not(.milw) .badge{
+  background: linear-gradient(90deg, var(--hd-orange), #c94f14);
+  color:#fff; border:0; box-shadow:0 3px 0 rgba(0,0,0,.12);
+}
+
+/* Cover: “apron strap” band + crate-stencil stripework */
+.page.cover:not(.makita):not(.ryobi):not(.dewalt):not(.milw){
+  position:relative;
+  /* concrete + faint lumber grid */
+  background:
+    linear-gradient(0deg, #fff0, #fff0),
+    radial-gradient(200px 200px at 12% 10%, #ffffffaa 0, #ffffff00 60%),
+    var(--hd-concrete);
+}
+.page.cover:not(.makita):not(.ryobi):not(.dewalt):not(.milw) .titlemark{
+  height:200px; transform: skewY(-5deg);
+  background:
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--hd-orange) 90%, #000 0%) 0 16px,
+      transparent 16px 28px
+    );
+  opacity:.9;
+}
+.page.cover:not(.makita):not(.ryobi):not(.dewalt):not(.milw)::after{
+  /* apron strap across top */
+  content:""; position:absolute; left:-10px; right:-10px; top:64px; height:18px;
+  background:
+    linear-gradient(90deg, #c66d38, var(--hd-orange) 40%, #c94f14);
+  box-shadow:0 2px 0 rgba(0,0,0,.15);
+  opacity:.92;
+}
+
+/* “Crate stencil” underline for H2s */
+.page:not(.makita):not(.ryobi):not(.dewalt):not(.milw) .h2::after{
+  content:""; display:block; height:4px; margin-top:6px; border-radius:2px;
+  background:
+    repeating-linear-gradient(-45deg, rgba(0,0,0,.14) 0 8px, transparent 8px 16px),
+    linear-gradient(90deg, var(--hd-orange), #c94f14);
+}
+
+/* Table of Contents: nailhead bullets */
+.page:not(.makita):not(.ryobi):not(.dewalt):not(.milw) .toc li{
+  position:relative; padding-left:18px;
+}
+.page:not(.makita):not(.ryobi):not(.dewalt):not(.milw) .toc li::before{
+  content:""; width:8px; height:8px; border-radius:50%;
+  background: radial-gradient(circle at 30% 30%, #fff 0 2px, #888 3px, #333 5px, #0000 6px);
+  position:absolute; left:0; top:11px;
+}
+
+/* Generic cards, figures, and buttons in “HD mode” */
+.page:not(.makita):not(.ryobi):not(.dewalt):not(.milw) .fig{
+  border-radius:12px;
+  border:1px solid color-mix(in srgb, var(--hd-char) 15%, transparent);
+}
+.page:not(.makita):not(.ryobi):not(.dewalt):not(.milw) .imgbox{
+  border:1px dashed color-mix(in srgb, var(--hd-char) 20%, transparent);
+}
+.page:not(.makita):not(.ryobi):not(.dewalt):not(.milw) .imgbox .btn{
+  border-color: color-mix(in srgb, var(--hd-orange) 60%, #0000);
+  background: color-mix(in srgb, var(--hd-orange) 12%, #0000);
+}
+
+/* Closing page “price tag” kicker */
+.page:not(.makita):not(.ryobi):not(.dewalt):not(.milw).closing-tagline .h3{
+  display:inline-block; padding:10px 14px 10px 36px; position:relative;
+  background:#fff; border:2px solid var(--hd-orange); border-radius:8px;
+  box-shadow: 0 3px 0 rgba(0,0,0,.08);
+}
+.page:not(.makita):not(.ryobi):not(.dewalt):not(.milw).closing-tagline .h3::before{
+  content:""; width:10px; height:10px; border:2px solid var(--hd-char); border-radius:50%;
+  position:absolute; left:12px; top:50%; transform:translateY(-50%);
+  background: radial-gradient(circle at 40% 40%, #bbb, #777);
+}
+
+/* Print polish */
+@media print{
+  .page:not(.makita):not(.ryobi):not(.dewalt):not(.milw){ background:#fff }
+  .page.cover:not(.makita):not(.ryobi):not(.dewalt):not(.milw)::after{ box-shadow:none }
+}
+</style>
+</head>
+<body>
+<main class="catalog" aria-label="Haunted Tools Monthly – Print Catalog (Essays + Images)">
+
+  <!-- ================= COVER ================= -->
+  <section class="page cover halftone">
+    <div class="bp-grid"></div>
+    <div class="stamp">PRINT EDITION • VOL. 1</div>
+    <div class="titlemark" aria-hidden="true"></div>
+    <h1 class="h1">🛠️ Haunted Tools Monthly</h1>
+    <div class="rule"></div>
+    <p class="small fig" style="margin:0 0 10px; padding:10px; background:#fff; border:1px solid var(--rule); border-radius:10px">
+      <b class="meta" style="opacity:.85">Editor’s Note.</b> Haunted tools are forms that look like work but avoid transfers—of budget, time, rights, risk. This catalog borrows the language of ads to show where power actually bites. Read each spread like a project sheet: identify the fastener, follow the load path, and check what changes hands.
+    </p>
+    <p class="h3 plate"><span class="accent">Projects start here.</span> The catalog that turns ideas into done: straight talk, clear parts, no drama. You bring the plan — we’ll help you build it.</p>
+    <p class="small meta">Designed for paper first. Best viewed as two-up spreads or printed to PDF.</p>
+  </section>
+
+  <!-- ================= HOW TO ADD IMAGES ================= -->
+  <section class="page">
+    <h2 class="h2">Add images by URL</h2>
+    <div class="rule"></div>
+    <div class="columns">
+      <p><b>Two quick ways:</b> Click <i>Add image</i> on any spread and paste a URL — or add them to the page address:<br>
+        <span class="caption">?img_makita=…&amp;img_ryobi=…&amp;img_dewalt=…&amp;img_milwaukee=…&amp;img_flexvolt=…&amp;img_virtue=…&amp;img_due=…</span>
+      </p>
+      <p><b>Captions:</b> Use <span class="caption">cap_*</span> params (e.g., <span class="caption">&amp;cap_makita=Torque lab</span>). <b>Saves locally.</b> <b>Print-ready:</b> UI hides on export.</p>
+    </div>
+  </section>
+
+  <!-- ================= TOC ================= -->
+  <section class="page">
+    <h2 class="h2">Table of Contents</h2>
+    <p class="small meta">Tip: Each spread reads like a project sheet — grab the idea, route your power, and fasten what matters.</p>
+    <ul class="toc">
+      <li><b>Makita Torque‑Regulator™ Ethics Driver</b> <span>p. 4–5</span></li>
+      <li><b>Ryobi Pastel‑Green Access Drill Kit™</b> <span>p. 6–7</span></li>
+      <li><b>DeWalt Citation Hammer™</b> <span>p. 8–9</span></li>
+      <li><b>Milwaukee Messiness Fuel™ Grinder Kit</b> <span>p. 10–11</span></li>
+      <li><b>Transformative Justice FLEXVOLT™ Battery</b> <span>p. 12–13</span></li>
+      <li><b>Cordless Good Academic Drill™</b> <span>p. 14–15</span></li>
+      <li><b>Infinite Due Punch List™</b> <span>p. 16–17</span></li>
+      <li><b>Retro Brand Plates & Bench</b> <span>p. 18–19</span></li>
+      <li><b>Closing Sale Tagline</b> <span>p. 20</span></li>
+    </ul>
+    <div class="rule"></div>
+    <p class="small">This edition includes long‑form essays per listing and image slots you can populate with remote URLs. </p>
+  </section>
+
+  <!-- ====== MAKITA (Retro Precision) — ESSAY ====== -->
+  <section class="page spread makita blueprint">
+    <div class="bp-grid"></div>
+    <article class="fig">
+      <div class="badge">MAKITA — RETRO PRECISION</div>
+      <h2 class="h2">Makita Torque‑Regulator™ Ethics Driver</h2>
+      <figure class="imgbox" data-slot="makita" data-aspect="4:3">
+        <img alt="Makita-themed image" hidden />
+        <div class="ph">Add product hero image for Makita (paste URL).<br><span class="caption">slot: img_makita, cap_makita</span></div>
+        <div class="img-controls"><button class="btn" data-add>Add image</button><button class="btn" data-replace hidden>Replace</button><button class="btn" data-clear hidden>Clear</button></div>
+        <figcaption class="caption" contenteditable="true" spellcheck="false"></figcaption>
+      </figure>
+      <div class="rule"></div>
+      <div class="columns">
+        <p class="dropcap"><b>Torque‑ethics</b> mistakes motion for meaning. The Ethics Driver offers twelve tidy clutch settings labeled with virtues, yet none of them engage the joists that hold a house up: budget, veto power, data rights, ownership. A clutch limits force; it does not create structure. We tuned ours from “Well‑Being 1” to “Justice 12” and watched screws polish the surface of simulated beams while the load path remained unchanged.</p>
+        <p>Procedures love adjustability because adjustability feels like agency. In practice, the tool’s feedback loop is between the operator and the tool itself—loud whirring, little shear strength. The workpiece (people, contracts, institutions) hears a performance, not a fastener biting into wood.</p>
+        <p class="pull">Doing ≠ Due. Force applied to a checklist does not transfer rights, resources, or risk.</p>
+        <p><b>Field test.</b> We ran a “compliance frame retrofit” on a mock org chart. The driver excelled at aligning panels labeled “values,” “principles,” and “toolkit.” When asked to sink lag bolts into the line items called <i>discretionary budget</i> and <i>decision rights</i>, the bit free‑spun. No pilot holes were provided; the veneer delaminated.</p>
+        <p><b>What changes hands?</b> If an ethics process leaves control untouched—no money moved, no IP shared, no governance seats ceded—it has not fastened anything. It has orbited the surface. The torque readout is impressive; the beam remains floating.</p>
+        <p class="note">Warranty language (annotated): “Use of this tool implies a commitment to continuous improvement.” [Note: commitment is rhetorical, not contractual.]</p>
+      </div>
+    </article>
+  </section>
+  <section class="page makita blueprint">
+    <div class="bp-grid"></div>
+    <article class="fig">
+      <h3 class="h3">Bill of Materials — Metaphor</h3>
+      <div class="rule"></div>
+      <div class="columns">
+        <p><b>Head:</b> Shiny virtue labels that slip under load. <b>Shaft:</b> Facilitation hours. <b>Handle:</b> Moral urgency grip. <b>Battery:</b> Institutional patience (finite). None of these are shear‑rated.</p>
+        <p><b>Failure modes.</b> <i>Cam‑out:</i> language spins, credibility strips. <i>Over‑drill:</i> participants fatigue, disengage. <i>Under‑pilot:</i> no path into policy wood. Remediation requires a drill press called <b>charter</b> and a vice named <b>binding authority</b>.</p>
+        <p class="pull">Power shows up as transfers: budget, veto, seats, data, time. If none moved, nothing moved.</p>
+        <p><b>Recommendation.</b> Pair the Ethics Driver with a structural kit: publish decision rights, carve out a budget line, assign a stop‑work clause. Then—only then—choose a clutch.</p>
+      </div>
+    </article>
+  </section>
+
+  <!-- ====== RYOBI (Retro DIY) — ESSAY ====== -->
+  <section class="page spread ryobi halftone">
+    <article class="fig">
+      <div class="badge">RYOBI — RETRO DIY</div>
+      <h2 class="h2">Ryobi Pastel‑Green Access Drill Kit™</h2>
+      <figure class="imgbox" data-slot="ryobi" data-aspect="4:3">
+        <img alt="Ryobi-themed image" hidden />
+        <div class="ph">Add product hero image for Ryobi (paste URL).<br><span class="caption">slot: img_ryobi, cap_ryobi</span></div>
+        <div class="img-controls"><button class="btn" data-add>Add image</button><button class="btn" data-replace hidden>Replace</button><button class="btn" data-clear hidden>Clear</button></div>
+        <figcaption class="caption" contenteditable="true" spellcheck="false"></figcaption>
+      </figure>
+      <div class="rule"></div>
+      <div class="columns">
+        <p class="dropcap"><b>Access</b> is not ownership; a charger is not a grid. The kit promises participation—“everybody drills”—yet omits the one part that ties aspiration to sustained use: the power supply. The politics are in the outlet map, not the colorway of the handle.</p>
+        <p>We trialed the kit in a community shop. Sign‑ups blossomed, selfies multiplied, and the waiting list lengthened into a metric for “engagement.” Then the batteries died. Without shared charging infrastructure—budgeted electricity, staffed check‑in, replace‑on‑failure policy—the program converted enthusiasm into a queue. Inclusion became staging, not capacity.</p>
+        <p class="pull">If you can use it only while the gatekeeper watches, you don’t have a tool; you have a tour.</p>
+        <p><b>Combustion risk.</b> Redistribution triggers heat. The kit’s plastic warms most when someone asks where the outlets are and who controls them. Safety data sheets warn of thermal events during “unauthorized load sharing.” In plain terms: plug more people in, trip more breakers owned by the same few.</p>
+        <p><b>Design note.</b> Beige backdrops and rounded typography suggest approachability. But nothing in the palette routes funds toward public charging, or rewrites policies that forbid sharing sockets across departments. The friendly tone masks a hard boundary: <i>no conduit provided</i>.</p>
+      </div>
+    </article>
+  </section>
+  <section class="page ryobi halftone">
+    <article class="fig">
+      <h3 class="h3">How to Mean Access</h3>
+      <div class="rule"></div>
+      <div class="columns">
+        <p><b>Inventory the outlets.</b> Publish a map. Who holds keys? What hours? What peak loads? <b>Budget the electrons.</b> If electricity isn’t prepaid for people without cards, “access” is an RSVP to disappointment.</p>
+        <p><b>Swap ownership, not just optics.</b> Place the charger in the commons. Assign replacement authority to the users, not the sponsor. Write the right to recharge into policy, not a press release.</p>
+        <p class="note">Warranty (annotated): “Kit promotes inclusion.” [Include a charger & policy amendment; otherwise, it promotes waiting.]</p>
+      </div>
+    </article>
+  </section>
+
+  <!-- ====== DEWALT (Retro Industrial) — ESSAY ====== -->
+  <section class="page spread dewalt checker">
+    <article class="fig">
+      <div class="badge">DEWALT — RETRO INDUSTRIAL</div>
+      <h2 class="h2 stencil">DeWalt Citation Hammer™ (Yellow/Black Edition)</h2>
+      <figure class="imgbox" data-slot="dewalt" data-aspect="4:3">
+        <img alt="DeWalt-themed image" hidden />
+        <div class="ph">Add product hero image for DeWalt (paste URL).<br><span class="caption">slot: img_dewalt, cap_dewalt</span></div>
+        <div class="img-controls"><button class="btn" data-add>Add image</button><button class="btn" data-replace hidden>Replace</button><button class="btn" data-clear hidden>Clear</button></div>
+        <figcaption class="caption" contenteditable="true" spellcheck="false"></figcaption>
+      </figure>
+      <div class="rule"></div>
+      <div class="columns">
+        <p class="dropcap"><b>Citations</b> authorize the blow. Swing the hammer and watch objections flatten under the mass of precedent. But a joist cares little for authority; it cares for fastener length, angle, and the load path to ground. The Citation Hammer drives doctrine, not anchors.</p>
+        <p>We tested it in a governance meeting. “Best practice” nails landed with satisfying thunks. The wall seemed solid until a lateral load (an unanticipated stakeholder) pushed; the panel sheared at the thin places where evidence had been stapled, not bolted.</p>
+        <p class="pull">“Because the literature says so” is a mallet blow that quiets a room and leaves the structure unchanged.</p>
+        <p><b>Stencil aesthetics.</b> Hazard yellow and black imply seriousness—and risk. Yet the danger is mislocated: the hazard is not the worker who questions the plan; it’s the plan that confuses conformity with integrity.</p>
+        <p><b>Use it where it belongs.</b> Standards are shop drawings, not the building. They help when paired with calculations, tolerances, and—especially—remedies if the part fails. Without that, you have signage, not safety.</p>
+      </div>
+    </article>
+  </section>
+  <section class="page dewalt checker">
+    <article class="fig">
+      <h3 class="h3">Remedies Over References</h3>
+      <div class="rule"></div>
+      <div class="columns">
+        <p><b>Before swinging:</b> Publish the remedy path. Who can halt? Who pays for rework? What compensates those harmed? Put these in reach like emergency stops.</p>
+        <p><b>After impact:</b> If the only recourse is “file a comment,” you’ve installed a suggestion box where a brace should be. Install the brace.</p>
+        <p class="note">Warranty (annotated): “Void if questioned.” [Translate: designed to be brandished, not tested.]</p>
+      </div>
+    </article>
+  </section>
+
+  <!-- ====== MILWAUKEE (Retro Power) — ESSAY ====== -->
+  <section class="page spread milw halftone">
+    <article class="fig">
+      <div class="badge">MILWAUKEE — RETRO POWER</div>
+      <h2 class="h2 neon">Milwaukee Messiness Fuel™ Grinder Kit</h2>
+      <figure class="imgbox" data-slot="milwaukee" data-aspect="4:3">
+        <img alt="Milwaukee-themed image" hidden />
+        <div class="ph">Add product hero image for Milwaukee (paste URL).<br><span class="caption">slot: img_milwaukee, cap_milwaukee</span></div>
+        <div class="img-controls"><button class="btn" data-add>Add image</button><button class="btn" data-replace hidden>Replace</button><button class="btn" data-clear hidden>Clear</button></div>
+        <figcaption class="caption" contenteditable="true" spellcheck="false"></figcaption>
+      </figure>
+      <div class="rule"></div>
+      <div class="columns">
+        <p class="dropcap"><b>“Embrace the messiness”</b> is a slogan that sells sparks. Real grinders remove material; managerial grinders produce spectacle. This kit arrives pre‑guarded, pre‑approved, and pre‑narrated. The sparks stay inside the tray; the edges never change.</p>
+        <p>We staged a “chaos sprint.” Safety rails ensured no scope could escape its lane. Out‑of‑band ideas were redirected to a parking lot that resembled a slag heap—glittering, inert. At the end, a photo collage of “innovation” was mailed to stakeholders. Nothing sharp was produced.</p>
+        <p class="pull">If the risk is fully theatrical, the creativity is fully symbolic.</p>
+        <p><b>Hot‑rod veneer.</b> Lightning bolts and checkers imply speed. But every bolt lands on a bumper that says “not here, not now, not funded.” The chrome reflects the shop lights while hiding the absence of a motor.</p>
+        <p><b>When to use.</b> Use spectacle consciously—as ritual closure after the real cutting is funded, not as a substitute for cutting. Celebrate edges you actually changed.</p>
+      </div>
+    </article>
+  </section>
+  <section class="page milw halftone">
+    <article class="fig">
+      <h3 class="h3">Cut Path Checklist</h3>
+      <div class="rule"></div>
+      <div class="columns">
+        <p><b>Material identified?</b> What exactly will be removed? <b>Authority secured?</b> Who signs the sparks waiver? <b>Budgeted?</b> New tooling and PPE assigned? Without answers, cancel the stunt.</p>
+        <p class="note">Warranty (annotated): Includes guard rails. [Keeps you safe from change.]</p>
+      </div>
+    </article>
+  </section>
+
+  <!-- ====== FLEXVOLT BATTERY — ESSAY ====== -->
+  <section class="page spread makita">
+    <article class="fig">
+      <div class="badge">SPECIAL — POWER SOURCE</div>
+      <h2 class="h2">Transformative Justice FLEXVOLT™ Battery</h2>
+      <figure class="imgbox" data-slot="flexvolt" data-aspect="16:9">
+        <img alt="Transformative Justice battery image" hidden />
+        <div class="ph">Add conceptual image for FLEXVOLT (paste URL).<br><span class="caption">slot: img_flexvolt, cap_flexvolt</span></div>
+        <div class="img-controls"><button class="btn" data-add>Add image</button><button class="btn" data-replace hidden>Replace</button><button class="btn" data-clear hidden>Clear</button></div>
+        <figcaption class="caption" contenteditable="true" spellcheck="false"></figcaption>
+      </figure>
+      <div class="rule"></div>
+      <div class="columns">
+        <p class="dropcap"><b>Capacity</b> without circuits is hope in a brick. The battery promises 60V forever, which is to say: infinite potential, zero path. World‑building requires wiring diagrams—institutions, duties, escrow accounts, mutual aid—through which energy flows predictably under load.</p>
+        <p>We placed the brick on three projects. In each, its gravitational field drew cameras, grants, and adjectives. But when the switch flipped—when rent relief needed funds, when parole support needed hours, when archives needed stewards—the brick stayed full, heavy, and ornamental.</p>
+        <p class="pull">Utopia that cannot run a circuit is décor.</p>
+        <p><b>Why the metaphor persists.</b> Batteries are portable; systems are not. It is easier to pose with capacity than to maintain a line. But a community runs on lines: dues, rotations, ledgers, repair.</p>
+      </div>
+    </article>
+  </section>
+  <section class="page makita">
+    <article class="fig">
+      <h3 class="h3">Wire the Future</h3>
+      <div class="rule"></div>
+      <div class="columns">
+        <p><b>Conduit:</b> legal agreements that move authority. <b>Breakers:</b> stop‑work clauses for harm. <b>Loads:</b> named obligations with time and money attached. <b>Ground:</b> public, auditable ledgers.</p>
+        <p class="note">Catalog note (annotated): “World‑building power.” [Add diagrams, or stop claiming power.]</p>
+      </div>
+    </article>
+  </section>
+
+  <!-- ====== VIRTUE DRILL — ESSAY ====== -->
+  <section class="page spread ryobi">
+    <article class="fig">
+      <div class="badge">ACADEMIA — PERFORMATIVE SERIES</div>
+      <h2 class="h2">Cordless Good Academic Drill™ (Virtue Edition)</h2>
+      <figure class="imgbox" data-slot="virtue" data-aspect="3:2">
+        <img alt="Virtue drill image" hidden />
+        <div class="ph">Add conceptual image for Virtue Drill (paste URL).<br><span class="caption">slot: img_virtue, cap_virtue</span></div>
+        <div class="img-controls"><button class="btn" data-add>Add image</button><button class="btn" data-replace hidden>Replace</button><button class="btn" data-clear hidden>Clear</button></div>
+        <figcaption class="caption" contenteditable="true" spellcheck="false"></figcaption>
+      </figure>
+      <div class="rule"></div>
+      <div class="columns">
+        <p class="dropcap"><b>Citations</b> recharge reputation. The drill spins faster with each reference, and the workshop applauds as footnotes glow. Yet reputational torque strips screws of credibility when applied to materials called <i>lived stakes</i> and <i>timelines</i>. The bit needs friction with accountability, not applause.</p>
+        <p>We assigned it to a syllabus renovation. The deck dazzled; the readings multiplied. The adjunct pay line stayed flat. The drill performed beautifully on the veneer while joists groaned under unpaid labor.</p>
+        <p class="pull">If your ethics lives in the bibliography alone, it lives nowhere.</p>
+        <p><b>Best use.</b> Great for pilot holes: making space for others’ work, citing to pay, pointing to co‑authorship with material transfer. Poor for final tightening: that requires hiring lines, shared governance, and redistribution of credit.</p>
+      </div>
+    </article>
+  </section>
+  <section class="page ryobi">
+    <article class="fig">
+      <h3 class="h3">Accountability Bits</h3>
+      <div class="rule"></div>
+      <div class="columns">
+        <p><b>Bit A:</b> Budgeted citation—allocate cash with the reading list. <b>Bit B:</b> Co‑teaching credit written into policy. <b>Bit C:</b> Time release for staff who carry the course’s hidden labor.</p>
+        <p class="note">Warning (annotated): Overuse strips credibility. [Apply with material follow‑through.]</p>
+      </div>
+    </article>
+  </section>
+
+  <!-- ====== INFINITE DUE — ESSAY ====== -->
+  <section class="page spread dewalt">
+    <article class="fig">
+      <div class="badge">LEDGER — PUNCH LIST</div>
+      <h2 class="h2">Infinite Due Punch List™ (Contractor’s Nightmare)</h2>
+      <figure class="imgbox" data-slot="due" data-aspect="3:2">
+        <img alt="Infinite Due image" hidden />
+        <div class="ph">Add conceptual image for Infinite Due (paste URL).<br><span class="caption">slot: img_due, cap_due</span></div>
+        <div class="img-controls"><button class="btn" data-add>Add image</button><button class="btn" data-replace hidden>Replace</button><button class="btn" data-clear hidden>Clear</button></div>
+        <figcaption class="caption" contenteditable="true" spellcheck="false"></figcaption>
+      </figure>
+      <div class="rule"></div>
+      <div class="columns">
+        <p class="dropcap"><b>Some jobsites</b> are designed never to close. A deficit model keeps carpenters on ladders while the building owner collects rent on “ongoing improvements.” Ethics discourse often inherits this model: “work remains,” “ever better,” “continuous refinement.” The bill is eternal; the debtor is always the worker.</p>
+        <p>We audited a year of punch‑list items. Many were rephrasings of the same problem: structural harms routed to surface fixes. The list created the feeling of progress while preventing the act of completion that would trigger hand‑over and warranty liability.</p>
+        <p class="pull">Completion is the most radical step in a system addicted to perpetual repair.</p>
+        <p><b>Closeout protocol.</b> Define the <i>due</i> in measurable terms: transfers executed, rights recorded, harms compensated. Publish a date when the site signs off and the owner—whoever benefits—takes responsibility.</p>
+      </div>
+    </article>
+  </section>
+  <section class="page dewalt">
+    <article class="fig">
+      <h3 class="h3">From Doing to Due</h3>
+      <div class="rule"></div>
+      <div class="columns">
+        <p><b>Doing:</b> meetings, workshops, toolkits. <b>Due:</b> money, time, land, data, seats. If your ledger lists the former without the latter, you are paying in noise.</p>
+        <p class="note">Slogan (annotated): “Some jobsites haunt you forever.” [Only if we profit from the haunting.]</p>
+      </div>
+    </article>
+  </section>
+
+  <!-- ====== BRAND RETRO PLATES ====== -->
+  <section class="page spread blueprint">
+    <div class="bp-grid"></div>
+    <article>
+      <div class="badge">RETRO PLATE — MAKITA</div>
+      <h3 class="h3">Retro Identity</h3>
+      <div class="rule"></div>
+      <ul>
+        <li><b>Style:</b> Mid‑century engineering</li>
+        <li><b>Colors:</b> Dusty teal • cream • brick red</li>
+        <li><b>Type:</b> Condensed sans w/ geometric edges</li>
+        <li><b>Cue:</b> Blueprint lines</li>
+      </ul>
+    </article>
+    <article>
+      <div class="badge">RETRO PLATE — RYOBI</div>
+      <h3 class="h3">Retro Identity</h3>
+      <div class="rule"></div>
+      <ul>
+        <li><b>Style:</b> 70s–80s DIY culture</li>
+        <li><b>Colors:</b> Faded lime • beige • orange</li>
+        <li><b>Type:</b> Rounded bold sans</li>
+        <li><b>Cue:</b> Halftone textures</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="page spread checker">
+    <article>
+      <div class="badge">RETRO PLATE — DEWALT</div>
+      <h3 class="h3">Retro Identity</h3>
+      <div class="rule"></div>
+      <ul>
+        <li><b>Style:</b> 40s–50s industrial signage</li>
+        <li><b>Colors:</b> Mustard yellow • black • off‑white</li>
+        <li><b>Type:</b> Bold slab or stencil</li>
+        <li><b>Cue:</b> Distressed stencils</li>
+      </ul>
+    </article>
+    <article>
+      <div class="badge">RETRO PLATE — MILWAUKEE</div>
+      <h3 class="h3">Retro Identity</h3>
+      <div class="rule"></div>
+      <ul>
+        <li><b>Style:</b> 50s hot‑rod & diner Americana</li>
+        <li><b>Colors:</b> Red • cream • chrome silver</li>
+        <li><b>Type:</b> Script + condensed sans</li>
+        <li><b>Cue:</b> Lightning bolts + neon script</li>
+      </ul>
+    </article>
+  </section>
+
+  <!-- ====== CONTACT SHEET (auto-populated if images exist) ====== -->
+  <section class="page">
+    <h2 class="h2">Contact Sheet</h2>
+    <div class="rule"></div>
+    <div id="contactSheet" class="spread"></div>
+    <p class="small">Thumbnails populate as you add images.</p>
+  </section>
+
+  <!-- ====== CLOSING ====== -->
+  <section class="page halftone closing-tagline">
+    <h2 class="h2">Closing Sale Tagline</h2>
+    <div class="rule"></div>
+    <p class="h3 stencil">You can do it. We’ll help you mean it.</p>
+    <p class="small"><b>Next:</b> Grab the print kit and past issues: <a href="#" class="caption">haunted.tools/print</a></p>
+    <div class="rule"></div>
+    <p class="small meta" style="opacity:.8">Haunted Tools · Editorial/Design: Your Name · Version: 1.0 · License: CC BY‑SA 4.0 · Printed September 2025</p>
+  </section>
+
+</main>
+
+<script>
+// ======== Image Slot Logic ========
+(function(){
+  const qs=(s,el=document)=>el.querySelector(s);
+  const qsa=(s,el=document)=>Array.from(el.querySelectorAll(s));
+  const STORAGE_KEY = 'haunted.images.v1';
+
+  // Map slot -> {img, cap}
+  let state = {};
+  try { state = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}') } catch(e) { state = {} }
+
+  function normalizeKey(k){ return (k||'').toLowerCase().replace(/[^a-z0-9]+/g,'') }
+
+  // Load from query params
+  const params = new URLSearchParams(location.search);
+  const known = ['makita','ryobi','dewalt','milwaukee','flexvolt','virtue','due'];
+  known.forEach(slot=>{
+    const url = params.get('img_'+slot);
+    const cap = params.get('cap_'+slot);
+    if(url){ state[slot] = {img:url, cap: cap||''}; }
+  });
+
+  function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); buildContactSheet(); }
+
+  function applySlot(fig){
+    const slot = fig.dataset.slot;
+    const imgEl = fig.querySelector('img');
+    const ph = fig.querySelector('.ph');
+    const capEl = fig.querySelector('figcaption');
+    const addBtn = fig.querySelector('[data-add]');
+    const repBtn = fig.querySelector('[data-replace]');
+    const clrBtn = fig.querySelector('[data-clear]');
+
+    function setUI(has){
+      addBtn.hidden = has; repBtn.hidden = !has; clrBtn.hidden = !has;
+      ph.style.display = has ? 'none' : 'grid';
+      imgEl.hidden = !has;
+    }
+
+    function setImage(url, caption){
+      if(!url) return;
+      imgEl.src = url; imgEl.onload = ()=>{ setUI(true) }; imgEl.onerror = ()=>{ alert('Image failed to load. Check the URL.'); };
+      capEl.textContent = caption|| capEl.textContent || '';
+      state[slot] = {img:url, cap:capEl.textContent}; save();
+    }
+
+    // Initialize from state
+    if(state[slot]?.img){ setImage(state[slot].img, state[slot].cap); }
+
+    addBtn?.addEventListener('click', ()=>{
+      const url = prompt('Paste image URL for '+slot.toUpperCase());
+      if(!url) return;
+      const cap = prompt('Optional caption for this image?')||'';
+      setImage(url, cap);
+    });
+    repBtn?.addEventListener('click', ()=> addBtn.click());
+    clrBtn?.addEventListener('click', ()=>{ delete state[slot]; save(); imgEl.removeAttribute('src'); capEl.textContent=''; setUI(false); });
+
+    // Persist caption edits
+    capEl?.addEventListener('input', ()=>{ if(state[slot]){ state[slot].cap = capEl.textContent; save(); }});
+  }
+
+  function buildContactSheet(){
+    const mount = qs('#contactSheet'); if(!mount) return;
+    mount.innerHTML = '';
+    Object.entries(state).forEach(([slot, data])=>{
+      if(!data?.img) return;
+      const card = document.createElement('div');
+      card.className = 'fig';
+      card.innerHTML = `
+        <div class="badge">${slot.toUpperCase()}</div>
+        <figure class="imgbox" data-aspect="4:3"><img src="${data.img}" alt="${slot} image"/><figcaption class="caption">${data.cap||''}</figcaption></figure>
+      `;
+      mount.appendChild(card);
+    });
+  }
+
+  // Initialize all figures
+  qsa('figure.imgbox').forEach(applySlot);
+  buildContactSheet();
+})();
+</script>
+</body>
+</html>

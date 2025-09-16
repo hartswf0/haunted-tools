@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sontag "In Plato's Cave" Photo-Album - Enhanced</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/* Page + Banner for iframe use */
+:root{ --hd-orange:#F96302; --hd-char:#111; }
+body { background: #121212; color: #eee; margin: 0; font-family: sans-serif; overflow: hidden; }
+.banner{ background: var(--hd-orange); color:#fff; padding:12px 14px; font: 900 14px Impact, Haettenschweiler, "Arial Narrow Bold", "Stencil Std", sans-serif; letter-spacing:.05em; display:flex; align-items:center; justify-content:space-between }
+.open-btn{ display:inline-flex; align-items:center; gap:8px; background: var(--hd-char); color:#fff; font:900 12px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; padding:8px 10px; border-radius:4px; text-decoration:none; border:2px solid var(--hd-char); box-shadow:0 2px 0 rgba(0,0,0,.18) }
+.open-btn::before{ content:""; width:20px; height:14px; border-radius:3px; background: repeating-linear-gradient(90deg,#000 0 1px,transparent 1px 2px); background-color:#fff; box-shadow: inset 0 0 0 2px #fff }
+/* Album fills remaining viewport under banner */
+#album { width: 100%; height: calc(100vh - 48px); position: relative; perspective: 1200px; overflow: hidden; }
+.slide { width: 88vw; max-width: 520px; aspect-ratio: 3/4; margin: auto; position: absolute; top: 50%; left:50%; transform-style: preserve-3d; transform: translate(-50%,-50%); transition: transform 0.8s; }
+.face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.5); border: 2px solid #fff; }
+.front { background-size: cover; background-position: center; border-radius: 8px; }
+.back { background: #fdf5e6; transform: rotateY(180deg); padding: 16px; box-sizing: border-box; font-size: 14px; overflow-y: auto; color: #333;} /* Added color for readability on light background */
+.back h2 { margin-top: 0; font-size: 1.1em; color: #111; } /* Added color for readability */
+.back .meta { font-size: 0.9em; line-height: 1.4; }
+.back .meta b { display: inline-block; width: 3.5em; }
+.back .note { margin-top: 0.5em; font-style: italic; }
+.controls { position: absolute; width: 100%; top:50%; left:0; transform: translateY(-50%); display: flex; justify-content: space-between; pointer-events:none }
+button { background: rgba(255,255,255,0.3); border: none; color: #fff; font-size: 2.4em; padding: 0.25em 0.6em; cursor: pointer; border-radius:10px; box-shadow: 0 4px 12px rgba(0,0,0,.35); pointer-events:auto }
+button:focus { outline: 2px solid #fff; }
+#legend { position: absolute; bottom:0; width: 100%; background: rgba(0,0,0,0.5); color: #fff; font-size:12px; text-align:center; padding:4px; display:none; }
+.loading { opacity: 0.7; }
+.error { opacity: 0.5; border-color: #ff4444; }
+/* Inline overlay iframe (optional) */
+.overlay{ position: fixed; inset:0; background: rgba(0,0,0,.65); display:none; place-items:center; z-index: 10 }
+.overlay .frame{ width: min(90vw, 1100px); height: min(80vh, 820px); background:#000; border-radius:12px; overflow:hidden; box-shadow: 0 20px 60px rgba(0,0,0,.5); position:relative }
+.overlay iframe{ position:absolute; inset:0; width:100%; height:100%; border:0 }
+.overlay .close{ position:absolute; top:8px; right:8px; background:#fff; color:#000; font:900 12px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; padding:6px 8px; border-radius:6px; border:2px solid #000; cursor:pointer }
+</style>
+</head>
+<body>
+<div class="banner">Sontag — In Plato's Cave Photo Album <span style="display:flex; gap:8px; align-items:center"><a class="open-btn" id="open-inline" href="#">OPEN INLINE ▶</a><a class="open-btn" href="sontag-photo-album-enhanced.html" target="_blank" rel="noopener">OPEN ↗</a></span></div>
+<div id="album"></div>
+<div class="controls">
+  <button id="prev">&larr;</button><button id="flip">F</button><button id="next">&rarr;</button>
+</div>
+<div id="legend">←/→ to navigate, F to flip, S to autoplay, ? to toggle this legend.</div>
+
+<!-- Inline overlay iframe (loads this album in a larger frame or an external URL via ?embed=...) -->
+<div class="overlay" id="overlay" aria-hidden="true">
+  <div class="frame">
+    <button class="close" id="closeOverlay">CLOSE ✕</button>
+    <iframe id="overlayFrame" title="Album"></iframe>
+  </div>
+  
+</div>
+
+<script type="application/json" id="manifest">
+[
+  {
+    "title": "Portrait of Louis Rossel",
+    "photographer_or_author": "Eugène Appert / Paris Police",
+    "date": "1871",
+    "camera": "Wet-plate collodion camera (French police)",
+    "lens": "Unknown",
+    "film_or_process": "Wet collodion on glass (albumen print)",
+    "source_name": "Musée d'Histoire Vivante via Wikimedia Commons",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Louis_Rossel_par_Eug%C3%A8ne_Appert.jpg",
+    "backup_urls": [
+      "https://commons.wikimedia.org/wiki/File:Louis_Rossel_par_Eugène_Appert.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Louis_Rossel_par_Eug%C3%A8ne_Appert.jpg/800px-Louis_Rossel_par_Eug%C3%A8ne_Appert.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Louis_Rossel_par_Eug%C3%A8ne_Appert.jpg/640px-Louis_Rossel_par_Eug%C3%A8ne_Appert.jpg",
+      "https://via.placeholder.com/600x800/333/fff?text=Louis+Rossel+Portrait+1871",
+      "https://via.placeholder.com/600x800/444/fff?text=Image+Not+Available"
+    ],
+    "rights": "Public domain (France)",
+    "sontag_note": "The Paris police photographing Communards illustrates Sontag's notion of images as a tool of institutional control and identification.",
+    "more_info_url": "https://commons.wikimedia.org/wiki/File:Louis_Rossel_par_Eugène_Appert.jpg",
+    "category": "historical_photo",
+    "confidence": "medium"
+  },
+  {
+    "title": "A Harvest of Death, Gettysburg",
+    "photographer_or_author": "Timothy O'Sullivan (negative) / Alexander Gardner (print)",
+    "date": "1863-07",
+    "camera": "Large-format view camera",
+    "lens": "Unknown",
+    "film_or_process": "Albumen silver print (from glass negative)",
+    "source_name": "Library of Congress",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/55/Timothy_H._O'Sullivan_-_A_Harvest_of_Death_-_Google_Art_Project%2C_grayscale.jpg",
+    "backup_urls": [
+      "https://upload.wikimedia.org/wikipedia/commons/4/42/Incidents_of_the_war._A_harvest_of_death._Gettysburg%2C_PA_12557u_original.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Timothy_H._O'Sullivan_-_A_Harvest_of_Death_-_Google_Art_Project%2C_grayscale.jpg/800px-Timothy_H._O'Sullivan_-_A_Harvest_of_Death_-_Google_Art_Project%2C_grayscale.jpg",
+      "https://www.loc.gov/resource/cph.3g01826/",
+      "https://www.metmuseum.org/art/collection/search/285644",
+      "https://via.placeholder.com/600x800/333/fff?text=Harvest+of+Death+Gettysburg+1863"
+    ],
+    "rights": "Public domain (US)",
+    "sontag_note": "This Civil War battlefield photo became proof of war's horror, aligning with Sontag's idea of photographs as evidence and testimony.",
+    "more_info_url": "https://commons.wikimedia.org/wiki/File:Incidents_of_the_war._A_harvest_of_death._Gettysburg,_PA_12557u_original.jpg",
+    "category": "historical_photo",
+    "confidence": "high"
+  },
+  {
+    "title": "Relics of Andersonville Prison",
+    "photographer_or_author": "Brady & Co.",
+    "date": "1866-06",
+    "camera": "Large-format press camera",
+    "lens": "Unknown",
+    "film_or_process": "Albumen silver print (from collodion negative)",
+    "source_name": "Metropolitan Museum of Art",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Relics_of_Andersonville_Prison_MET_DP254764.jpg",
+    "backup_urls": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Relics_of_Andersonville_Prison_MET_DP254764.jpg/800px-Relics_of_Andersonville_Prison_MET_DP254764.jpg",
+      "https://www.metmuseum.org/art/collection/search/283205",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Relics_of_Andersonville_Prison_MET_DP254764.jpg/640px-Relics_of_Andersonville_Prison_MET_DP254764.jpg",
+      "https://via.placeholder.com/600x800/333/fff?text=Andersonville+Prison+Relics+1866",
+      "https://via.placeholder.com/600x800/444/fff?text=Image+Not+Available"
+    ],
+    "rights": "Public domain (US)",
+    "sontag_note": "This tableau of prisoners' effects stands in for their absent bodies, exemplifying Sontag's idea of photographs as surrogate evidence of suffering.",
+    "more_info_url": "https://www.metmuseum.org/art/collection/search/283205",
+    "category": "historical_photo",
+    "confidence": "medium"
+  },
+  {
+    "title": "Lodgers in a Crowded Bayard Street Tenement (\"Five Cents a Spot\")",
+    "photographer_or_author": "Jacob Riis",
+    "date": "1889",
+    "camera": "Large-format Graflex press camera",
+    "lens": "Unknown",
+    "film_or_process": "Gelatin silver print (flash photography)",
+    "source_name": "Wikimedia Commons",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Jacob_Riis%2C_Lodgers_in_a_Crowded_Bayard_Street_Tenement.jpg",
+    "backup_urls": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Jacob_Riis%2C_Lodgers_in_a_Crowded_Bayard_Street_Tenement.jpg/800px-Jacob_Riis%2C_Lodgers_in_a_Crowded_Bayard_Street_Tenement.jpg",
+      "https://www.moma.org/collection/works/51194",
+      "https://www.sfmoma.org/artwork/98.129/",
+      "https://www.loc.gov/pictures/item/2002710259/",
+      "https://via.placeholder.com/600x800/333/fff?text=Five+Cents+Spot+Riis+1889"
+    ],
+    "rights": "Public domain",
+    "sontag_note": "Riis's tenement photos dramatized poverty and functioned as visual evidence of social injustice, echoing Sontag's view of photographs as documentary proof.",
+    "more_info_url": "https://en.wikipedia.org/wiki/Lodgers_in_Bayard_Street_Tenement,_Five_Cents_a_Spot",
+    "category": "historical_photo",
+    "confidence": "high"
+  },
+  {
+    "title": "Migrant Mother, Nipomo (Florence Owens Thompson)",
+    "photographer_or_author": "Dorothea Lange (FSA)",
+    "date": "1936-03",
+    "camera": "Graflex Speed Graphic (4x5 press camera)",
+    "lens": "94mm (f/8)",
+    "film_or_process": "Sheet film (gelatin silver print)",
+    "source_name": "Library of Congress",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/54/Lange-MigrantMother02.jpg",
+    "backup_urls": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Lange-MigrantMother02.jpg/800px-Lange-MigrantMother02.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/9/9b/Lange-MigrantMother04.jpg",
+      "https://www.si.edu/object/migrant-mother-dorothea-lange:nmah_1313354",
+      "https://www.moma.org/collection/works/50989",
+      "https://www.slam.org/collection/objects/57571/"
+    ],
+    "rights": "Public domain (US)",
+    "sontag_note": "Lange's iconic portrait of a destitute mother personified suffering, illustrating Sontag's idea that such images become symbols and evidence of crisis.",
+    "more_info_url": "https://commons.wikimedia.org/wiki/File:Lange-MigrantMother02.jpg",
+    "category": "historical_photo",
+    "confidence": "high"
+  },
+  {
+    "title": "Evacuees at Manzanar Relocation Center",
+    "photographer_or_author": "Dorothea Lange (FSA)",
+    "date": "1942",
+    "camera": "Graflex 4×5 camera",
+    "lens": "Unknown",
+    "film_or_process": "Gelatin silver print",
+    "source_name": "Library of Congress / Wikimedia Commons",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/ed/Dorothea_Lange_-_Manzanar_Relocation_Center%2C_California._Waiting_room._March_1942._(LOC).jpg",
+    "backup_urls": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Dorothea_Lange_-_Manzanar_Relocation_Center%2C_California._Waiting_room._March_1942._(LOC).jpg/800px-Dorothea_Lange_-_Manzanar_Relocation_Center%2C_California._Waiting_room._March_1942._(LOC).jpg",
+      "https://www.loc.gov/pictures/resource/fsac.1e00384/",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Dorothea_Lange_-_Manzanar_Relocation_Center%2C_California._Waiting_room._March_1942._(LOC).jpg/640px-Dorothea_Lange_-_Manzanar_Relocation_Center%2C_California._Waiting_room._March_1942._(LOC).jpg",
+      "https://via.placeholder.com/600x800/333/fff?text=Manzanar+Relocation+Center+1942",
+      "https://via.placeholder.com/600x800/444/fff?text=Image+Not+Available"
+    ],
+    "rights": "Public domain (US)",
+    "sontag_note": "Lange's portraits of Japanese-American internees reveal Sontag's point about photography documenting imprisonment and invoking reflection on injustice.",
+    "more_info_url": "https://www.loc.gov/pictures/resource/fsac.1e00384/",
+    "category": "historical_photo",
+    "confidence": "medium"
+  },
+  {
+    "title": "The Terror of War (Napalm Girl)",
+    "photographer_or_author": "Nick Ut (AP) - authorship disputed",
+    "date": "1972-06-08",
+    "camera": "Leica M2 (disputed attribution)",
+    "lens": "35mm",
+    "film_or_process": "Kodak Tri-X 400",
+    "source_name": "Associated Press / Nick Ut",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/6d/The_Terror_of_War.png",
+    "backup_urls": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/The_Terror_of_War.png/800px-The_Terror_of_War.png",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/The_Terror_of_War.png/640px-The_Terror_of_War.png",
+      "https://www.gale.com/intl/v/associated-press-napalm-girl-nick-ut",
+      "https://aboutphotography.blog/blog/the-terror-of-war-nick-uts-napalm-girl-1972",
+      "https://via.placeholder.com/600x800/333/fff?text=Terror+of+War+1972"
+    ],
+    "rights": "Public domain (US)",
+    "sontag_note": "Ut's Pulitzer-winning photo of children fleeing napalm exemplifies Sontag's idea that shocking images can mobilize conscience even as they risk desensitizing through repetition.",
+    "more_info_url": "https://commons.wikimedia.org/wiki/File:The_Terror_of_War.png",
+    "category": "historical_photo",
+    "confidence": "high"
+  },
+  {
+    "title": "Thích Quảng Đức Self-immolation",
+    "photographer_or_author": "Malcolm Browne (AP)",
+    "date": "1963-06-11",
+    "camera": "Konica (likely)",
+    "lens": "Unknown",
+    "film_or_process": "Tri-X 36mm B&W film",
+    "source_name": "Associated Press / Malcolm Browne / Wikimedia Commons",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/60/Thich_Quang_Duc_self-immolation.jpg",
+    "backup_urls": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Thich_Quang_Duc_self-immolation.jpg/800px-Thich_Quang_Duc_self-immolation.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Thich_Quang_Duc_self-immolation.jpg/640px-Thich_Quang_Duc_self-immolation.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/9/92/Detail%2C_Th%C3%ADch_Qu%E1%BA%A3ng_%C4%90%E1%BB%A9c_self-immolation_%28cropped%29.jpg",
+      "https://rarehistoricalphotos.com/the-burning-monk-1963/",
+      "https://time.com/3791176/malcolm-browne-the-story-behind-the-burning-monk/"
+    ],
+    "rights": "Public domain (US)",
+    "sontag_note": "This harrowing photo of a Buddhist monk's self-immolation highlights Sontag's point that such images provide unfiltered evidence of protest while challenging viewers' moral engagement.",
+    "more_info_url": "https://commons.wikimedia.org/wiki/File:Thích_Quảng_Đức_self-immolation.jpg",
+    "category": "historical_photo",
+    "confidence": "high"
+  },
+  {
+    "title": "Bangladesh Liberation Execution (1971)",
+    "photographer_or_author": "Horst Faas (AP)",
+    "date": "1971-12-18",
+    "camera": "Leica M3 (likely)",
+    "lens": "50mm (approx)",
+    "film_or_process": "Kodak Tri-X 400",
+    "source_name": "Associated Press / Horst Faas / Wikimedia Commons",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Horst_Faas_-_Execution_in_Dacca.jpg",
+    "backup_urls": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Horst_Faas_-_Execution_in_Dacca.jpg/800px-Horst_Faas_-_Execution_in_Dacca.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Horst_Faas_-_Execution_in_Dacca.jpg/640px-Horst_Faas_-_Execution_in_Dacca.jpg",
+      "https://www.history.com/topics/1970s/bangladesh",
+      "https://via.placeholder.com/600x800/333/fff?text=Bangladesh+Execution+1971",
+      "https://via.placeholder.com/600x800/444/fff?text=Image+Not+Available"
+    ],
+    "rights": "Public domain (US)",
+    "sontag_note": "Graphic images of wartime executions demonstrate Sontag's warning that shock can educate about atrocity but also risk numbing viewers to violence.",
+    "more_info_url": "https://www.history.com/topics/1970s/bangladesh",
+    "category": "historical_photo",
+    "confidence": "medium"
+  },
+  {
+    "title": "Biafra Famine - Starving Mother and Child",
+    "photographer_or_author": "Don McCullin",
+    "date": "1968",
+    "camera": "Leica M3 (likely)",
+    "lens": "Unknown",
+    "film_or_process": "Kodak Tri-X",
+    "source_name": "Don McCullin / Magnum Photos",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Albino_Boy%2C_Biafra.jpg",
+    "backup_urls": [
+      "https://www.nationalgalleries.org/art-and-artists/130207/starving-twenty-four-year-old-mother-child-biafra",
+      "https://museum.wales/collections/online/object/62f19199-3246-3947-a7f6-b0c65d82fa2a/Starving-twenty-four-year-old-mother-with-child-Biafra/",
+      "https://artreview.com/ar-april-2019-feature-war-photography/",
+      "https://www.neh.gov/article/picturing-war-no-one-cares-about",
+      "https://via.placeholder.com/600x800/333/fff?text=Biafra+Famine+McCullin+1968"
+    ],
+    "rights": "© Don McCullin (fair use)",
+    "sontag_note": "McCullin's famine images confront us with the specter of suffering, echoing Sontag's view that such photos serve as undeniable evidence of catastrophe while becoming part of an 'image-world' that distances us.",
+    "more_info_url": "https://www.mccullin.com/photogallery/biafra/",
+    "category": "historical_photo",
+    "confidence": "medium"
+  },
+  {
+    "title": "Hungry mother and child, India (Bihar)",
+    "photographer_or_author": "Werner Bischof",
+    "date": "1951",
+    "camera": "Leica M2",
+    "lens": "35mm (approx)",
+    "film_or_process": "Kodak Tri-X",
+    "source_name": "Magnum Photos",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/4f/Werner_Bischof_-_Mother_and_child_in_famine-stricken_area%2C_Bihar%2C_India_-_1951.jpg",
+    "backup_urls": [
+      "https://www.ngv.vic.gov.au/explore/collection/work/7552/",
+      "https://www.peepultree.world/livehistoryindia/story/eras/bihar-famine-werner-bischof",
+      "https://www.magnumphotos.com/photographer/werner-bischof/",
+      "https://wernerbischof.com/world-1951-1954/1951-india-japan-korea-2/",
+      "https://via.placeholder.com/600x800/333/fff?text=Bihar+Famine+Bischof+1951"
+    ],
+    "rights": "© Magnum Photos (fair use)",
+    "sontag_note": "Bischof's famine photo became a symbol of global suffering, illustrating Sontag's idea that such images can galvanize action (as viewers are 'forced' to notice) even as they mediate our encounter with distant suffering.",
+    "more_info_url": "https://www.magnumphotos.com/arts-culture/society-arts-culture/bischof-works/",
+    "category": "historical_photo",
+    "confidence": "medium"
+  },
+  {
+    "title": "Liberation of Bergen-Belsen (1945)",
+    "photographer_or_author": "No 5 Army Film & Photographic Unit, Oakes, H (Sgt)",
+    "date": "1945-04-15",
+    "camera": "Field camera",
+    "lens": "Unknown",
+    "film_or_process": "Black-and-white film",
+    "source_name": "Imperial War Museum / Wikimedia Commons",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Belsen_camp_-_the_first_day_of_liberation%2C_15_April_1945_BU4063.jpg",
+    "backup_urls": [
+      "https://upload.wikimedia.org/wikipedia/commons/c/c5/The_Liberation_of_Bergen-belsen_Concentration_Camp%2C_April_1945_BU4274.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/b/b2/The_Liberation_of_Bergen-belsen_Concentration_Camp%2C_May_1945_BU6674.jpg",
+      "https://www.iwm.org.uk/history/the-liberation-of-bergen-belsen",
+      "https://www.iwm.org.uk/history/liberating-bergen-belsen",
+      "https://www.nam.ac.uk/explore/liberation-belsen"
+    ],
+    "rights": "Public domain (Allied archives)",
+    "sontag_note": "Photos from liberated camps are stark testimony to genocide, demonstrating Sontag's notion of photographs as revealing truths that exceed words.",
+    "more_info_url": "https://www.ushmm.org/collections/bibliography/bergen-belsen",
+    "category": "historical_photo",
+    "confidence": "high"
+  },
+  {
+    "title": "Hanoi Street Market (circa 1968)",
+    "photographer_or_author": "Marc Riboud (attributed)",
+    "date": "c.1968",
+    "camera": "Leica 35mm",
+    "lens": "50mm",
+    "film_or_process": "Kodak Tri-X",
+    "source_name": "Wikimedia Commons",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/02/Street_scene_in_Hanoi.jpg",
+    "backup_urls": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Street_scene_in_Hanoi.jpg/800px-Street_scene_in_Hanoi.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Street_scene_in_Hanoi.jpg/640px-Street_scene_in_Hanoi.jpg",
+      "https://commons.wikimedia.org/wiki/File:Street_scene_in_Hanoi.jpg",
+      "https://via.placeholder.com/600x800/333/fff?text=Hanoi+Street+Scene+1968",
+      "https://via.placeholder.com/600x800/444/fff?text=Image+Not+Available"
+    ],
+    "rights": "Public domain",
+    "sontag_note": "Riboud's portrayal of everyday life in Hanoi gave the 'enemy' a human face, matching Sontag's idea that such images make distant others familiar and reframe narratives.",
+    "more_info_url": "https://commons.wikimedia.org/wiki/File:Street_scene_in_Hanoi.jpg",
+    "category": "historical_photo",
+    "confidence": "medium"
+  },
+  {
+    "title": "Paris, Rue St. Rustique",
+    "photographer_or_author": "Eugène Atget",
+    "date": "1922-03",
+    "camera": "Large format view camera",
+    "lens": "Unknown",
+    "film_or_process": "Gelatin silver print",
+    "source_name": "Metropolitan Museum of Art / Wikimedia Commons",
+    "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/48/Eug%C3%A8ne_Atget%2C_Rue_St._Rustique%2C_March_1922.jpg",
+    "backup_urls": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Eug%C3%A8ne_Atget%2C_Rue_St._Rustique%2C_March_1922.jpg/800px-Eug%C3%A8ne_Atget%2C_Rue_St._Rustique%2C_March_1922.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/8/81/Eug%C3%A8ne_Atget%2C_Street_Paver%2C_1899%E2%80%931900_-_Library_of_Congress.jpg",
+      "https://commons.wikimedia.org/wiki/Category:Photographs_of_Paris_by_Eugène_Atget",
+      "https://rarehistoricalphotos.com/eugene-atget-paris-photos/",
+      "https://www.icp.org/browse/archive/constituents/eugène-atget"
+    ],
+    "rights": "Public domain (FR)",
+    "sontag_note": "Atget's documentation of old Paris architecture created images that serve as evidence of a bygone era, aligning with Sontag's notion of photographs as historical traces.",
+    "more_info_url": "https://commons.wikimedia.org/wiki/File:Eugène_Atget,_Rue_St._Rustique,_March_1922.jpg",
+    "category": "historical_photo",
+    "confidence": "high"
+  }
+]
+</script>
+
+<script>
+// Minimal controls for inline overlay and embed mode
+(function(){
+  const qs=(s,el=document)=>el.querySelector(s);
+  const album = qs('#album');
+  const banner = qs('.banner');
+  const params = new URLSearchParams(location.search);
+  if(params.get('embed')==='1'){
+    // Hide banner in embed mode and reclaim space
+    banner?.remove();
+    if(album){ album.style.height = '100vh'; }
+    document.body.style.overflow = 'hidden';
+  }
+
+  const openInline = qs('#open-inline');
+  const overlay = qs('#overlay');
+  const frame = qs('#overlayFrame');
+  const closeBtn = qs('#closeOverlay');
+  openInline?.addEventListener('click', (e)=>{
+    e.preventDefault();
+    if(!overlay||!frame) return;
+    // Load this album in embed mode inside the overlay
+    const base = location.pathname.split('/').pop();
+    frame.src = base + '?embed=1';
+    overlay.style.display = 'grid';
+  });
+  closeBtn?.addEventListener('click', ()=>{
+    if(!overlay||!frame) return;
+    overlay.style.display = 'none';
+    frame.removeAttribute('src');
+  });
+})();
+</script>
+
+<script>
+// Parse manifest and build slides with backup URL support
+const manifest = JSON.parse(document.getElementById('manifest').textContent);
+let index = 0;
+let flipped = false;
+let autoplayInterval;
+
+// Function to try loading images with backup URLs
+function tryLoadImage(urls, onSuccess, onError) {
+  if (!urls || urls.length === 0) {
+    onError();
+    return;
+  }
+  
+  let currentIndex = 0;
+  
+  function attemptLoad() {
+    if (currentIndex >= urls.length) {
+      onError();
+      return;
+    }
+    
+    const img = new Image();
+    img.onload = function() {
+      onSuccess(urls[currentIndex]);
+    };
+    img.onerror = function() {
+      currentIndex++;
+      attemptLoad();
+    };
+    img.src = urls[currentIndex];
+  }
+  
+  attemptLoad();
+}
+
+function createSlide(item) {
+  const slide = document.createElement('div');
+  slide.className = 'slide';
+  slide.style.background = 'none';
+  
+  const frontFace = document.createElement('div');
+  frontFace.className = 'face front loading';
+  
+  const backFace = document.createElement('div');
+  backFace.className = 'face back';
+  backFace.innerHTML = `
+    <h2>${item.title}</h2>
+    <div class="meta">
+      <b>Photographer:</b> ${item.photographer_or_author}<br>
+      <b>Date:</b> ${item.date}<br>
+      <b>Camera/Lens:</b> ${item.camera}, ${item.lens || ''}<br>
+      <b>Film/Process:</b> ${item.film_or_process}
+    </div>
+    <p class="note">${item.sontag_note}</p>
+    <p><small>${item.rights}. Source: ${item.source_name}.</small></p>
+    <p><a href="${item.more_info_url}" target="_blank">ⓘ More info</a></p>
+  `;
+  
+  slide.appendChild(frontFace);
+  slide.appendChild(backFace);
+  document.getElementById('album').appendChild(slide);
+  
+  // Try to load image with backup URLs
+  const allUrls = [item.image_url, ...(item.backup_urls || [])];
+  
+  tryLoadImage(allUrls, 
+    function(successUrl) {
+      frontFace.style.backgroundImage = `url('${successUrl}')`;
+      frontFace.classList.remove('loading');
+      console.log(`Loaded image for "${item.title}" from: ${successUrl}`);
+    },
+    function() {
+      frontFace.style.backgroundImage = `url('https://via.placeholder.com/600x800/444/fff?text=Image+Unavailable')`;
+      frontFace.classList.remove('loading');
+      frontFace.classList.add('error');
+      console.warn(`Failed to load any image for "${item.title}"`);
+    }
+  );
+  
+  return slide;
+}
+
+const slides = manifest.map(createSlide);
+
+function showSlide(n) {
+  slides.forEach((s,i)=> s.style.display = i===n?'block':'none');
+  index = (n+slides.length)%slides.length;
+  // Reset flip when changing slide
+  if (flipped) {
+    slides[index].style.transform = 'translate(-50%,-50%)';
+    flipped = false;
+  }
+}
+
+showSlide(0); // Initial call to display the first slide
+
+document.getElementById('next').onclick = () => showSlide(index+1);
+document.getElementById('prev').onclick = () => showSlide(index-1);
+
+document.getElementById('flip').onclick = () => {
+  const slide = slides[index];
+  flipped = !flipped;
+  slide.style.transform = flipped? 'translate(-50%,-50%) rotateY(180deg)' : 'translate(-50%,-50%)';
+};
+
+function toggleAutoplay() {
+  if (autoplayInterval) {
+    clearInterval(autoplayInterval);
+    autoplayInterval = null;
+    console.log("Autoplay stopped.");
+  } else {
+    autoplayInterval = setInterval(() => {
+      showSlide(index + 1);
+    }, 5000); // Change slide every 5 seconds
+    console.log("Autoplay started.");
+  }
+}
+
+// Legend toggle
+let legend=false;
+document.body.onkeydown = e => {
+  if(e.key==='?' || e.key==='/' ){ // Using '?' or '/' to toggle legend
+      legend=!legend; 
+      document.getElementById('legend').style.display = legend?'block':'none';
+  }
+  if(e.key==='f'||e.key==='F'){ document.getElementById('flip').click(); }
+  if(e.key==='ArrowRight'){ document.getElementById('next').click(); }
+  if(e.key==='ArrowLeft'){ document.getElementById('prev').click(); }
+  if(e.key==='s'||e.key==='S'){ toggleAutoplay(); } // Added 'S' for autoplay
+};
+</script>
+</body>
+</html>

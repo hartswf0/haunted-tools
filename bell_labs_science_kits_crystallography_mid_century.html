@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bell Labs Science Kits — Crystallography</title>
+  <style>
+    :root {
+      --ink: #1e1e1e;
+      --paper: #f2eee9; /* warm off‑white */
+      --teal: #1f4e5f;  /* deep mid‑century teal */
+      --sage: #9dbebb;  /* desaturated green */
+      --mustard: #f7c948; /* school‑lab yellow */
+      --salmon: #e07a5f; /* accent */
+      --slate: #2e2e2e;
+      --grid: rgba(0,0,0,.06);
+      --chip-bg: #fff9e6;
+      --chip-ink: #5a4b00;
+      --radius: 16px;
+      --shadow: 0 2px 0 rgba(0,0,0,.08), 0 8px 18px rgba(0,0,0,.08);
+      --focus: 0 0 0 3px rgba(31,78,95,.35), 0 0 0 6px rgba(247,201,72,.35);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #141414;
+        --ink: #efefef;
+        --grid: rgba(255,255,255,.06);
+        --chip-bg: #2a2718;
+        --chip-ink: #f7e6a1;
+        --shadow: 0 2px 0 rgba(0,0,0,.5), 0 12px 24px rgba(0,0,0,.45);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--ink);
+      background: linear-gradient(0deg, var(--paper), var(--paper)),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+        linear-gradient(0deg, var(--grid) 1px, transparent 1px);
+      background-size: 100% 100%, 24px 24px, 24px 24px;
+      accent-color: var(--teal);
+    }
+
+    /* Skip link */
+    .skip {
+      position: absolute; left: -9999px; top: -9999px;
+    }
+    .skip:focus { left: 12px; top: 12px; background: var(--mustard); color: #111; padding: 8px 12px; border-radius: 8px; box-shadow: var(--shadow); }
+
+    header {
+      position: sticky; top: 0; z-index: 20;
+      background: var(--paper);
+      border-bottom: 3px solid var(--teal);
+      padding: clamp(10px, 2vw, 16px);
+      display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center;
+    }
+    .titleblock { display: grid; gap: 2px; }
+    .brandline {
+      display: inline-grid; grid-auto-flow: column; gap: 8px; align-items: center;
+      font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--teal);
+    }
+    .badge { width: 10px; height: 10px; border-radius: 50%; background: var(--mustard); box-shadow: inset 0 -2px 0 rgba(0,0,0,.12); }
+    .badge:nth-child(2){ background: var(--salmon); }
+    .badge:nth-child(3){ background: var(--sage); }
+
+    h1 { margin: 0; font-weight: 700; font-size: clamp(18px, 3.6vw, 26px); letter-spacing: .02em; }
+    .subtitle { font-size: 13px; opacity: .8; }
+
+    .toggles {
+      display: grid; grid-auto-flow: column; gap: 12px; align-items: center;
+      justify-content: end;
+    }
+    .toggle { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; }
+
+    main { padding: clamp(12px, 3.5vw, 28px); display: grid; gap: clamp(16px, 2.5vw, 28px); max-width: 1024px; margin: 0 auto; }
+
+    section.card {
+      background: color-mix(in srgb, var(--paper) 92%, white);
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(12px, 2.5vw, 20px);
+    }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      border-radius: 999px; padding: 6px 10px; background: var(--chip-bg); color: var(--chip-ink);
+      border: 1px dashed rgba(0,0,0,.15); font-size: 12px; letter-spacing: .02em;
+    }
+
+    /* Accordion */
+    .accordion { display: grid; gap: 8px; }
+    .acc-item { border: 1px solid rgba(0,0,0,.1); border-radius: 12px; background: var(--paper); overflow: clip; }
+
+    .acc-btn {
+      all: unset; display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center;
+      padding: 14px 14px; cursor: pointer; background: linear-gradient(180deg, rgba(0,0,0,.02), transparent);
+    }
+    .acc-btn:focus-visible { outline: none; box-shadow: var(--focus); }
+    .acc-btn .icon { width: 26px; height: 26px; border-radius: 8px; display: inline-grid; place-items:center; background: color-mix(in srgb, var(--teal) 14%, transparent); }
+    .acc-btn .chev { width: 20px; height: 20px; transition: transform .2s ease; }
+    .acc-btn[aria-expanded="true"] .chev { transform: rotate(90deg); }
+
+    .panel { padding: 0 14px 14px 56px; display: grid; gap: 10px; }
+    .panel[hidden] { display: none; }
+
+    .diagram {
+      width: 100%; aspect-ratio: 16/9; background: conic-gradient(from 45deg, rgba(31,78,95,.12), rgba(31,78,95,.04));
+      border: 1px solid rgba(0,0,0,.08); border-radius: 12px; display: grid; place-items: center; position: relative; overflow: hidden;
+    }
+    .diagram svg { width: 90%; height: 90%; }
+
+    .grid-two { display: grid; gap: 12px; grid-template-columns: 1fr; }
+    @media (min-width: 780px) { .grid-two { grid-template-columns: 1fr 1fr; } }
+
+    .note { font-size: 13px; opacity: .85; }
+
+    .meter {
+      height: 10px; background: rgba(0,0,0,.08); border-radius: 6px; overflow: hidden;
+    }
+    .meter > i { display: block; height: 100%; background: linear-gradient(90deg, var(--mustard), var(--salmon)); width: 50%; }
+
+    .micro {
+      font-size: 12px; letter-spacing: .02em; opacity: .9;
+    }
+
+    .footer { text-align: center; font-size: 12px; opacity: .8; }
+
+    /* Reduce motion */
+    @media (prefers-reduced-motion: reduce) {
+      .acc-btn .chev { transition: none; }
+    }
+
+    .sr-only{ position:absolute!important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#content">Skip to main content</a>
+
+  <header role="banner">
+    <div class="titleblock">
+      <div class="brandline" aria-hidden="true">
+        <span class="badge" title="Mustard"></span>
+        <span class="badge" title="Salmon"></span>
+        <span class="badge" title="Sage"></span>
+        BELL LABS — SCIENCE KITS
+      </div>
+      <h1>Crystallography Kit</h1>
+      <p class="subtitle">Pedagogy • Lab‑in‑a‑Box • Diagram‑First</p>
+    </div>
+    <form class="toggles" aria-label="Accessibility and feedback controls">
+      <label class="toggle"><input type="checkbox" id="soundToggle" checked /> <span>Soft audio</span></label>
+      <label class="toggle"><input type="checkbox" id="hapticsToggle" checked /> <span>Haptics</span></label>
+    </form>
+  </header>
+
+  <main id="content" role="main">
+    <section class="card" aria-labelledby="about-h">
+      <h2 id="about-h">Kit Overview</h2>
+      <p><strong>Mission:</strong> Bring lab experiences into classrooms. <br/>
+         <strong>Purpose:</strong> Materialize scientific method for learners.</p>
+      <div class="chips" aria-label="Aesthetic tags">
+        <span class="chip">mid‑century modern pedagogy</span>
+        <span class="chip">diagram‑first</span>
+        <span class="chip">lab‑in‑a‑box</span>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="comp-h">
+      <h2 id="comp-h">Components</h2>
+      <div class="accordion" id="accordion" role="region" aria-label="Kit components accordion">
+        <!-- Item: Rotary crystallizer -->
+        <div class="acc-item">
+          <button class="acc-btn" aria-expanded="false" aria-controls="p1" id="b1">
+            <span class="icon" aria-hidden="true">🔄</span>
+            <span>Rotary Crystallizer</span>
+            <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="panel" id="p1" role="region" aria-labelledby="b1" hidden>
+            <div class="grid-two">
+              <div class="diagram" aria-label="Rotary crystallizer diagram">
+                <svg viewBox="0 0 200 200" role="img" aria-labelledby="rotaryTitle rotaryDesc">
+                  <title id="rotaryTitle">Rotary Crystallizer</title>
+                  <desc id="rotaryDesc">Simple schematic with rotating stage and sample dish.</desc>
+                  <defs>
+                    <linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#9dbebb"/><stop offset="1" stop-color="#f7c948"/></linearGradient>
+                  </defs>
+                  <rect x="10" y="10" width="180" height="180" rx="16" fill="url(#g1)" opacity=".15" />
+                  <circle cx="100" cy="100" r="58" fill="#fff" stroke="#1f4e5f" stroke-width="2" />
+                  <circle cx="100" cy="100" r="44" fill="#f7c948" opacity=".25" />
+                  <g id="rotor">
+                    <circle cx="100" cy="100" r="6" fill="#1f4e5f" />
+                    <line x1="100" y1="100" x2="160" y2="100" stroke="#1f4e5f" stroke-width="4" stroke-linecap="round" />
+                  </g>
+                  <text x="100" y="182" text-anchor="middle" style="font: 12px/1 ui-sans-serif; fill: #1f4e5f;">rotate to control crystal growth</text>
+                </svg>
+              </div>
+              <div>
+                <p class="note">A hand‑turn stage with a shallow dish for supersaturated solution. Rotation helps seed uniform crystal formation and reveals symmetry during observation.</p>
+                <label class="micro" for="rotAngle">Stage angle <span id="rotAngleVal">0°</span></label>
+                <input id="rotAngle" type="range" min="0" max="360" value="0" aria-controls="rotor" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item: Polarizing microscope parts -->
+        <div class="acc-item">
+          <button class="acc-btn" aria-expanded="false" aria-controls="p2" id="b2">
+            <span class="icon" aria-hidden="true">🧿</span>
+            <span>Polarizing Microscope Parts</span>
+            <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="panel" id="p2" role="region" aria-labelledby="b2" hidden>
+            <div class="grid-two">
+              <div class="diagram" aria-label="Crossed polarizers demo">
+                <svg viewBox="0 0 220 140" role="img" aria-labelledby="polTitle polDesc">
+                  <title id="polTitle">Crossed Polarizers</title>
+                  <desc id="polDesc">Two polarizer films rotate; brightness follows Malus's law.</desc>
+                  <rect x="0" y="0" width="220" height="140" rx="12" fill="#1f4e5f" opacity=".08" />
+                  <g id="polarDemo">
+                    <rect id="lightRect" x="20" y="20" width="180" height="100" rx="10" fill="#f7c948" />
+                    <g transform="translate(110,70)">
+                      <line id="pola" x1="-70" y1="0" x2="70" y2="0" stroke="#1f4e5f" stroke-width="6" stroke-linecap="round"/>
+                      <line id="polb" x1="-70" y1="0" x2="70" y2="0" stroke="#e07a5f" stroke-width="6" stroke-linecap="round"/>
+                    </g>
+                  </g>
+                </svg>
+              </div>
+              <div>
+                <p class="note">Rotate the analyzer relative to the polarizer to observe extinction and birefringence colors with samples. Brightness ≈ I₀·cos²(θ).</p>
+                <label class="micro" for="polAngle">Analyzer angle θ <span id="polAngleVal">0°</span></label>
+                <input id="polAngle" type="range" min="0" max="180" value="0" />
+                <div class="micro">Intensity: <span id="intensity">100%</span>
+                  <div class="meter" aria-hidden="true"><i id="meterFill" style="width:100%"></i></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item: Mica / Calcite samples -->
+        <div class="acc-item">
+          <button class="acc-btn" aria-expanded="false" aria-controls="p3" id="b3">
+            <span class="icon" aria-hidden="true">🪨</span>
+            <span>Mica / Calcite Samples</span>
+            <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="panel" id="p3" role="region" aria-labelledby="b3" hidden>
+            <p class="note">Cleaved mica sheets show basal planes; calcite demonstrates double refraction (birefringence) — print letters appear doubled under a crystal.</p>
+            <div class="diagram" aria-label="Birefringence sketch">
+              <svg viewBox="0 0 220 120" role="img" aria-labelledby="biTitle biDesc">
+                <title id="biTitle">Birefringence</title>
+                <desc id="biDesc">Ray splitting into ordinary and extraordinary paths.</desc>
+                <rect x="10" y="20" width="80" height="80" fill="#9dbebb" opacity=".45" rx="8"/>
+                <path d="M20 60 H90" stroke="#1f4e5f" stroke-width="3"/>
+                <path d="M90 60 L200 40" stroke="#e07a5f" stroke-width="3"/>
+                <path d="M90 60 L200 80" stroke="#f7c948" stroke-width="3"/>
+                <text x="205" y="44" font-size="12" fill="currentColor">e‑ray</text>
+                <text x="205" y="84" font-size="12" fill="currentColor">o‑ray</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item: Experiment book -->
+        <div class="acc-item">
+          <button class="acc-btn" aria-expanded="false" aria-controls="p4" id="b4">
+            <span class="icon" aria-hidden="true">📘</span>
+            <span>Experiment Book</span>
+            <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="panel" id="p4" role="region" aria-labelledby="b4" hidden>
+            <ol class="micro">
+              <li>Prepare a saturated solution (salt, sugar, or alum) safely.</li>
+              <li>Seed with a small crystal; place on rotary stage.</li>
+              <li>Observe edges and faces as rotation reveals symmetry.</li>
+              <li>Record diagrams: face angles, growth lines, extinction angles.</li>
+              <li>Test with crossed polarizers; sketch interference colors.</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- Item: Charts -->
+        <div class="acc-item">
+          <button class="acc-btn" aria-expanded="false" aria-controls="p5" id="b5">
+            <span class="icon" aria-hidden="true">📊</span>
+            <span>Charts & Reference Cards</span>
+            <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="panel" id="p5" role="region" aria-labelledby="b5" hidden>
+            <div class="grid-two">
+              <div class="diagram" aria-label="Crystal systems chart">
+                <svg viewBox="0 0 220 160" role="img" aria-labelledby="sysTitle sysDesc">
+                  <title id="sysTitle">Crystal Systems</title>
+                  <desc id="sysDesc">Seven crystal systems sketched as wireframes.</desc>
+                  <g transform="translate(20,18)" stroke="#1f4e5f" stroke-width="1.5" fill="none">
+                    <!-- Simple wireframe cubes/prisms -->
+                    <rect x="0" y="0" width="50" height="50" rx="2"/>
+                    <rect x="70" y="0" width="50" height="50" rx="2" transform="skewX(10)"/>
+                    <rect x="140" y="0" width="50" height="50" rx="2" transform="skewY(12)"/>
+                    <rect x="0" y="70" width="50" height="50" rx="2" transform="scale(1, .8)"/>
+                    <rect x="70" y="70" width="50" height="50" rx="2" transform="skewX(-12) scale(1,.9)"/>
+                    <rect x="140" y="70" width="50" height="50" rx="2" transform="scale(.9,1.1)"/>
+                  </g>
+                </svg>
+              </div>
+              <p class="note">Quick‑reference cards include crystal systems, Miller indices, birefringence colors, and common cleavage planes. Use as diagram backdrops for student notebooks.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="demo-h">
+      <h2 id="demo-h">Interactive Demonstration — Polarization</h2>
+      <p class="note">Rotate the analyzer and watch brightness follow <em>Malus’s law</em>. Try θ = 90° for extinction.</p>
+      <div class="grid-two">
+        <div class="diagram" aria-label="Interactive polarization cell">
+          <svg viewBox="0 0 240 160" role="img" aria-labelledby="liveTitle liveDesc">
+            <title id="liveTitle">Live Polarization Cell</title>
+            <desc id="liveDesc">A bright cell dims as the analyzer rotates.</desc>
+            <defs>
+              <linearGradient id="glow" x1="0" x2="1">
+                <stop offset="0" stop-color="#f7c948"/>
+                <stop offset="1" stop-color="#e07a5f"/>
+              </linearGradient>
+            </defs>
+            <rect x="10" y="10" width="220" height="140" rx="14" fill="#1f4e5f" opacity=".07"/>
+            <g id="liveCell">
+              <rect id="liveRect" x="30" y="30" width="180" height="100" rx="12" fill="url(#glow)" />
+              <g transform="translate(120,80)">
+                <line id="livePolA" x1="-70" y1="0" x2="70" y2="0" stroke="#1f4e5f" stroke-width="6" stroke-linecap="round"/>
+                <line id="livePolB" x1="-70" y1="0" x2="70" y2="0" stroke="#e07a5f" stroke-width="6" stroke-linecap="round"/>
+              </g>
+            </g>
+          </svg>
+        </div>
+        <div>
+          <label class="micro" for="liveAngle">Analyzer angle θ <span id="liveAngleVal">0°</span></label>
+          <input id="liveAngle" type="range" min="0" max="180" value="0" />
+          <div class="micro">Intensity: <span id="liveIntensity">100%</span>
+            <div class="meter" aria-hidden="true"><i id="liveMeter" style="width:100%"></i></div>
+          </div>
+          <p class="micro">Tip: With real polarizing films, place a birefringent sample (e.g., cellophane tape) between the films to see colors.</p>
+        </div>
+      </div>
+    </section>
+
+    <p class="footer">© Mid‑Century Classroom Edition • Built for accessibility: keyboard, ARIA, reduced‑motion/audio respected.</p>
+  </main>
+
+  <script>
+    // Accessibility & feedback toggles
+    const soundToggle = document.getElementById('soundToggle');
+    const hapticsToggle = document.getElementById('hapticsToggle');
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // WebAudio (soft blips/chimes)
+    let audioCtx = null;
+    let audioOK = false;
+    function initAudio() {
+      if (audioCtx || prefersReducedMotion || !soundToggle.checked) return;
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        audioOK = true;
+      } catch (e) { audioOK = false; }
+    }
+
+    function beep(type='blip') {
+      if (!audioOK || !soundToggle.checked || prefersReducedMotion) return;
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      const now = audioCtx.currentTime;
+      if (type === 'chime') {
+        osc.frequency.setValueAtTime(660, now);
+        osc.frequency.exponentialRampToValueAtTime(990, now + 0.12);
+      } else { // blip
+        osc.frequency.setValueAtTime(520, now);
+      }
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.06, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start();
+      osc.stop(t + 0.22);
+    }
+
+    function haptic(ms=8) {
+      if (prefersReducedMotion || !hapticsToggle.checked) return;
+      if (navigator.vibrate) navigator.vibrate(ms);
+    }
+
+    // Activate audio on first user gesture
+    ['click','keydown','touchstart'].forEach(evt => {
+      window.addEventListener(evt, initAudio, { once: true, passive: true });
+    });
+
+    // Accordion behavior (WAI-ARIA pattern)
+    const accButtons = Array.from(document.querySelectorAll('.acc-btn'));
+    const accPanels = Array.from(document.querySelectorAll('.panel'));
+
+    function toggleAccordion(btn, setFocus=true) {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      const panel = document.getElementById(btn.getAttribute('aria-controls'));
+      if (expanded) {
+        btn.setAttribute('aria-expanded', 'false');
+        panel.hidden = true;
+        beep('blip');
+        haptic(6);
+      } else {
+        btn.setAttribute('aria-expanded', 'true');
+        panel.hidden = false;
+        beep('chime');
+        haptic(12);
+      }
+      if (setFocus) btn.focus();
+    }
+
+    accButtons.forEach(btn => {
+      btn.addEventListener('click', () => toggleAccordion(btn));
+      btn.addEventListener('keydown', (e) => {
+        const i = accButtons.indexOf(btn);
+        if (e.key === 'ArrowDown') { e.preventDefault(); (accButtons[i+1]||accButtons[0]).focus(); }
+        if (e.key === 'ArrowUp')   { e.preventDefault(); (accButtons[i-1]||accButtons[accButtons.length-1]).focus(); }
+        if (e.key === 'Home')      { e.preventDefault(); accButtons[0].focus(); }
+        if (e.key === 'End')       { e.preventDefault(); accButtons[accButtons.length-1].focus(); }
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleAccordion(btn, false); }
+      });
+    });
+
+    // Rotary crystallizer: rotate arm based on slider
+    const rotSlider = document.getElementById('rotAngle');
+    const rotVal = document.getElementById('rotAngleVal');
+    const rotor = document.querySelector('#rotor');
+    rotSlider?.addEventListener('input', () => {
+      const a = Number(rotSlider.value) || 0;
+      rotVal.textContent = a + '°';
+      rotor.setAttribute('transform', `rotate(${a} 100 100)`);
+    });
+
+    // Polarizer demo (static panel)
+    const polSlider = document.getElementById('polAngle');
+    const polVal = document.getElementById('polAngleVal');
+    const lightRect = document.getElementById('lightRect');
+    const meterFill = document.getElementById('meterFill');
+    const polA = document.getElementById('pola');
+    const polB = document.getElementById('polb');
+    const intensitySpan = document.getElementById('intensity');
+
+    function setPolar(thetaDeg, linA=0) {
+      const theta = (thetaDeg * Math.PI) / 180;
+      const I = Math.max(0, Math.cos(theta) ** 2); // Malus's law
+      lightRect.style.opacity = (0.15 + 0.85 * I).toFixed(3);
+      meterFill.style.width = (I * 100).toFixed(0) + '%';
+      intensitySpan.textContent = (I * 100).toFixed(0) + '%';
+      polA.setAttribute('transform', `rotate(${linA})`);
+      polB.setAttribute('transform', `rotate(${linA + thetaDeg})`);
+    }
+
+    polSlider?.addEventListener('input', () => {
+      polVal.textContent = polSlider.value + '°';
+      setPolar(Number(polSlider.value));
+    });
+    setPolar(0);
+
+    // Live polarization cell (duplicate with separate controls)
+    const liveAngle = document.getElementById('liveAngle');
+    const liveAngleVal = document.getElementById('liveAngleVal');
+    const liveRect = document.getElementById('liveRect');
+    const liveMeter = document.getElementById('liveMeter');
+    const liveIntensity = document.getElementById('liveIntensity');
+    const livePolA = document.getElementById('livePolA');
+    const livePolB = document.getElementById('livePolB');
+
+    function setLive(thetaDeg) {
+      const theta = (thetaDeg * Math.PI) / 180;
+      const I = Math.max(0, Math.cos(theta) ** 2);
+      liveRect.style.opacity = (0.15 + 0.85 * I).toFixed(3);
+      liveMeter.style.width = (I * 100).toFixed(0) + '%';
+      liveIntensity.textContent = (I * 100).toFixed(0) + '%';
+      livePolA.setAttribute('transform', `rotate(0)`);
+      livePolB.setAttribute('transform', `rotate(${thetaDeg})`);
+    }
+    liveAngle?.addEventListener('input', () => {
+      liveAngleVal.textContent = liveAngle.value + '°';
+      setLive(Number(liveAngle.value));
+    });
+    setLive(0);
+
+    // Toggle handlers give gentle feedback
+    soundToggle.addEventListener('change', () => { if (soundToggle.checked) initAudio(); if (audioCtx) beep('blip'); });
+    hapticsToggle.addEventListener('change', () => haptic(10));
+
+    // Open first accordion item by default for quick start (but keep keyboard focus stable)
+    const firstBtn = document.querySelector('.acc-btn');
+    if (firstBtn) { toggleAccordion(firstBtn, false); }
+  </script>
+</body>
+</html>

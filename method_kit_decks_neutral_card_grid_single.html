@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MethodKit Decks — Neutral Card Grid</title>
+<style>
+  :root{
+    --bg: #f7f7f8;
+    --fg: #0f1221;
+    --muted: #5b606b;
+    --card: #ffffff;
+    --border: #dcdfe6;
+    --chip-bg:#eceff4;
+    --chip-fg:#282c34;
+    --accent:#3a86ff;
+    --accent-2:#00b894;
+    --shadow: 0 2px 8px rgba(0,0,0,.06);
+    --radius: 16px;
+    --focus: 0 0 0 3px rgba(58,134,255,.35);
+  }
+  [data-theme="dark"]{
+    --bg:#0e1116;
+    --fg:#f6f7fb;
+    --muted:#aab2c3;
+    --card:#141924;
+    --border:#2a3040;
+    --chip-bg:#1b2130;
+    --chip-fg:#eef3ff;
+    --shadow: 0 4px 16px rgba(0,0,0,.35);
+    --focus: 0 0 0 3px rgba(58,134,255,.5);
+  }
+  body.hc{
+    --bg:#000;
+    --fg:#fff;
+    --muted:#fff;
+    --card:#000;
+    --border:#fff;
+    --chip-bg:#000;
+    --chip-fg:#fff;
+    --accent:#fff;
+    --accent-2:#fff;
+    --shadow:none;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--fg); font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+  }
+  a{color:var(--accent)}
+  .visually-hidden{position:absolute!important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0}
+
+  /* Header */
+  header{
+    position:sticky; top:0; z-index:10; backdrop-filter:saturate(120%) blur(6px);
+    background: color-mix(in oklab, var(--bg) 86%, transparent);
+    border-bottom:1px solid var(--border);
+  }
+  .topbar{display:flex; gap:.75rem; align-items:center; padding:.8rem clamp(.8rem, 2vw, 1.2rem);} 
+  .brand{display:flex; align-items:center; gap:.6rem; font-weight:700; letter-spacing:.2px}
+  .brand svg{inline-size:28px; block-size:28px}
+  .chipset{display:flex; flex-wrap:wrap; gap:.4rem .6rem; align-items:center}
+  .chip{display:inline-flex; align-items:center; gap:.35rem; border:1px dashed var(--border); padding:.25rem .55rem; border-radius:999px; background:var(--chip-bg); color:var(--chip-fg); font-size:.8rem}
+  .chip .dot{inline-size:.5rem; block-size:.5rem; border-radius:50%; background:currentColor; opacity:.35}
+
+  .tools{display:flex; gap:.5rem; align-items:center; margin-left:auto; flex-wrap:wrap}
+  .tools button, .tools .seg{border:1px solid var(--border); background:var(--card); color:var(--fg); border-radius:999px; padding:.45rem .7rem; box-shadow:var(--shadow)}
+  .tools button{cursor:pointer}
+  .tools .seg{display:flex; overflow:hidden}
+  .tools .seg button{border:none; border-radius:0; border-right:1px solid var(--border)}
+  .tools .seg button:last-child{border-right:none}
+  .tools input[type="search"]{border:1px solid var(--border); background:var(--card); color:var(--fg); border-radius:999px; padding:.5rem .9rem; min-inline-size: 14ch}
+
+  main{padding: clamp(.8rem, 2.5vw, 1.5rem)}
+
+  /* Deck meta */
+  .meta{display:grid; grid-template-columns: 1fr; gap: .9rem; margin-block-end:1rem}
+  .meta .row{display:flex; flex-wrap:wrap; gap:.5rem .75rem; align-items:center}
+  .meta .k{font-weight:600}
+  details.accordion{border:1px solid var(--border); border-radius:var(--radius); background:var(--card); box-shadow:var(--shadow)}
+  details.accordion>summary{display:flex; align-items:center; gap:.6rem; padding:.75rem .9rem; cursor:pointer; list-style:none}
+  details.accordion[open]>summary{border-bottom:1px solid var(--border)}
+  details.accordion .content{padding:.9rem}
+
+  /* Buttons row */
+  .actions{display:flex; flex-wrap:wrap; gap:.5rem; position:sticky; top:3.6rem; padding:.5rem 0 .8rem}
+  .btn{border:1px solid var(--border); background:var(--card); color:var(--fg); border-radius:10px; padding:.55rem .8rem; cursor:pointer; box-shadow:var(--shadow)}
+  .btn[aria-pressed="true"]{outline:var(--focus)}
+
+  /* Grid */
+  .grid{display:grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: .9rem}
+  .card{border:1px solid var(--border); background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:.9rem; display:grid; align-content:start; gap:.65rem; transition:transform .08s ease}
+  .card:focus-within, .card:focus{outline:none; box-shadow:var(--shadow), var(--focus)}
+  .card:hover{transform: translateY(-1px)}
+  .card .top{display:flex; align-items:center; justify-content:space-between; gap:.6rem}
+  .card h3[contenteditable]{margin:0; outline:none; font-size:1.02rem; letter-spacing:.2px}
+  .icon{inline-size:24px; block-size:24px; opacity:.66}
+  .note details{border:1px dashed var(--border); border-radius:12px}
+  .note summary{list-style:none; cursor:pointer; padding:.4rem .55rem; color:var(--muted)}
+  .note[open] summary{border-bottom:1px dashed var(--border)}
+  .note .body{padding:.55rem}
+  textarea{inline-size:100%; min-block-size:6rem; background:transparent; color:var(--fg); border:1px solid var(--border); border-radius:10px; padding:.6rem; resize:vertical}
+  .card .bar{display:flex; justify-content:space-between; align-items:center; gap:.4rem; flex-wrap:wrap}
+  .tags{display:flex; gap:.35rem; flex-wrap:wrap}
+  .tag{font-size:.75rem; padding:.25rem .45rem; border-radius:999px; background:var(--chip-bg); color:var(--chip-fg); border:1px dashed var(--border)}
+  .card .controls{display:flex; gap:.3rem; align-items:center}
+  .iconbtn{border:1px solid var(--border); background:var(--card); color:var(--fg); border-radius:8px; padding:.35rem .5rem; cursor:pointer}
+  .iconbtn[aria-pressed="true"]{outline:var(--focus)}
+
+  /* Dialog */
+  dialog{border:1px solid var(--border); background:var(--card); color:var(--fg); border-radius:16px; box-shadow:var(--shadow); padding:0; max-inline-size: 680px; width: 92vw}
+  dialog::backdrop{backdrop-filter: blur(2px) saturate(110%)}
+  .dlg-h{padding: .9rem 1rem; border-bottom:1px solid var(--border); font-weight:700}
+  .dlg-b{padding: 1rem}
+  .dlg-f{display:flex; gap:.5rem; justify-content:flex-end; padding: .9rem 1rem; border-top:1px solid var(--border)}
+  .dlg-b textarea{min-block-size: 30vh}
+
+  /* Print */
+  @media print{
+    header, .actions, dialog{display:none !important}
+    .card{break-inside: avoid}
+  }
+</style>
+</head>
+<body data-theme="light">
+<a href="#deck" class="visually-hidden">Skip to content</a>
+<header>
+  <div class="topbar" role="banner">
+    <div class="brand" aria-label="MethodKit Decks">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="3" width="6" height="6" rx="1"/>
+        <rect x="9" y="3" width="6" height="6" rx="1" opacity=".6"/>
+        <rect x="15" y="3" width="6" height="6" rx="1" opacity=".35"/>
+        <rect x="3" y="9" width="6" height="6" rx="1" opacity=".6"/>
+        <rect x="9" y="9" width="6" height="6" rx="1"/>
+        <rect x="15" y="9" width="6" height="6" rx="1" opacity=".6"/>
+        <rect x="3" y="15" width="6" height="6" rx="1" opacity=".35"/>
+        <rect x="9" y="15" width="6" height="6" rx="1" opacity=".6"/>
+        <rect x="15" y="15" width="6" height="6" rx="1"/>
+      </svg>
+      <span>MethodKit Decks</span>
+    </div>
+
+    <div class="chipset" aria-label="Aesthetic chips">
+      <span class="chip" title="Grid icons"><span class="dot"></span> grid icons</span>
+      <span class="chip" title="Modular cards"><span class="dot"></span> modular cards</span>
+      <span class="chip" title="Neutral template"><span class="dot"></span> neutral template</span>
+    </div>
+
+    <div class="tools" role="toolbar" aria-label="View & feedback controls">
+      <div class="seg" role="group" aria-label="Theme">
+        <button id="lightBtn" type="button" aria-pressed="true" title="Light">Light</button>
+        <button id="darkBtn" type="button" aria-pressed="false" title="Dark">Dark</button>
+        <button id="hcBtn" type="button" aria-pressed="false" title="High contrast">HC</button>
+      </div>
+      <div class="seg" role="group" aria-label="Feedback">
+        <button id="soundBtn" type="button" aria-pressed="true" title="Audio feedback">Sound</button>
+        <button id="hapticsBtn" type="button" aria-pressed="true" title="Haptic feedback">Haptics</button>
+      </div>
+      <input id="search" type="search" placeholder="Search cards…" aria-label="Search cards" />
+    </div>
+  </div>
+</header>
+
+<main id="deck" role="main">
+  <section class="meta" aria-labelledby="title">
+    <h1 id="title" class="visually-hidden">MethodKit Decks — Card Grid</h1>
+    <div class="row"><span class="k">Name:</span> <span>MethodKit Decks</span></div>
+    <div class="row"><span class="k">Category:</span> <span>Design</span></div>
+    <div class="row"><span class="k">Mission:</span> <span>Provide universal session scaffolding.</span></div>
+    <div class="row"><span class="k">Purpose:</span> <span>Structure facilitation across domains.</span></div>
+
+    <details class="accordion" id="components" aria-label="Deck components">
+      <summary aria-controls="comp-c" aria-expanded="false">Components</summary>
+      <div class="content" id="comp-c">
+        <p>Textual components in this deck:</p>
+        <ul>
+          <li>Topic cards (list your topics to auto-generate cards)</li>
+        </ul>
+      </div>
+    </details>
+  </section>
+
+  <section class="actions" role="region" aria-label="Deck actions">
+    <button class="btn" id="addOne">Add topic</button>
+    <button class="btn" id="pasteList">Paste list</button>
+    <button class="btn" id="shuffle">Shuffle</button>
+    <button class="btn" id="sortAZ">Sort A–Z</button>
+    <button class="btn" id="expandAll">Expand all</button>
+    <button class="btn" id="collapseAll">Collapse all</button>
+    <button class="btn" id="exportJson">Export JSON</button>
+    <button class="btn" id="clearAll">Clear</button>
+  </section>
+
+  <section class="grid" id="grid" aria-live="polite" aria-busy="false"></section>
+</main>
+
+<!-- Paste dialog -->
+<dialog id="pasteDialog" aria-labelledby="pasteTitle">
+  <div class="dlg-h" id="pasteTitle">Add topic cards</div>
+  <div class="dlg-b">
+    <p>Paste one topic per line. You can also include an optional note after a tab (<code>\t</code>).</p>
+    <textarea id="pasteText" aria-label="Topics input"></textarea>
+    <details class="accordion" style="margin-top:.8rem">
+      <summary>Starter list (click to insert)</summary>
+      <div class="content">
+        <pre id="starter" style="white-space:pre-wrap; margin:0; padding:.5rem; border:1px dashed var(--border); border-radius:8px">Goals
+Users
+Stakeholders
+Constraints
+Risks
+Resources
+Timeline
+Budget
+Scope
+Assumptions
+Opportunities
+Ideas
+Experiments
+Hypotheses
+Metrics
+Signals
+Success Criteria
+Feedback
+Decisions
+Dependencies
+Next Steps</pre>
+      </div>
+    </details>
+  </div>
+  <div class="dlg-f">
+    <button class="btn" id="cancelPaste">Cancel</button>
+    <button class="btn" id="createCards">Create cards</button>
+  </div>
+</dialog>
+
+<!-- Template for cards -->
+<template id="cardTmpl">
+  <article class="card" tabindex="0" role="group" aria-roledescription="topic card">
+    <div class="top">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-width="1">
+          <rect x="3" y="3" width="6" height="6" rx="1"/>
+          <rect x="9" y="3" width="6" height="6" rx="1"/>
+          <rect x="15" y="3" width="6" height="6" rx="1"/>
+          <rect x="3" y="9" width="6" height="6" rx="1"/>
+          <rect x="9" y="9" width="6" height="6" rx="1"/>
+          <rect x="15" y="9" width="6" height="6" rx="1"/>
+          <rect x="3" y="15" width="6" height="6" rx="1"/>
+          <rect x="9" y="15" width="6" height="6" rx="1"/>
+          <rect x="15" y="15" width="6" height="6" rx="1"/>
+        </g>
+      </svg>
+      <h3 class="title" contenteditable="true" role="textbox" aria-label="Topic title" spellcheck="false"></h3>
+    </div>
+    <div class="note">
+      <details>
+        <summary aria-expanded="false">Notes</summary>
+        <div class="body">
+          <textarea class="notes" placeholder="Add notes, prompts, or examples…"></textarea>
+        </div>
+      </details>
+    </div>
+    <div class="bar">
+      <div class="tags"><span class="tag">topic</span></div>
+      <div class="controls" role="group" aria-label="Card controls">
+        <button class="iconbtn pin" type="button" aria-pressed="false" title="Pin card">📌</button>
+        <button class="iconbtn up"  type="button" title="Move up" aria-label="Move up">▲</button>
+        <button class="iconbtn down" type="button" title="Move down" aria-label="Move down">▼</button>
+        <button class="iconbtn del" type="button" title="Remove" aria-label="Remove">✕</button>
+      </div>
+    </div>
+  </article>
+</template>
+
+<div id="live" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+(function(){
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+  const grid = $('#grid');
+  const tmpl = $('#cardTmpl');
+  const live = $('#live');
+
+  // Preferences
+  const prefs = {
+    theme: localStorage.getItem('mk_theme') || 'light',
+    hc: localStorage.getItem('mk_hc') === '1',
+    sound: localStorage.getItem('mk_sound') !== '0',
+    haptics: localStorage.getItem('mk_haptics') !== '0',
+  };
+  document.body.dataset.theme = prefs.theme;
+  document.body.classList.toggle('hc', prefs.hc);
+  setBtnState('#lightBtn', prefs.theme==='light');
+  setBtnState('#darkBtn', prefs.theme==='dark');
+  setBtnState('#hcBtn', prefs.hc);
+  setBtnState('#soundBtn', prefs.sound);
+  setBtnState('#hapticsBtn', prefs.haptics);
+
+  // Reduced motion → default sound off
+  try{ if (matchMedia('(prefers-reduced-motion: reduce)').matches) { prefs.sound = false; setBtnState('#soundBtn', false); } }catch{ }
+
+  // Audio engine
+  let audioCtx; let master;
+  function ensureAudio(){
+    if (!prefs.sound) return null;
+    if (!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      master = audioCtx.createGain(); master.gain.value = 0.05; master.connect(audioCtx.destination);
+    }
+    return audioCtx;
+  }
+  function blip(freq=660, dur=0.07){
+    if (!prefs.sound || !ensureAudio()) return;
+    const t = audioCtx.currentTime;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type='sine'; o.frequency.value=freq;
+    o.connect(g); g.connect(master);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.9, t+0.005);
+    g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+    o.start(t); o.stop(t+dur+0.02);
+  }
+  function chime(){ blip(420, 0.12); setTimeout(()=>blip(640, 0.09), 40); }
+
+  // Haptics
+  function vibe(pattern=10){ if (prefs.haptics && navigator.vibrate) navigator.vibrate(pattern); }
+
+  // Buttons state helper
+  function setBtnState(sel, on){ const b=$(sel); if(!b) return; b.setAttribute('aria-pressed', on? 'true':'false'); }
+
+  // Theme toggles
+  $('#lightBtn').addEventListener('click',()=>{ document.body.dataset.theme='light'; prefs.theme='light'; localStorage.setItem('mk_theme','light'); setBtnState('#lightBtn',true); setBtnState('#darkBtn',false); blip(760,0.06); vibe(10); });
+  $('#darkBtn').addEventListener('click',()=>{ document.body.dataset.theme='dark'; prefs.theme='dark'; localStorage.setItem('mk_theme','dark'); setBtnState('#darkBtn',true); setBtnState('#lightBtn',false); blip(560,0.06); vibe(10); });
+  $('#hcBtn').addEventListener('click',()=>{ prefs.hc=!prefs.hc; document.body.classList.toggle('hc', prefs.hc); localStorage.setItem('mk_hc', prefs.hc? '1':'0'); setBtnState('#hcBtn', prefs.hc); chime(); vibe([8,40,8]); });
+
+  // Feedback toggles
+  $('#soundBtn').addEventListener('click',()=>{ prefs.sound=!prefs.sound; localStorage.setItem('mk_sound', prefs.sound? '1':'0'); setBtnState('#soundBtn', prefs.sound); if(prefs.sound){ ensureAudio(); chime(); } else { vibe(6); } });
+  $('#hapticsBtn').addEventListener('click',()=>{ prefs.haptics=!prefs.haptics; localStorage.setItem('mk_haptics', prefs.haptics? '1':'0'); setBtnState('#hapticsBtn', prefs.haptics); vibe([3,25,3]); blip(500,0.05); });
+
+  // Search
+  $('#search').addEventListener('input', (e)=>{
+    const q = e.target.value.toLowerCase();
+    $$('#grid .card').forEach(card=>{
+      const t = card.querySelector('.title').textContent.toLowerCase();
+      const match = t.includes(q);
+      card.style.display = match? '' : 'none';
+    });
+  });
+
+  // Actions
+  $('#addOne').addEventListener('click', ()=>{ addCard('New topic'); blip(700,0.06); vibe(12); save(); announce('Topic card added'); });
+  $('#pasteList').addEventListener('click', openPaste);
+  $('#shuffle').addEventListener('click', ()=>{ shuffleCards(); chime(); vibe([8,25,8]); save(); announce('Cards shuffled'); });
+  $('#sortAZ').addEventListener('click', ()=>{ sortAZ(); blip(540,0.07); vibe(8); save(); announce('Cards sorted A to Z'); });
+  $('#expandAll').addEventListener('click', ()=>{$$('#grid details').forEach(d=>d.open=true); chime(); vibe([5,25,5]); announce('All notes expanded');});
+  $('#collapseAll').addEventListener('click', ()=>{$$('#grid details').forEach(d=>d.open=false); blip(360,0.08); vibe(6); announce('All notes collapsed');});
+  $('#exportJson').addEventListener('click', exportJson);
+  $('#clearAll').addEventListener('click', ()=>{ if(confirm('Remove all cards?')){ grid.innerHTML=''; save(); announce('All cards removed'); }});
+
+  // Components accordion a11y cue
+  $('#components').addEventListener('toggle', (e)=>{
+    const open = e.target.open; e.target.querySelector('summary').setAttribute('aria-expanded', open?'true':'false'); open? chime(): blip(280,0.06);
+  });
+
+  // Paste dialog
+  const dlg = $('#pasteDialog');
+  function openPaste(){ $('#pasteText').value=''; dlg.showModal(); blip(620,0.05); }
+  $('#cancelPaste').addEventListener('click', ()=> dlg.close());
+  $('#starter').addEventListener('click', ()=>{ $('#pasteText').value = $('#starter').innerText.trim(); blip(700,0.05); });
+  $('#createCards').addEventListener('click', ()=>{
+    const val = $('#pasteText').value.trim(); if(!val){ dlg.close(); return; }
+    const lines = val.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+    lines.forEach(line=>{
+      const [title, note] = line.split('\t');
+      const el = addCard(title);
+      if(note){ el.querySelector('.notes').value = note; }
+    });
+    dlg.close(); chime(); vibe([8,40,8]); save(); announce(`${lines.length} card${lines.length>1?'s':''} created`);
+  });
+
+  // Card factory
+  function addCard(title){
+    const node = tmpl.content.firstElementChild.cloneNode(true);
+    node.querySelector('.title').textContent = title || 'Topic';
+
+    // Note expand sound
+    const details = node.querySelector('details');
+    const summary = details.querySelector('summary');
+    details.addEventListener('toggle', ()=>{ summary.setAttribute('aria-expanded', details.open?'true':'false'); details.open? chime(): blip(300,0.06); vibe(details.open? [8]:6); save(); });
+
+    // Title edits
+    const titleEl = node.querySelector('.title');
+    titleEl.addEventListener('input', ()=>{ saveSoon(); });
+    titleEl.addEventListener('focus', ()=> blip(800,0.04));
+
+    // Notes edits
+    node.querySelector('.notes').addEventListener('input', ()=> saveSoon());
+
+    // Controls
+    node.querySelector('.pin').addEventListener('click', (e)=>{
+      const on = e.currentTarget.getAttribute('aria-pressed')==='true' ? false : true;
+      e.currentTarget.setAttribute('aria-pressed', on?'true':'false');
+      on? grid.prepend(node) : grid.appendChild(node);
+      on? chime() : blip(420,0.06); vibe([8]); save();
+    });
+    node.querySelector('.up').addEventListener('click', ()=>{ const prev = node.previousElementSibling; if(prev) grid.insertBefore(node, prev); blip(520,0.05); vibe(8); save(); });
+    node.querySelector('.down').addEventListener('click', ()=>{ const next = node.nextElementSibling; if(next) grid.insertBefore(next, node); blip(480,0.05); vibe(8); save(); });
+    node.querySelector('.del').addEventListener('click', ()=>{ if(confirm('Remove this card?')){ node.remove(); blip(260,0.06); vibe(6); save(); announce('Card removed'); } });
+
+    // Focus cue
+    node.addEventListener('focusin', ()=> blip(900,0.03));
+
+    grid.appendChild(node);
+    return node;
+  }
+
+  function announce(msg){ live.textContent = msg; }
+
+  function shuffleCards(){
+    const items = $$('#grid .card');
+    for(let i = items.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      grid.insertBefore(items[j], items[i]);
+    }
+  }
+
+  function sortAZ(){
+    const items = $$('#grid .card');
+    items.sort((a,b)=> a.querySelector('.title').textContent.localeCompare(b.querySelector('.title').textContent, undefined, {sensitivity:'base'})).forEach(el=>grid.appendChild(el));
+  }
+
+  // Persist deck
+  function snapshot(){
+    return $$('#grid .card').map(card=>({
+      t: card.querySelector('.title').textContent.trim(),
+      n: card.querySelector('.notes').value.trim(),
+      p: card.querySelector('.pin').getAttribute('aria-pressed')==='true',
+      o: $$('#grid .card').indexOf(card)
+    }));
+  }
+  function save(){ localStorage.setItem('mk_cards', JSON.stringify(snapshot())); }
+  let saveTimer; function saveSoon(){ clearTimeout(saveTimer); saveTimer = setTimeout(save, 300); }
+  function load(){
+    const raw = localStorage.getItem('mk_cards');
+    if(!raw){ seed(); return; }
+    try{
+      const data = JSON.parse(raw);
+      if(Array.isArray(data) && data.length){
+        data.sort((a,b)=> (a.o??0)-(b.o??0)).forEach(({t,n,p})=>{
+          const el = addCard(t||'Topic');
+          if(n) el.querySelector('.notes').value = n;
+          if(p){ el.querySelector('.pin').setAttribute('aria-pressed','true'); grid.prepend(el); }
+        });
+      } else seed();
+    }catch{ seed(); }
+  }
+  function seed(){
+    const starters = ['Goals','Users','Stakeholders','Constraints','Risks','Resources','Timeline','Budget','Scope','Assumptions','Opportunities','Ideas','Experiments','Hypotheses','Metrics','Signals','Success Criteria','Feedback','Decisions','Dependencies','Next Steps'];
+    starters.forEach(s=> addCard(s));
+    save();
+  }
+
+  // Export
+  function exportJson(){
+    const data = snapshot();
+    const blob = new Blob([JSON.stringify({deck:'MethodKit Decks', items:data}, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download='methodkit-deck.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url), 500);
+    chime(); vibe([10,40,10]); announce('Deck exported as JSON');
+  }
+
+  // Restore on load
+  document.addEventListener('DOMContentLoaded', load());
+
+  // Accessibility niceties
+  document.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter' && e.target.matches('.title')){ e.preventDefault(); e.target.blur(); announce('Title saved'); }
+  });
+})();
+</script>
+</body>
+</html>
