@@ -142,27 +142,31 @@ html,body{background:var(--paper);color:var(--ink);font-family:var(--sans);margi
 .page:not(.makita):not(.ryobi):not(.dewalt):not(.milw) .wireframe{ border-color: color-mix(in srgb, var(--hd-orange) 40%, #0000) }
 .page:not(.makita):not(.ryobi):not(.dewalt):not(.milw) .wireframe::before{ background: var(--hd-orange) }
 
-/* Right-rail sidebox for spreads (does not split text) */
-.spread .sidebox{ display:none }
+/* Right-rail sidebox for spreads (stacked on narrow, right column on wide) */
+.spread .sidebox{ display:block }
+/* Base sidebox visuals at all widths */
+.sidebox{ border:1px dashed var(--rule); border-radius:12px; padding:10px; background:#fff; box-shadow: 0 2px 0 rgba(0,0,0,.06) }
+.sidebox .frame{ width:100%; height:360px; border:0; border-radius:8px; overflow:auto; background:#faf9f6 }
+@media(max-width:999px){
+  .sidebox .frame{ max-height:85vh }
+}
+.sidebox iframe{ width:100%; height:100%; border:0 }
+.sidebox .note{ font:700 11px var(--mono); opacity:.7; margin-top:6px; word-break: break-all }
+.sidebox .open-link{ display:inline-flex; align-items:center; gap:6px; margin-top:6px; background: var(--hd-orange); color:#fff; font:900 11px var(--mono); padding:6px 8px; border-radius:4px; text-decoration:none; box-shadow:0 2px 0 rgba(0,0,0,.12); border:0; cursor:pointer }
+.sidebox .open-link::before{ content:""; width:18px; height:14px; border-radius:2px; background:
+  repeating-linear-gradient(90deg, #000 0 1px, transparent 1px 2px);
+  background-color:#fff; box-shadow: inset 0 0 0 2px #fff; }
+/* Brand tint for sidebox borders */
+.makita .sidebox{ border-color: color-mix(in srgb, var(--teal) 35%, #0000) }
+.ryobi .sidebox{ border-color: color-mix(in srgb, var(--lime) 35%, #0000) }
+.dewalt .sidebox{ border-color: color-mix(in srgb, var(--mustard) 35%, #0000) }
+.milw .sidebox{ border-color: color-mix(in srgb, var(--milw) 35%, #0000) }
 @media(min-width:1000px){
   .spread{ grid-template-columns: 1fr 1fr }
   .spread .sidebox{ display:block; align-self:start }
   .spread > .sidebox{ grid-column: 2; grid-row: 1 }
   .spread > .fig{ grid-column: 1; grid-row: 1 }
   .spread > .bp-grid{ grid-column: 1 / -1; grid-row: 1; }
-  .sidebox{ border:1px dashed var(--rule); border-radius:12px; padding:10px; background:#fff; box-shadow: 0 2px 0 rgba(0,0,0,.06) }
-  .sidebox .frame{ width:100%; height:360px; border:0; border-radius:8px; overflow:hidden; background:#faf9f6 }
-  .sidebox iframe{ width:100%; height:100%; border:0 }
-  .sidebox .note{ font:700 11px var(--mono); opacity:.7; margin-top:6px }
-  .sidebox .open-link{ display:inline-flex; align-items:center; gap:6px; margin-top:6px; background: var(--hd-orange); color:#fff; font:900 11px var(--mono); padding:6px 8px; border-radius:4px; text-decoration:none; box-shadow:0 2px 0 rgba(0,0,0,.12) }
-  .sidebox .open-link::before{ content:""; width:18px; height:14px; border-radius:2px; background:
-    repeating-linear-gradient(90deg, #000 0 1px, transparent 1px 2px);
-    background-color:#fff; box-shadow: inset 0 0 0 2px #fff; }
-  /* brand tint */
-  .makita .sidebox{ border-color: color-mix(in srgb, var(--teal) 35%, #0000) }
-  .ryobi .sidebox{ border-color: color-mix(in srgb, var(--lime) 35%, #0000) }
-  .dewalt .sidebox{ border-color: color-mix(in srgb, var(--mustard) 35%, #0000) }
-  .milw .sidebox{ border-color: color-mix(in srgb, var(--milw) 35%, #0000) }
 }
 
 /* Contained brand mark inside the badge bar (big, subtle, clipped) */
@@ -696,26 +700,72 @@ html,body{background:var(--paper);color:var(--ink);font-family:var(--sans);margi
   
 
   <!-- ================= TOC ================= -->
-  <section class="page">
+  <section id="toc" class="page">
     <h2 class="h2">Table of Contents</h2>
     <p class="small meta">Tip: Each spread reads like a project sheet — grab the idea, route your power, and fasten what matters.</p>
     <ul class="toc">
-      <li><b>Makita Torque‑Regulator™ Ethics Driver</b> <span>p. 4–5</span></li>
-      <li><b>Ryobi Pastel‑Green Access Drill Kit™</b> <span>p. 6–7</span></li>
-      <li><b>DeWalt Citation Hammer™</b> <span>p. 8–9</span></li>
-      <li><b>Milwaukee Messiness Fuel™ Grinder Kit</b> <span>p. 10–11</span></li>
-      <li><b>Transformative Justice FLEXVOLT™ Battery</b> <span>p. 12–13</span></li>
-      <li><b>Cordless Good Academic Drill™</b> <span>p. 14–15</span></li>
-      <li><b>Infinite Due Punch List™</b> <span>p. 16–17</span></li>
-      <li><b>Retro Brand Plates & Bench</b> <span>p. 18–19</span></li>
-      <li><b>Closing Sale Tagline</b> <span>p. 20</span></li>
+      <li><a href="#p-makita"><b>Makita Torque‑Regulator™ Ethics Driver</b></a> <span>p. 4–5</span></li>
+      <li><a href="#p-ryobi"><b>Ryobi Pastel‑Green Access Drill Kit™</b></a> <span>p. 6–7</span></li>
+      <li><a href="#p-dewalt"><b>DeWalt Citation Hammer™</b></a> <span>p. 8–9</span></li>
+      <li><a href="#p-milwaukee"><b>Milwaukee Messiness Fuel™ Grinder Kit</b></a> <span>p. 10–11</span></li>
+      <li><a href="#p-flexvolt"><b>Transformative Justice FLEXVOLT™ Battery</b></a> <span>p. 12–13</span></li>
+      <li><a href="#p-virtue"><b>Cordless Good Academic Drill™</b></a> <span>p. 14–15</span></li>
+      <li><a href="#p-due"><b>Infinite Due Punch List™</b></a> <span>p. 16–17</span></li>
+      <li><a href="#p-plates-a"><b>Retro Brand Plates & Bench</b></a> <span>p. 18–19</span></li>
+      <li><a href="#closing"><b>Closing Sale Tagline</b></a> <span>p. 20</span></li>
     </ul>
     <div class="rule"></div>
-    <p class="small">This edition includes long‑form essays per listing and image slots you can populate with remote URLs. </p>
+    <p class="small">Use the floating pager (or keys): ←/k = Prev · →/j = Next · t = TOC</p>
   </section>
 
+</main>
+
+<!-- Floating pager -->
+<nav id="pager" aria-label="Pager">
+  <button data-prev>← Prev</button>
+  <a href="#toc" class="toc">TOC</a>
+  <button data-next>Next →</button>
+  <style>
+    #pager{ position:fixed; bottom:14px; right:14px; display:flex; gap:8px; align-items:center; background:#fff; border:1px solid var(--rule); border-radius:10px; padding:6px 8px; box-shadow:0 6px 18px rgba(0,0,0,.15); z-index:10 }
+    #pager button, #pager .toc{ appearance:none; border:1px solid var(--rule); background:#f7f7f7; color:inherit; font:800 12px var(--mono); padding:6px 8px; border-radius:8px; text-decoration:none; cursor:pointer }
+    #pager button:hover, #pager .toc:hover{ background:#eee }
+    @media print{ #pager{ display:none } }
+  </style>
+</nav>
+
+<script>
+// ======== Simple pager: Prev/Next buttons + keyboard shortcuts ========
+(function(){
+  const pages = Array.from(document.querySelectorAll('main.catalog > section.page'));
+  function currentIndex(){
+    const y = window.scrollY + 60; // bias
+    let idx = 0, best = Infinity;
+    pages.forEach((sec,i)=>{
+      const top = sec.getBoundingClientRect().top + window.scrollY;
+      const d = Math.abs(top - y);
+      if(d < best){ best = d; idx = i; }
+    });
+    return idx;
+  }
+  function go(i){
+    if(i < 0) i = 0; if(i >= pages.length) i = pages.length-1;
+    pages[i].scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  document.querySelector('#pager [data-prev]')?.addEventListener('click', ()=> go(currentIndex()-1));
+  document.querySelector('#pager [data-next]')?.addEventListener('click', ()=> go(currentIndex()+1));
+  window.addEventListener('keydown', (e)=>{
+    if(e.target && ['INPUT','TEXTAREA'].includes(e.target.tagName)) return;
+    if(e.key === 'ArrowLeft' || e.key === 'k') go(currentIndex()-1);
+    if(e.key === 'ArrowRight' || e.key === 'j') go(currentIndex()+1);
+    if(e.key.toLowerCase?.() === 't') { document.getElementById('toc')?.scrollIntoView({behavior:'smooth'}); }
+  }, {passive:true});
+})();
+</script>
+
+</body>
+</html>
   <!-- ====== MAKITA (Retro Precision) — ESSAY ====== -->
-  <section class="page spread makita blueprint" data-side="bell_labs_science_kits_crystallography_mid_century.html" data-sideh="520">
+  <section id="p-makita" class="page spread makita blueprint" data-side="bell_labs_science_kits_crystallography_mid_century.html" data-sideh="520">
     <div class="bp-grid"></div>
     <article class="fig">
       <div class="badge">MAKITA — RETRO PRECISION</div>
@@ -769,7 +819,7 @@ html,body{background:var(--paper);color:var(--ink);font-family:var(--sans);margi
   </section>
 
   <!-- ====== RYOBI (Retro DIY) — ESSAY ====== -->
-  <section class="page spread ryobi halftone" data-side="cup_urban_pedagogy_kit_single_file.html" data-sideh="520">
+  <section id="p-ryobi" class="page spread ryobi halftone" data-side="cup_urban_pedagogy_kit_single_file.html" data-sideh="520">
     <article class="fig">
       <div class="badge">RYOBI — RETRO DIY</div>
       <h2 class="h2">Ryobi Pastel‑Green Access Drill Kit™</h2>
@@ -820,7 +870,7 @@ html,body{background:var(--paper);color:var(--ink);font-family:var(--sans);margi
   </section>
 
   <!-- ====== DEWALT (Retro Industrial) — ESSAY ====== -->
-  <section class="page spread dewalt checker" data-side="ethical_explorer_pack_caution_ui_single.html" data-sideh="520">
+  <section id="p-dewalt" class="page spread dewalt checker" data-side="ethical_explorer_pack_caution_ui_single.html" data-sideh="520">
     <article class="fig">
       <div class="badge">DEWALT — RETRO INDUSTRIAL</div>
       <h2 class="h2 stencil">DeWalt Citation Hammer™ (Yellow/Black Edition)</h2>
@@ -869,7 +919,7 @@ html,body{background:var(--paper);color:var(--ink);font-family:var(--sans);margi
   </section>
 
   <!-- ====== MILWAUKEE (Retro Power) — ESSAY ====== -->
-  <section class="page spread milw halftone" data-side="metaphors_toolkit_collage_cards_activities_inline.html" data-sideh="520">
+  <section id="p-milwaukee" class="page spread milw halftone" data-side="metaphors_toolkit_collage_cards_activities_inline.html" data-sideh="520">
     <article class="fig">
       <div class="badge">MILWAUKEE — RETRO POWER</div>
       <h2 class="h2 neon">Milwaukee Messiness Fuel™ Grinder Kit</h2>
@@ -912,7 +962,7 @@ html,body{background:var(--paper);color:var(--ink);font-family:var(--sans);margi
   </section>
 
   <!-- ====== FLEXVOLT BATTERY — ESSAY ====== -->
-  <section class="page spread makita" data-side="du_boisian_visualization_toolkit_single.html" data-sideh="520">
+  <section id="p-flexvolt" class="page spread makita" data-side="du_boisian_visualization_toolkit_single.html" data-sideh="520">
     <article class="fig">
       <div class="badge">SPECIAL — POWER SOURCE</div>
       <h2 class="h2">Transformative Justice FLEXVOLT™ Battery</h2>
@@ -958,7 +1008,7 @@ html,body{background:var(--paper);color:var(--ink);font-family:var(--sans);margi
   </section>
 
   <!-- ====== VIRTUE DRILL — ESSAY ====== -->
-  <section class="page spread ryobi" data-side="method_kit_decks_neutral_card_grid_single.html" data-sideh="520">
+  <section id="p-virtue" class="page spread ryobi" data-side="method_kit_decks_neutral_card_grid_single.html" data-sideh="520">
     <article class="fig">
       <div class="badge">ACADEMIA — PERFORMATIVE SERIES</div>
       <h2 class="h2">Cordless Good Academic Drill™ (Virtue Edition)</h2>
@@ -995,7 +1045,7 @@ html,body{background:var(--paper);color:var(--ink);font-family:var(--sans);margi
   </section>
 
   <!-- ====== INFINITE DUE — ESSAY ====== -->
-  <section class="page spread" data-side="toolbox_toolbox_index_cards.html" data-sideh="520">
+  <section id="p-due" class="page spread" data-side="toolbox_toolbox_index_cards.html" data-sideh="520">
     <article class="fig">
       <div class="badge">LEDGER — PUNCH LIST</div>
       <h2 class="h2">Infinite Due Punch List™ (Contractor’s Nightmare)</h2>
@@ -1032,7 +1082,7 @@ html,body{background:var(--paper);color:var(--ink);font-family:var(--sans);margi
   </section>
 
   <!-- ====== BRAND RETRO PLATES ====== -->
-  <section class="page spread blueprint" data-side="lunchables_tray_ui_playful_compartment.html" data-sideh="360">
+  <section id="p-plates-a" class="page spread blueprint" data-side="lunchables_tray_ui_playful_compartment.html" data-sideh="360">
     <div class="bp-grid"></div>
     <article class="fig">
       <div class="badge">RETRO PLATE — MAKITA</div>
@@ -1058,7 +1108,7 @@ html,body{background:var(--paper);color:var(--ink);font-family:var(--sans);margi
     </article>
   </section>
 
-  <section class="page spread checker" data-side="social_design_toolkit_bold_collapsible.html" data-sideh="360">
+  <section id="p-plates-b" class="page spread checker" data-side="social_design_toolkit_bold_collapsible.html" data-sideh="360">
     <article class="fig">
       <div class="badge">RETRO PLATE — DEWALT</div>
       <h3 class="h3">Retro Identity</h3>
@@ -1232,7 +1282,7 @@ html,body{background:var(--paper);color:var(--ink);font-family:var(--sans);margi
 
 
   <!-- ====== CLOSING ====== -->
-  <section class="page halftone closing-tagline">
+  <section id="closing" class="page halftone closing-tagline">
     <h2 class="h2">Closing Sale Tagline</h2>
     <div class="rule"></div>
     <p class="h3 stencil">You can do it. We’ll help you mean it.</p>
@@ -1513,20 +1563,48 @@ html,body{background:var(--paper);color:var(--ink);font-family:var(--sans);margi
     const firstChild = sec.firstElementChild;
     if(firstChild){ sec.appendChild(box); }
 
-    // Fit sidebox iframe height to match the primary column (always mirror the neighboring column)
+    // Fit sidebox height:
+    // - Wide (>=1000px): mirror neighboring article height (two-column layout)
+    // - Narrow (<1000px): stack beneath with a fixed height (use provided h or default 360px)
     function fit(){
       const article = sec.querySelector('.fig') || firstChild;
       const target = box.querySelector('iframe');
       const wrap = box.querySelector('.frame');
-      if(!article || !wrap) return;
-      const autoH = article.getBoundingClientRect().height;
-      wrap.style.height = Math.max(240, Math.round(autoH)) + 'px';
-      if(target){ target.style.height = '100%'; }
+      if(!wrap) return;
+      const mq = window.matchMedia('(min-width:1000px)');
+      const cap = Math.min(Math.round(window.innerHeight * 0.85), (typeof h === 'number' && h > 0 ? h : 520));
+      if(mq.matches && article){
+        // Desired total sidebox height = article height. Compute chrome (box without frame)
+        const articleH = Math.round(article.getBoundingClientRect().height);
+        const currentFrameH = Math.round(wrap.getBoundingClientRect().height || 0);
+        // Temporarily measure chrome height: box total - frame current
+        const boxH = Math.round(box.getBoundingClientRect().height || 0);
+        const chrome = Math.max(0, boxH - currentFrameH);
+        const neededFrame = Math.max(200, articleH - chrome);
+        wrap.style.height = neededFrame + 'px';
+        if(target){ target.style.height = '100%'; }
+      } else {
+        const baseH = (typeof h === 'number' && h > 0) ? h : 360;
+        const finalH = Math.min(baseH, Math.round(window.innerHeight * 0.85));
+        wrap.style.height = finalH + 'px';
+        if(target){ target.style.height = '100%'; }
+      }
     }
-    // On initial layout, on iframe load, and on resize
+    // On initial layout, on iframe load
     fit();
     box.querySelector('iframe')?.addEventListener('load', fit);
-    window.addEventListener('resize', fit, { passive:true });
+    // Keep the sidebox in sync with the main column at any width
+    const articleEl = sec.querySelector('.fig') || firstChild;
+    if('ResizeObserver' in window && articleEl){
+      const ro = new ResizeObserver(()=>fit());
+      ro.observe(articleEl);
+    } else {
+      // Fallback: listen to window resize
+      window.addEventListener('resize', fit, { passive:true });
+    }
+    // Respond to breakpoint changes
+    const mq = window.matchMedia('(min-width:1000px)');
+    mq.addEventListener ? mq.addEventListener('change', fit) : mq.addListener(fit);
   });
 })();
 </script>
